@@ -1,0 +1,7 @@
+{
+  "name": "firemaps",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

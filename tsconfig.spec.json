@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "outDir": "./out-tsc/spec",
+    "types": ["jasmine"],
+    "moduleResolution": "bundler",
+    "module": "ES2022",
+    "target": "ES2022",
+    "useDefineForClassFields": false,
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "files": ["src/test.ts", "src/polyfills.ts"],
+  "include": ["src/**/*.spec.ts", "src/**/*.d.ts"]
+}
