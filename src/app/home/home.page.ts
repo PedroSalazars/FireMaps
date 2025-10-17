@@ -11,6 +11,33 @@ type FireStation = { name: string; position: LatLng };
 type GHydrant = { lat: number; lon: number; tags?: Record<string, string> };
 type IncidentType = 'Incendio' | 'FuGas' | 'rescate' | 'choque';
 
+enum TruckState {
+  STANDBY = 'En base',
+  RESPONDING = 'Respondiendo',
+  ATTENDING = 'Atendiendo',
+  RETURNING = 'Retornando',
+  PATROL = 'Patrullando'
+}
+
+type Truck = {
+  id: string;
+  company: string;
+  home: google.maps.LatLng;
+  marker: google.maps.Marker;
+  speedMps: number;
+  route: google.maps.LatLng[];
+  segIdx: number;
+  segT: number;
+  state: TruckState;
+  target?: google.maps.LatLng;
+  routeLine?: google.maps.Polyline;
+
+  // patrullaje
+  isPatroller?: boolean;
+  patrolTimeout?: any;       // timeout del tramo de 60s
+  patrolResumeTimeout?: any; // timeout de 10 min en base
+};
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -27,33 +54,99 @@ export class HomePage implements AfterViewInit {
     north: -41.70, south: -43.30, west: -74.50, east: -73.10
   };
 
-  // Iconos (se crean después de loader.load)
+  // Iconos
   private STATION_ICON!: google.maps.Icon;
   private HYDRANT_ICON!: google.maps.Icon;
   private INCIDENT_ICONS!: Record<IncidentType, google.maps.Icon>;
+  private FIRETRUCK_ICON!: google.maps.Icon;
 
+  // Directions
+  private directionsService!: google.maps.DirectionsService;
+
+  // Cache rutas (clave: A->B)
+  private dirCache = new Map<string, google.maps.LatLng[]>();
+  private toLiteral(p: google.maps.LatLng | google.maps.LatLngLiteral): google.maps.LatLngLiteral {
+    return p instanceof google.maps.LatLng ? { lat: p.lat(), lng: p.lng() } : p;
+  }
+  private dirKey(a: google.maps.LatLng | google.maps.LatLngLiteral,
+                 b: google.maps.LatLng | google.maps.LatLngLiteral): string {
+    const A = this.toLiteral(a), B = this.toLiteral(b);
+    return `${A.lat.toFixed(5)},${A.lng.toFixed(5)}->${B.lat.toFixed(5)},${B.lng.toFixed(5)}`;
+  }
+
+  // Cola/throttle de Directions (1 req c/700ms aprox)
+  private routeQueue: Array<() => void> = [];
+  private processingQueue = false;
+  private lastRouteTs = 0;
+  private readonly ROUTE_THROTTLE_MS = 700;
+
+  // Incidentes por tipo
   private incidentMarkersByType: Record<IncidentType, google.maps.Marker[]> = {
     Incendio: [], FuGas: [], rescate: [], choque: []
   };
 
-  // Polígonos de tierra (islas)
+  // Polígonos de tierra
   private landPolygons: google.maps.Polygon[] = [];
 
-  // Cache calle
+  // Cache de calles (reverse)
   private streetCacheMem = new Map<string, string>();
   private lastNominatimTs = 0;
+
+  // Flag: geometry lista
+  private geometryReady = false;
+
+  // Estaciones
+  private STATIONS_LIST: FireStation[] = [
+    { name: 'Bomberos de Ancud',             position: { lat: -41.869, lng: -73.828 } },
+    { name: 'Bomberos de Quemchi',           position: { lat: -42.141, lng: -73.484 } },
+    { name: 'Bomberos de Dalcahue',          position: { lat: -42.379, lng: -73.650 } },
+    { name: 'Bomberos de Castro',            position: { lat: -42.481, lng: -73.764 } },
+    { name: 'Bomberos de Chonchi',           position: { lat: -42.616, lng: -73.807 } },
+    { name: 'Bomberos de Curaco de Vélez',   position: { lat: -42.440, lng: -73.620 } },
+    { name: 'Bomberos de Achao (Quinchao)',  position: { lat: -42.465, lng: -73.503 } },
+    { name: 'Bomberos de Puqueldón (Lemuy)', position: { lat: -42.628, lng: -73.658 } },
+    { name: 'Bomberos de Queilen',           position: { lat: -42.885, lng: -73.474 } },
+    { name: 'Bomberos de Quellón',           position: { lat: -43.116, lng: -73.616 } }
+  ];
+
+  // Flota
+  private trucks: Truck[] = [];
+
+  // Animación rAF + timestep fijo (20 Hz)
+  private readonly STEP = 0.05;
+  private acc = 0;
+  private lastTs = 0;
+  private rafId = 0;
+
+  // Velocidades (m/s)
+  private readonly SPEED_RESPONSE   = 22;
+  private readonly SPEED_RETURN     = 14;
+  private readonly SPEED_PATROL     = 12; // ~43 km/h
+
+  // Atención (ms)
+  private readonly ATTEND_MS = 20000;
+
+  // Patrullaje (ms)
+  private readonly PATROL_LEG_MAX_MS = 60_000;   // 60s patrullando
+  private readonly PATROL_DWELL_MS   = 600_000;  // 10 min en base
+
+  // Incidentes cantidad
+  private readonly INCIDENTS_MIN = 3;
+  private readonly INCIDENTS_MAX = 5;
+
+  // Hydrantes lazy por zoom
+  private hydrantsLoaded = false;
+  private hydrantMarkers: google.maps.Marker[] = [];
 
   async ngAfterViewInit() {
     const el = document.getElementById('map') as HTMLElement;
 
-    // Espera a que el contenedor tenga tamaño
     await new Promise<void>((resolve) => {
       const ok = () => el.offsetWidth > 0 && el.offsetHeight > 0;
       if (ok()) return resolve();
       const id = setInterval(() => { if (ok()) { clearInterval(id); resolve(); } }, 16);
     });
 
-    // Google Maps (+ geometry)
     const loader = new Loader({
       apiKey: environment.googleMapsApiKey,
       version: 'weekly',
@@ -63,25 +156,18 @@ export class HomePage implements AfterViewInit {
     });
     await loader.load();
 
-    // Iconos
-    this.STATION_ICON = {
-      url: 'assets/icons/station@2x.png',
-      scaledSize: new google.maps.Size(28, 28),
-      anchor: new google.maps.Point(14, 28)
-    };
-    this.HYDRANT_ICON = {
-      url: 'assets/icons/hydrant@2x.png',
-      scaledSize: new google.maps.Size(24, 24),
-      anchor: new google.maps.Point(12, 24)
-    };
+    this.geometryReady = !!google.maps.geometry?.spherical && !!google.maps.geometry?.poly;
+
+    this.STATION_ICON = { url: 'assets/icons/station@2x.png', scaledSize: new google.maps.Size(28, 28), anchor: new google.maps.Point(14, 28) };
+    this.HYDRANT_ICON = { url: 'assets/icons/hydrant@2x.png',  scaledSize: new google.maps.Size(24, 24), anchor: new google.maps.Point(12, 24) };
     this.INCIDENT_ICONS = {
       Incendio: { url: 'assets/icons/Incendio.png', scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(16, 32) },
       FuGas:    { url: 'assets/icons/FuGas.png',    scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(16, 32) },
       rescate:  { url: 'assets/icons/rescate.png',  scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(16, 32) },
       choque:   { url: 'assets/icons/choque.png',   scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(16, 32) },
     };
+    this.FIRETRUCK_ICON = { url: 'assets/icons/camionbomberos.png', scaledSize: new google.maps.Size(36, 36), anchor: new google.maps.Point(18, 18) };
 
-    // Bounds y mapa
     this.chiloeBounds = new google.maps.LatLngBounds(
       { lat: this.CHILOE_BOUNDS.south, lng: this.CHILOE_BOUNDS.west },
       { lat: this.CHILOE_BOUNDS.north, lng: this.CHILOE_BOUNDS.east }
@@ -95,24 +181,28 @@ export class HomePage implements AfterViewInit {
     this.map.fitBounds(this.chiloeBounds, 24);
     this.infoWin = new google.maps.InfoWindow();
 
-    // Máscara fuera de Chiloé
+    this.directionsService = new google.maps.DirectionsService();
+
     this.addMaskPolygon();
+    try { await this.loadLandPolygons(); } catch {}
 
-    // Carga polígonos de islas (tierra)
-    await this.loadLandPolygons();
-
-    // Estaciones
     this.addStations();
 
-    // Grifos con calle
-    await this.addHydrantsWithStreet();
+    this.map.addListener('zoom_changed', () => this.updateHydrantsVisibility());
+    this.updateHydrantsVisibility();
 
-    // Incidentes iniciales (1–3 por tipo, solo en tierra)
+    // Incidentes iniciales (3–5), más lejanos y pegados a calle
     this.clearIncidents();
-    this.generateIncidents();
+    await this.generateIncidents();
+
+    // Flota: 1 en base + 1 patrullero por compañía
+    this.spawnFleetPerCompany();
+
+    this.lastTs = performance.now();
+    this.rafId = requestAnimationFrame(this.tickRaf);
   }
 
-  /* =================== Siniestros (FAB) =================== */
+  /* =================== Incidentes =================== */
   clearIncidents() {
     (Object.keys(this.incidentMarkersByType) as IncidentType[]).forEach(t => {
       this.incidentMarkersByType[t].forEach(m => m.setMap(null));
@@ -120,135 +210,191 @@ export class HomePage implements AfterViewInit {
     });
   }
 
-  generateIncidents(n?: number) {
+  public async generateIncidents(): Promise<void> {
+    const count = this.INCIDENTS_MIN + Math.floor(Math.random() * (this.INCIDENTS_MAX - this.INCIDENTS_MIN + 1));
     const types: IncidentType[] = ['Incendio', 'FuGas', 'rescate', 'choque'];
 
-    if (n == null) {
-      for (const t of types) {
-        const current = this.incidentMarkersByType[t].length;
-        const toAdd = Math.max(1, Math.min(3 - current, 1 + Math.floor(Math.random() * 3)));
-        for (let i = 0; i < toAdd; i++) this.addIncident(t);
-      }
+    for (let i = 0; i < count; i++) {
+      const t = types[Math.floor(Math.random() * types.length)];
+      await this.addIncidentSnappedToRoad(t);
+    }
+  }
+
+  // Genera un incidente pegado a calle y con verificación de ruta (sin ferries)
+  private async addIncidentSnappedToRoad(type: IncidentType) {
+    // Elegir una estación semilla aleatoria
+    const station = this.randomStation();
+    const stationLatLng = new google.maps.LatLng(station.position.lat, station.position.lng);
+
+    // Intentar semillas más lejanas (3–10 km) para dispersar
+    for (let attempt = 0; attempt < 6; attempt++) {
+      const seed = this.pickNearbySeed(stationLatLng, 3000, 10000); // 3–10 km
+      const path = await this.safeFetchPath(stationLatLng, seed);
+      if (path.length < 2) continue;
+
+      // Tomar punto de steps (en calzada), pero no demasiado cerca de la estación
+      const snapped = path[Math.floor(Math.random() * path.length)];
+      const minDistFromAnyStation = 1500; // ≥1.5 km
+      if (this.minDistanceToStations(snapped) < minDistFromAnyStation) continue;
+
+      // Verificar alcanzabilidad
+      const verify = await this.safeFetchPath(stationLatLng, snapped);
+      if (verify.length < 2) continue;
+
+      const marker = new google.maps.Marker({
+        position: snapped, icon: this.INCIDENT_ICONS[type], title: type, zIndex: 3, map: this.map
+      });
+      marker.addListener('click', () => this.dispatchBest(marker, type));
+      this.incidentMarkersByType[type].push(marker);
       return;
     }
 
-    for (const t of types) {
-      if (this.incidentMarkersByType[t].length === 0) {
-        this.addIncident(t);
-        n--; if (n <= 0) return;
-      }
-    }
-
-    while (n > 0) {
-      const t = types[Math.floor(Math.random() * types.length)];
-      if (this.incidentMarkersByType[t].length < 3) {
-        this.addIncident(t); n--;
-      } else if (types.every(tp => this.incidentMarkersByType[tp].length >= 3)) break;
-    }
-  }
-
-  private addIncident(type: IncidentType) {
-    const pos = this.randOnLand(); // <-- sólo tierra
+    // Fallback si no se pudo (raro)
+    const pos = this.randOnLand();
     const marker = new google.maps.Marker({
       position: pos, icon: this.INCIDENT_ICONS[type], title: type, zIndex: 3, map: this.map
     });
-    marker.addListener('click', () => {
-      this.infoWin.setContent(
-        `<div style="min-width:200px">
-           <strong>${type}</strong><br>
-           <small>Reporte simulado en Chiloé</small>
-         </div>`
-      );
-      this.infoWin.open({ map: this.map, anchor: marker });
-    });
+    marker.addListener('click', () => this.dispatchBest(marker, type));
     this.incidentMarkersByType[type].push(marker);
   }
 
-  /* =============== Random en tierra =============== */
+  private minDistanceToStations(p: google.maps.LatLng): number {
+    let best = Infinity;
+    for (const st of this.STATIONS_LIST) {
+      const d = google.maps.geometry.spherical.computeDistanceBetween(
+        p, new google.maps.LatLng(st.position.lat, st.position.lng)
+      );
+      if (d < best) best = d;
+    }
+    return best;
+  }
+
+  private randomStation(): FireStation {
+    return this.STATIONS_LIST[Math.floor(Math.random() * this.STATIONS_LIST.length)];
+  }
+
+  private pickNearbySeed(origin: google.maps.LatLng, minM: number, maxM: number): google.maps.LatLng {
+    const dist = minM + Math.random() * (maxM - minM);
+    const bear = Math.random() * 360;
+    return google.maps.geometry.spherical.computeOffset(origin, dist, bear);
+  }
+
+  private async safeFetchPath(a: google.maps.LatLng, b: google.maps.LatLng): Promise<google.maps.LatLng[]> {
+    try { return await this.fetchDirectionsPath(a, b); }
+    catch { return []; }
+  }
+
+  // Asigna mejor candidato (incluye patrulleros)
+  private async dispatchBest(incidentMarker: google.maps.Marker, _type: IncidentType) {
+    const pos = incidentMarker.getPosition()!;
+    const candidates = this.trucks.filter(t => t.state === TruckState.STANDBY || t.state === TruckState.PATROL);
+    if (!candidates.length) return;
+
+    // Prefiltro por distancia
+    candidates.sort((t1, t2) => {
+      const d1 = google.maps.geometry.spherical.computeDistanceBetween(t1.marker.getPosition()!, pos);
+      const d2 = google.maps.geometry.spherical.computeDistanceBetween(t2.marker.getPosition()!, pos);
+      return d1 - d2;
+    });
+    const chosen = candidates[0];
+
+    // Si era patrullero, corta sus timers
+    this.clearPatrolTimers(chosen);
+
+    this.gotoByDirections(chosen, pos, () => {
+      chosen.state = TruckState.ATTENDING;
+      chosen.speedMps = 0;
+      setTimeout(() => {
+        incidentMarker.setMap(null);
+        this.returnToBase(chosen, () => {
+          // Si es patrullero, reanuda ciclo: 10 min en base y vuelve a patrullar
+          if (chosen.isPatroller) this.schedulePatrolResume(chosen);
+        });
+      }, this.ATTEND_MS);
+    });
+  }
+
+  /* =============== Random/tierra =============== */
   private rand(min: number, max: number) { return min + Math.random() * (max - min); }
 
   private randOnLand(): LatLng {
-    // intenta hasta 50 veces conseguir un punto dentro de algún polígono de isla
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 60; i++) {
       const p = new google.maps.LatLng(
         this.rand(this.CHILOE_BOUNDS.south, this.CHILOE_BOUNDS.north),
         this.rand(this.CHILOE_BOUNDS.west,  this.CHILOE_BOUNDS.east)
       );
       if (this.isOnLand(p)) return { lat: p.lat(), lng: p.lng() };
     }
-    // Fallback: centro de Chiloé si no se logró (muy poco probable)
     return { lat: -42.6, lng: -73.9 };
   }
 
   private isOnLand(p: google.maps.LatLng): boolean {
-    if (!this.landPolygons.length) return this.chiloeBounds.contains(p); // si no hay polígonos, al menos bbox
-    // geometry.containsLocation requiere la librería 'geometry'
-    return this.landPolygons.some(poly => google.maps.geometry.poly.containsLocation(p, poly));
+    if (!this.landPolygons.length) return this.chiloeBounds.contains(p);
+    if (!this.geometryReady || !google.maps.geometry?.poly?.containsLocation) {
+      return this.chiloeBounds.contains(p);
+    }
+    try {
+      return this.landPolygons.some(poly => google.maps.geometry.poly.containsLocation(p, poly));
+    } catch {
+      return this.chiloeBounds.contains(p);
+    }
   }
 
-  /* =============== Cargar polígonos de islas (GeoJSON desde Nominatim) =============== */
+  /* =============== Polígonos de islas (Nominatim) =============== */
   private async loadLandPolygons() {
-    // Para partir, estas 3 cubren casi todos los casos prácticos
     const islands = ['Isla Grande de Chiloé', 'Isla Quinchao', 'Isla Lemuy'];
-    this.landPolygons = [];
+    const polys: google.maps.Polygon[] = [];
 
     for (const name of islands) {
-      // Respetar rate limit de Nominatim
-      const diff = Date.now() - this.lastNominatimTs; const wait = 1100 - diff;
+      const diff = Date.now() - this.lastNominatimTs;
+      const wait = 1100 - diff;
       if (wait > 0) await new Promise(r => setTimeout(r, wait));
       this.lastNominatimTs = Date.now();
 
-      const url = `https://nominatim.openstreetmap.org/search?` +
+      const url =
+        `https://nominatim.openstreetmap.org/search?` +
         `q=${encodeURIComponent(name + ', Chile')}` +
         `&format=geojson&polygon_geojson=1&limit=1&accept-language=es`;
+
       try {
         const res = await fetch(url, { headers: { 'Accept': 'application/geo+json, application/json' } });
         if (!res.ok) continue;
         const geo: any = await res.json();
-        const f = geo.features?.[0];
+        const f = geo?.features?.[0];
         if (!f?.geometry) continue;
 
-        const polys = this.polygonsFromGeoJSONGeometry(f.geometry);
-        this.landPolygons.push(...polys);
-      } catch { /* ignore */ }
+        const newPolys = this.polygonsFromGeoJSONGeometry(f.geometry);
+        polys.push(...newPolys);
+      } catch {}
     }
+    this.landPolygons = polys;
   }
 
   private polygonsFromGeoJSONGeometry(geom: any): google.maps.Polygon[] {
-    const toPath = (ring: number[][]) => ring.map(([lng, lat]) => ({ lat, lng }));
-    const result: google.maps.Polygon[] = [];
+    const ringToPath = (ring: any[]): google.maps.LatLngLiteral[] =>
+      ring
+        .filter(p => Array.isArray(p) && p.length >= 2 && Number.isFinite(p[0]) && Number.isFinite(p[1]))
+        .map(([lng, lat]) => ({ lat: Number(lat), lng: Number(lng) }));
 
-    if (geom.type === 'Polygon') {
-      const rings = geom.coordinates as number[][][];
-      const paths = rings.map(toPath); // outer + holes
-      result.push(new google.maps.Polygon({ paths }));
-    } else if (geom.type === 'MultiPolygon') {
-      const polys = geom.coordinates as number[][][][];
+    const polygons: google.maps.Polygon[] = [];
+
+    if (geom?.type === 'Polygon') {
+      const rings: any[][] = geom.coordinates || [];
+      const paths: google.maps.LatLngLiteral[][] = rings.map(ringToPath).filter(r => r.length >= 3);
+      if (paths.length) polygons.push(new google.maps.Polygon({ paths, clickable: false, strokeOpacity: 0, fillOpacity: 0 }));
+    } else if (geom?.type === 'MultiPolygon') {
+      const polys: any[][][] = geom.coordinates || [];
       for (const poly of polys) {
-        const paths = poly.map(toPath);
-        result.push(new google.maps.Polygon({ paths }));
+        const paths: google.maps.LatLngLiteral[][] = poly.map(ringToPath).filter(r => r.length >= 3);
+        if (paths.length) polygons.push(new google.maps.Polygon({ paths, clickable: false, strokeOpacity: 0, fillOpacity: 0 }));
       }
     }
-    return result;
+    return polygons;
   }
 
-  /* =============== Estaciones (demo) =============== */
+  /* =============== Estaciones =============== */
   private addStations() {
-    const STATIONS: FireStation[] = [
-      { name: 'Bomberos de Ancud',             position: { lat: -41.869, lng: -73.828 } },
-      { name: 'Bomberos de Quemchi',           position: { lat: -42.141, lng: -73.484 } },
-      { name: 'Bomberos de Dalcahue',          position: { lat: -42.379, lng: -73.650 } },
-      { name: 'Bomberos de Castro',            position: { lat: -42.481, lng: -73.764 } },
-      { name: 'Bomberos de Chonchi',           position: { lat: -42.616, lng: -73.807 } },
-      { name: 'Bomberos de Curaco de Vélez',   position: { lat: -42.440, lng: -73.620 } },
-      { name: 'Bomberos de Achao (Quinchao)',  position: { lat: -42.465, lng: -73.503 } },
-      { name: 'Bomberos de Puqueldón (Lemuy)', position: { lat: -42.628, lng: -73.658 } },
-      { name: 'Bomberos de Queilen',           position: { lat: -42.885, lng: -73.474 } },
-      { name: 'Bomberos de Quellón',           position: { lat: -43.116, lng: -73.616 } }
-    ];
-
-    for (const s of STATIONS) {
-      if (!this.chiloeBounds.contains(s.position as google.maps.LatLngLiteral)) continue;
+    for (const s of this.STATIONS_LIST) {
       const m = new google.maps.Marker({
         position: s.position, title: s.name, icon: this.STATION_ICON, zIndex: 2, map: this.map
       });
@@ -259,7 +405,19 @@ export class HomePage implements AfterViewInit {
     }
   }
 
-  /* =============== Grifos con calle (OSM + reverse) =============== */
+  /* =============== Hydrantes por zoom (ligeros) =============== */
+  private async updateHydrantsVisibility() {
+    const zoom = this.map.getZoom() ?? 9;
+
+    if (zoom >= 14 && !this.hydrantsLoaded) {
+      this.hydrantsLoaded = true;
+      await this.addHydrantsWithStreet();
+    }
+
+    const show = zoom >= 14;
+    for (const m of this.hydrantMarkers) m.setMap(show ? this.map : null);
+  }
+
   private async addHydrantsWithStreet() {
     const overpassQuery = `[out:json][timeout:50];
       node["emergency"="fire_hydrant"](${this.CHILOE_BOUNDS.south},${this.CHILOE_BOUNDS.west},${this.CHILOE_BOUNDS.north},${this.CHILOE_BOUNDS.east});
@@ -277,7 +435,7 @@ export class HomePage implements AfterViewInit {
         hydrants = (json.elements || []).filter((e: any) => e.type === 'node');
         localStorage.setItem(cacheKey, JSON.stringify(hydrants));
       }
-    } catch (e) { console.error('Error cargando grifos desde Overpass', e); }
+    } catch {}
 
     const geocoder = new google.maps.Geocoder();
 
@@ -286,14 +444,16 @@ export class HomePage implements AfterViewInit {
       if (!this.chiloeBounds.contains(pos)) continue;
 
       const m = new google.maps.Marker({
-        position: pos, icon: this.HYDRANT_ICON, title: 'Grifo', zIndex: 1, map: this.map
+        position: pos, icon: this.HYDRANT_ICON, title: 'Grifo', zIndex: 1, map: null
       });
+      this.hydrantMarkers.push(m);
 
       const tags = h.tags ?? {};
-      const tipo     = tags['fire_hydrant:type'] ? `Tipo: ${tags['fire_hydrant:type']}` : '';
-      const presion  = tags['pressure']          ? `Presión: ${tags['pressure']}`       : '';
-      const diametro = tags['diameter']          ? `Diámetro: ${tags['diameter']}`       : '';
-      const infoExtra = [tipo, presion, diametro].filter(Boolean).join('<br>');
+      const infoExtra = [
+        tags['fire_hydrant:type'] ? `Tipo: ${tags['fire_hydrant:type']}` : '',
+        tags['pressure'] ? `Presión: ${tags['pressure']}` : '',
+        tags['diameter'] ? `Diámetro: ${tags['diameter']}` : ''
+      ].filter(Boolean).join('<br>');
 
       m.addListener('click', async () => {
         const spanId = 'street-' + Math.random().toString(36).slice(2);
@@ -311,6 +471,8 @@ export class HomePage implements AfterViewInit {
         if (span) span.textContent = street ?? 'Desconocida';
       });
     }
+
+    this.updateHydrantsVisibility();
   }
 
   /* =============== Máscara fuera de límites =============== */
@@ -331,7 +493,7 @@ export class HomePage implements AfterViewInit {
     });
   }
 
-  /* =============== Reverse geocoding helpers =============== */
+  /* =============== Reverse helpers =============== */
   private cacheKey(lat: number, lng: number) { return `${lat.toFixed(6)},${lng.toFixed(6)}`; }
   private streetFromTags(tags?: Record<string,string>) {
     return tags?.['addr:street'] || tags?.['addr:place'] || tags?.['addr:road'] || null;
@@ -372,5 +534,321 @@ export class HomePage implements AfterViewInit {
     const g = await this.reverseWithGoogle(pos, geocoder); if (g) { this.streetCacheMem.set(key, g); return g; }
     const n = await this.reverseWithNominatim(pos.lat(), pos.lng()); if (n) { this.streetCacheMem.set(key, n); return n; }
     return null;
+  }
+
+  /* ===================== FLOTA ===================== */
+
+  private spawnFleetPerCompany() {
+    const seen = new Set<string>();
+    for (const st of this.STATIONS_LIST) {
+      if (seen.has(st.name)) continue; seen.add(st.name);
+      const base = new google.maps.LatLng(st.position.lat, st.position.lng);
+
+      // 1 en base
+      this.trucks.push(this.createTruck(st.name, base, TruckState.STANDBY));
+
+      // 1 patrullero con ciclo 60s patrulla → 10 min base
+      const patrol = this.createTruck(st.name, base, TruckState.PATROL);
+      patrol.isPatroller = true;
+      patrol.speedMps = this.SPEED_PATROL;
+      this.startPatrolCycle(patrol);
+      this.trucks.push(patrol);
+    }
+  }
+
+  private createTruck(company: string, start: google.maps.LatLng, state: TruckState): Truck {
+    const m = new google.maps.Marker({ position: start, icon: this.FIRETRUCK_ICON, map: this.map, title: `Camión de ${company}` });
+
+    m.addListener('click', () => {
+      const t = this.trucks.find(x => x.marker === m);
+      if (!t) return;
+      this.infoWin.setContent(`<b>Camión de:</b> ${t.company}<br><b>Estado:</b> ${t.state}`);
+      this.infoWin.open({ map: this.map, anchor: m });
+    });
+
+    return {
+      id: crypto.randomUUID(),
+      company,
+      home: start,
+      marker: m,
+      speedMps: state === TruckState.PATROL ? this.SPEED_PATROL : 0,
+      route: [start],
+      segIdx: 0,
+      segT: 0,
+      state
+    };
+  }
+
+  /* === Ciclo de patrulla: 60s en calle, luego 10 min en base === */
+
+  private clearPatrolTimers(t: Truck) {
+    if (t.patrolTimeout) { clearTimeout(t.patrolTimeout); t.patrolTimeout = undefined; }
+    if (t.patrolResumeTimeout) { clearTimeout(t.patrolResumeTimeout); t.patrolResumeTimeout = undefined; }
+  }
+
+  private startPatrolCycle(t: Truck) {
+    this.clearPatrolTimers(t);
+    t.state = TruckState.PATROL;
+    t.speedMps = this.SPEED_PATROL;
+    this.startPatrolLeg(t);
+
+    // límite duro de 60s: vuelve a base
+    t.patrolTimeout = setTimeout(() => {
+      if (t.state === TruckState.PATROL) {
+        this.returnToBase(t, () => this.schedulePatrolResume(t)); // al llegar: 10 min en base y reanuda
+      }
+    }, this.PATROL_LEG_MAX_MS);
+  }
+
+  private schedulePatrolResume(t: Truck) {
+    this.clearPatrolTimers(t);
+    // solo si sigue siendo patrullero y está en base
+    if (!t.isPatroller || t.state !== TruckState.STANDBY) return;
+    t.patrolResumeTimeout = setTimeout(() => {
+      if (!t.isPatroller || t.state !== TruckState.STANDBY) return;
+      this.startPatrolCycle(t);
+    }, this.PATROL_DWELL_MS);
+  }
+
+  private startPatrolLeg(truck: Truck) {
+    if (truck.state !== TruckState.PATROL) return;
+    const origin = truck.marker.getPosition()!;
+    const roughTarget = this.pickNearbySeed(origin, 400, 1200);
+
+    this.enqueueRouteRequest(() => this.fetchDirectionsPath(origin, roughTarget)
+      .then(path => {
+        if (truck.state !== TruckState.PATROL) return;
+        if (path.length < 2) {
+          this.useStraightFallback(truck, roughTarget);
+          setTimeout(() => this.startPatrolLeg(truck), 2000);
+          return;
+        }
+        truck.route = path;
+        truck.segIdx = 0;
+        truck.segT = 0;
+        if (truck.routeLine) { truck.routeLine.setMap(null); truck.routeLine = undefined; }
+      })
+      .catch(() => {
+        this.useStraightFallback(truck, roughTarget);
+        setTimeout(() => this.startPatrolLeg(truck), 2000);
+      })
+    );
+  }
+
+  /* ===================== DIRECTIONS + MOVIMIENTO ===================== */
+
+  private gotoByDirections(truck: Truck, target: google.maps.LatLng, onArrive: () => void) {
+    truck.state = TruckState.RESPONDING;
+    truck.speedMps = this.SPEED_RESPONSE;
+    truck.target = target;
+
+    const origin = truck.marker.getPosition()!;
+    const key = this.dirKey(origin, target);
+    const cached = this.dirCache.get(key);
+
+    // si estaba patrullando, corta timers del ciclo
+    this.clearPatrolTimers(truck);
+
+    const apply = (path: google.maps.LatLng[]) => {
+      this.applyRoute(truck, path);
+      const watch = () => {
+        if (truck.state !== TruckState.RESPONDING) return;
+        const d = google.maps.geometry.spherical.computeDistanceBetween(truck.marker.getPosition()!, target);
+        if (d < 25) {
+          if (truck.routeLine) truck.routeLine.setMap(null);
+          onArrive();
+        } else {
+          requestAnimationFrame(watch);
+        }
+      };
+      requestAnimationFrame(watch);
+    };
+
+    if (cached) { apply(cached); return; }
+
+    this.enqueueRouteRequest(() => this.fetchDirectionsPath(origin, target)
+      .then(path => {
+        if (path.length > 1) {
+          this.dirCache.set(key, path);
+          apply(path);
+        } else {
+          this.useStraightFallback(truck, target);
+        }
+      })
+      .catch(() => this.useStraightFallback(truck, target))
+    );
+  }
+
+  private returnToBase(truck: Truck, onArrivedBase?: () => void) {
+    truck.state = TruckState.RETURNING;
+    truck.speedMps = this.SPEED_RETURN;
+
+    const origin = truck.marker.getPosition()!;
+    const target = truck.home;
+    const key = this.dirKey(origin, target);
+    const cached = this.dirCache.get(key);
+
+    const finishAtBase = () => {
+      const dHome = google.maps.geometry.spherical.computeDistanceBetween(truck.marker.getPosition()!, truck.home);
+      if (dHome < 15) {
+        truck.state = TruckState.STANDBY;
+        truck.speedMps = 0;
+        truck.route = [truck.home];
+        truck.segIdx = 0; truck.segT = 0;
+        if (truck.routeLine) truck.routeLine.setMap(null);
+        if (onArrivedBase) onArrivedBase();
+        else if (truck.isPatroller) this.schedulePatrolResume(truck);
+      } else {
+        requestAnimationFrame(finishAtBase);
+      }
+    };
+
+    const apply = (path: google.maps.LatLng[]) => {
+      this.applyRoute(truck, path);
+      requestAnimationFrame(finishAtBase);
+    };
+
+    if (cached) { apply(cached); return; }
+
+    this.enqueueRouteRequest(() => this.fetchDirectionsPath(origin, target)
+      .then(path => {
+        if (path.length > 1) {
+          this.dirCache.set(key, path);
+          apply(path);
+        } else {
+          this.useStraightFallback(truck, target);
+        }
+      })
+      .catch(() => this.useStraightFallback(truck, target))
+    );
+  }
+
+  // Pide Directions con avoidFerries y concatena steps[].path
+  private async fetchDirectionsPath(origin: google.maps.LatLng, destination: google.maps.LatLng): Promise<google.maps.LatLng[]> {
+    const res = await this.directionsService.route({
+      origin,
+      destination,
+      travelMode: google.maps.TravelMode.DRIVING,
+      avoidFerries: true
+    });
+    const route = res.routes?.[0];
+    const leg = route?.legs?.[0];
+    if (!leg?.steps?.length) return route?.overview_path ?? [];
+    const allPts: google.maps.LatLng[] = [];
+    for (const s of leg.steps) {
+      if (s.path?.length) allPts.push(...s.path);
+    }
+    return allPts.length ? allPts : (route?.overview_path ?? []);
+  }
+
+  private applyRoute(truck: Truck, path: google.maps.LatLng[]) {
+    truck.route = path; truck.segIdx = 0; truck.segT = 0;
+    if (!truck.routeLine) {
+      truck.routeLine = new google.maps.Polyline({
+        path, geodesic: true, strokeColor: '#ff3b30', strokeOpacity: 0.95, strokeWeight: 3, map: this.map, zIndex: 3
+      });
+    } else {
+      truck.routeLine.setPath(path);
+      truck.routeLine.setMap(this.map);
+    }
+  }
+
+  private useStraightFallback(truck: Truck, target: google.maps.LatLng) {
+    truck.route = [truck.marker.getPosition()!, target]; truck.segIdx = 0; truck.segT = 0;
+    if (!truck.routeLine) {
+      truck.routeLine = new google.maps.Polyline({
+        path: truck.route, geodesic: true, strokeColor: '#ff3b30', strokeOpacity: 0.95, strokeWeight: 3, map: this.map, zIndex: 3
+      });
+    } else {
+      truck.routeLine.setPath(truck.route);
+      truck.routeLine.setMap(this.map);
+    }
+  }
+
+  /* Cola/throttle simple para Directions */
+  private enqueueRouteRequest(run: () => void) {
+    this.routeQueue.push(run);
+    if (!this.processingQueue) {
+      this.processingQueue = true;
+      const pump = () => {
+        const now = Date.now();
+        const elapsed = now - this.lastRouteTs;
+        if (this.routeQueue.length) {
+          if (elapsed >= this.ROUTE_THROTTLE_MS) {
+            const job = this.routeQueue.shift()!;
+            this.lastRouteTs = now;
+            try { job(); } catch {}
+          }
+          setTimeout(pump, Math.max(10, this.ROUTE_THROTTLE_MS - (Date.now() - this.lastRouteTs)));
+        } else {
+          this.processingQueue = false;
+        }
+      };
+      pump();
+    }
+  }
+
+  /* ===================== Animación rAF ===================== */
+  private tickRaf = (ts: number) => {
+    const dt = (ts - this.lastTs) / 1000; this.lastTs = ts; this.acc += dt;
+    while (this.acc >= this.STEP) { this.physicsStep(this.STEP); this.acc -= this.STEP; }
+    this.rafId = requestAnimationFrame(this.tickRaf);
+  };
+
+  private physicsStep(step: number) {
+    for (const t of this.trucks) {
+      switch (t.state) {
+        case TruckState.STANDBY:
+        case TruckState.ATTENDING:
+          break;
+
+        case TruckState.RESPONDING:
+        case TruckState.RETURNING:
+        case TruckState.PATROL:
+          this.advanceAlongRoute(t, step, () => {
+            // si terminó un tramo de patrulla “por ruta”, sigue pidiendo tramos cortos
+            if (t.state === TruckState.PATROL) {
+              const wait = 2000 + Math.random() * 3000;
+              setTimeout(() => this.startPatrolLeg(t), wait);
+            }
+          });
+          break;
+      }
+    }
+  }
+
+  private advanceAlongRoute(t: Truck, dt: number, onEnd: () => void) {
+    if (!t.route || t.route.length < 2) { onEnd(); return; }
+    let a = t.route[t.segIdx], b = t.route[t.segIdx + 1]; if (!b) { onEnd(); return; }
+
+    const segLen = google.maps.geometry.spherical.computeDistanceBetween(a, b);
+    if (segLen <= 0.1) {
+      t.segIdx++; t.segT = 0; if (t.segIdx >= t.route.length - 1) { onEnd(); return; }
+    }
+
+    const speed =
+      t.state === TruckState.RESPONDING ? this.SPEED_RESPONSE :
+      t.state === TruckState.RETURNING  ? this.SPEED_RETURN   :
+      t.state === TruckState.PATROL     ? (t.speedMps || this.SPEED_PATROL) : 0;
+
+    let remaining = speed * dt;
+    while (remaining > 0) {
+      const distOnSeg = segLen * (1 - t.segT);
+      if (remaining < distOnSeg) { t.segT += remaining / segLen; remaining = 0; }
+      else {
+        remaining -= distOnSeg;
+        t.segIdx++; t.segT = 0;
+        a = t.route[t.segIdx]; b = t.route[t.segIdx + 1];
+        if (!b) { onEnd(); break; }
+      }
+    }
+
+    const start = t.route[t.segIdx], end = t.route[t.segIdx + 1];
+    if (end) {
+      const heading = google.maps.geometry.spherical.computeHeading(start, end);
+      const segDist = google.maps.geometry.spherical.computeDistanceBetween(start, end);
+      const pos = google.maps.geometry.spherical.computeOffset(start, segDist * t.segT, heading);
+      t.marker.setPosition(pos);
+    }
   }
 }
