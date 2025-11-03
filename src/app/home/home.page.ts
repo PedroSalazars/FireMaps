@@ -1,10 +1,11 @@
 import { Component, AfterViewInit } from '@angular/core';
-import {
-  IonHeader, IonToolbar, IonTitle, IonContent,
-  IonFab, IonFabButton, IonFabList
-} from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonFab, IonFabButton, IonFabList } from '@ionic/angular/standalone';
 import { Loader } from '@googlemaps/js-api-loader';
 import { environment } from '../../environments/environment';
+import { CommonModule } from '@angular/common';
+
+import { FooterComponent } from '../components/footer/footer.component';
+import { RouterLink } from '@angular/router';
 
 type LatLng = { lat: number; lng: number };
 type FireStation = { name: string; position: LatLng };
@@ -41,14 +42,15 @@ type Truck = {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonFab, IonFabButton, IonFabList],
+  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonFab, IonFabButton, IonFabList,CommonModule,FooterComponent,RouterLink],
   templateUrl: './home.page.html',
-  styleUrls: ['./home.page.scss']
+  styleUrls: ['./home.page.scss'],
 })
 export class HomePage implements AfterViewInit {
   private map!: google.maps.Map;
   private infoWin!: google.maps.InfoWindow;
   private chiloeBounds!: google.maps.LatLngBounds;
+  
 
   private readonly CHILOE_BOUNDS: google.maps.LatLngBoundsLiteral = {
     north: -41.70, south: -43.30, west: -74.50, east: -73.10
@@ -210,15 +212,16 @@ export class HomePage implements AfterViewInit {
     });
   }
 
-  public async generateIncidents(): Promise<void> {
-    const count = this.INCIDENTS_MIN + Math.floor(Math.random() * (this.INCIDENTS_MAX - this.INCIDENTS_MIN + 1));
-    const types: IncidentType[] = ['Incendio', 'FuGas', 'rescate', 'choque'];
+ public async generateIncidents(count?: number): Promise<void> {
+  const incidentCount = count ?? (this.INCIDENTS_MIN + Math.floor(Math.random() * (this.INCIDENTS_MAX - this.INCIDENTS_MIN + 1)));
+  const types: IncidentType[] = ['Incendio', 'FuGas', 'rescate', 'choque'];
 
-    for (let i = 0; i < count; i++) {
-      const t = types[Math.floor(Math.random() * types.length)];
-      await this.addIncidentSnappedToRoad(t);
-    }
+  for (let i = 0; i < incidentCount; i++) {
+    const t = types[Math.floor(Math.random() * types.length)];
+    await this.addIncidentSnappedToRoad(t);
   }
+}
+
 
   // Genera un incidente pegado a calle y con verificación de ruta (sin ferries)
   private async addIncidentSnappedToRoad(type: IncidentType) {
@@ -851,4 +854,9 @@ export class HomePage implements AfterViewInit {
       t.marker.setPosition(pos);
     }
   }
+
+  // Footer
+  
+  
+
 }

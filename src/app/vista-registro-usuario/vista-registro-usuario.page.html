@@ -1,0 +1,78 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Registro</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form #registroForm="ngForm" (ngSubmit)="registrarUsuario(registroForm)" novalidate>
+
+
+    <!-- Nombre -->
+    <ion-item>
+      <ion-label position="floating">Nombre</ion-label>
+      <ion-input [(ngModel)]="nombre" name="nombre" required></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="registroForm.submitted && registroForm.controls['nombre']?.invalid">
+      <p>El nombre es obligatorio.</p>
+    </ion-text>
+
+    <!-- Apellidos -->
+    <ion-item>
+      <ion-label position="floating">Apellidos</ion-label>
+      <ion-input [(ngModel)]="apellidos" name="apellidos" required></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="registroForm.submitted && registroForm.controls['apellidos']?.invalid">
+      <p>Los apellidos son obligatorios.</p>
+    </ion-text>
+
+    <!-- RUT -->
+    <ion-item>
+      <ion-label position="floating">RUT</ion-label>
+      <ion-input
+        [(ngModel)]="rut"
+        name="rut"
+        required
+        pattern="^\d{1,2}\.\d{3}\.\d{3}-[\dkK]$"
+      ></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="registroForm.submitted && registroForm.controls['rut']?.invalid">
+      <p>Formato de RUT inválido. Ej: 12.345.678-9</p>
+    </ion-text>
+
+    <!-- Teléfono -->
+    <ion-item>
+      <ion-label position="floating">Teléfono</ion-label>
+      <ion-input
+        [(ngModel)]="telefono"
+        name="telefono"
+        required
+        pattern="^9\d{8}$"
+        type="tel"
+      ></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="registroForm.submitted && registroForm.controls['telefono']?.invalid">
+      <p>El teléfono debe tener 9 dígitos y comenzar con 9.</p>
+    </ion-text>
+
+    <!-- Correo -->
+    <ion-item>
+      <ion-label position="floating">Correo</ion-label>
+      <ion-input
+        [(ngModel)]="correo"
+        name="correo"
+        required
+        type="email"
+      ></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="registroForm.submitted && registroForm.controls['correo']?.invalid">
+      <p>Correo inválido. Debe contener "&#64;" y un dominio.</p>
+    </ion-text>
+
+    <!-- Botón -->
+    <ion-button expand="block" type="submit">
+      Registrarse
+    </ion-button>
+
+  </form>
+</ion-content>
