@@ -1,0 +1,52 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Ajustes</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-item>
+    <ion-label>Tipo de mapa</ion-label>
+    <ion-select placeholder="Selecciona" interface="popover">
+      <ion-select-option value="google">Google</ion-select-option>
+      <ion-select-option value="osm">OpenStreetMap</ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <ion-item>
+    <ion-label>Geolocalización</ion-label>
+    <ion-toggle checked></ion-toggle>
+  </ion-item>
+
+<ion-item>
+  <ion-label>Preferencias de visualización</ion-label>
+  <ion-select [(ngModel)]="theme" interface="popover" (ionChange)="aplicarTema()">
+    <ion-select-option value="claro">Claro</ion-select-option>
+    <ion-select-option value="oscuro">Oscuro</ion-select-option>
+  </ion-select>
+</ion-item>
+
+
+  <ion-item>
+    <ion-label>Idioma</ion-label>
+    <ion-select placeholder="Selecciona" interface="popover">
+      <ion-select-option value="es">Español</ion-select-option>
+      <ion-select-option value="en">Inglés</ion-select-option>
+      <ion-select-option value="pt">Portugués</ion-select-option>
+      <ion-select-option value="fr">Francés</ion-select-option>
+      <ion-select-option value="it">Italiano</ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <ion-item lines="none">
+    <ion-label>Versión 0.1</ion-label>
+  </ion-item>
+
+  <ion-button expand="block" color="medium">
+    Ver información del equipo
+  </ion-button>
+
+  <ion-button expand="block" color="danger">
+    Cerrar sesión
+  </ion-button>
+</ion-content>
