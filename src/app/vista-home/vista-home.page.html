@@ -1,0 +1,37 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>FireMaps Chiloé</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="map-center">
+    <div class="map-card">
+      <div id="map"></div>
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button aria-label="Acciones">☰</ion-fab-button>
+    <ion-fab-list side="top">
+      <ion-fab-button (click)="generateIncidents(10)" aria-label="Generar 10">+10</ion-fab-button>
+      <ion-fab-button (click)="generateIncidents(3)" aria-label="Generar 3">+3</ion-fab-button>
+      <ion-fab-button color="danger" (click)="clearIncidents()" aria-label="Limpiar">🗑</ion-fab-button>
+    </ion-fab-list>
+  </ion-fab>
+</ion-content>
+
+  <!-- Footer  Temporal-->
+  <ion-toolbar>
+
+    <ion-buttons slot="end">
+      <ion-button fill="clear" [routerLink]="['/vista-ajustes']">
+        <ion-icon name="logo-ionic" slot="icon-only" class="icon-grande"></ion-icon>⚙
+      </ion-button>
+    </ion-buttons>
+
+
+
+    
+  </ion-toolbar>

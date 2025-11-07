@@ -13,13 +13,14 @@ import { RouterModule, Router } from '@angular/router';
 })
 export class VistaLoginPage {
   correo = '';
+  clave = '';
 
   constructor(private toastController: ToastController, private router: Router) {}
 
   async iniciarSesion(form: NgForm) {
     if (!form.valid) {
       const toast = await this.toastController.create({
-        message: 'Ingresa un correo válido.',
+        message: 'Completa todos los campos.',
         duration: 2500,
         color: 'danger'
       });
@@ -28,7 +29,7 @@ export class VistaLoginPage {
     }
 
     const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
-    const usuario = usuarios.find((u: any) => u.correo === this.correo);
+    const usuario = usuarios.find((u: any) => u.correo === this.correo && u.clave === this.clave);
 
     if (usuario) {
       const toast = await this.toastController.create({
@@ -37,12 +38,10 @@ export class VistaLoginPage {
         color: 'success'
       });
       toast.present();
-
-      // Redirigir a la página principal o dashboard
       this.router.navigate(['/home']);
     } else {
       const toast = await this.toastController.create({
-        message: 'Correo no registrado. Por favor regístrate.',
+        message: 'Correo o contraseña incorrectos.',
         duration: 2500,
         color: 'warning'
       });

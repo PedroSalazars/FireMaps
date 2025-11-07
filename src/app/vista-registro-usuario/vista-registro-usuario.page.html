@@ -1,6 +1,9 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Registro</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/vista-inicio"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Registrar usuario</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -68,6 +71,35 @@
     <ion-text color="danger" *ngIf="registroForm.submitted && registroForm.controls['correo']?.invalid">
       <p>Correo inválido. Debe contener "&#64;" y un dominio.</p>
     </ion-text>
+
+  <!-- Contraseña -->
+  <ion-item>
+    <ion-label position="floating">Contraseña</ion-label>
+    <ion-input
+      [(ngModel)]="clave"
+      name="clave"
+      required
+      type="password"
+    ></ion-input>
+  </ion-item>
+
+  <!-- Confirmar contraseña -->
+  <ion-item>
+    <ion-label position="floating">Confirmar contraseña</ion-label>
+    <ion-input
+      [(ngModel)]="confirmarClave"
+      name="confirmarClave"
+      required
+      type="password"
+    ></ion-input>
+  </ion-item>
+
+<!-- Mensaje de error si no coinciden -->
+<ion-text color="danger" *ngIf="registroForm.submitted && clave !== confirmarClave">
+  <p>Las contraseñas no coinciden.</p>
+</ion-text>
+
+
 
     <!-- Botón -->
     <ion-button expand="block" type="submit">
