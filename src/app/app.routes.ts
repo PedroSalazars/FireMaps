@@ -4,11 +4,12 @@ import { VistaAjustesPage } from './vista-ajustes/vista-ajustes.page';
 import { VistaRegistroUsuarioPage } from './vista-registro-usuario/vista-registro-usuario.page';
 import { VistaLoginPage } from './vista-login/vista-login.page';  
 import { HomePage } from './home/home.page';
+import { VistaHomePage } from './vista-home/vista-home.page';
 
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./home/home.page').then(m => m.HomePage)
+    loadComponent: () => import('./vista-home/vista-home.page').then(m => m.VistaHomePage)
   },
   {
     path: 'vista-ajustes',
@@ -25,7 +26,13 @@ export const routes: Routes = [
   {
     path: 'vista-login',
     loadComponent: () => import('./vista-login/vista-login.page').then( m => m.VistaLoginPage)
+  },
+  {
+    path: 'vista-home',
+    loadComponent: () => import('./vista-home/vista-home.page').then( m => m.VistaHomePage)
   }
+
+
 
 
 
