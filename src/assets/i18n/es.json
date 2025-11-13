@@ -1,0 +1,34 @@
+{
+  "LANGUAGE": "Idioma",
+  "MAP_TYPE": "Tipo de mapa",
+  "GEOLOCATION": "Geolocalización",
+  "DISPLAY_PREFS": "Preferencias de visualización",
+  "LIGHT": "Claro",
+  "DARK": "Oscuro",
+  "SETTINGS": "Ajustes",
+  "LOGOUT": "Cerrar sesión",
+  "VERSION": "Versión",
+
+  "REGISTER": "Registrarse",
+  "LOGIN": "Iniciar sesión",
+  "GUEST_ACCESS": "Continuar como invitado",
+
+  "REGISTER_USER": "Registrar usuario",
+  "NAME": "Nombre",
+  "LASTNAME": "Apellidos",
+  "RUT": "RUT",
+  "PHONE": "Teléfono",
+  "EMAIL": "Correo",
+  "PASSWORD": "Contraseña",
+  "CONFIRM_PASSWORD": "Confirmar contraseña",
+
+  "ERROR_NAME_REQUIRED": "El nombre es obligatorio.",
+  "ERROR_LASTNAME_REQUIRED": "Los apellidos son obligatorios.",
+  "ERROR_RUT_INVALID": "Formato de RUT inválido. Ej: 12.345.678-9",
+  "ERROR_PHONE_INVALID": "El teléfono debe tener 9 dígitos y comenzar con 9.",
+  "ERROR_EMAIL_INVALID": "Correo inválido. Debe contener '@' y un dominio.",
+  "ERROR_PASSWORD_MISMATCH": "Las contraseñas no coinciden.",
+
+  "LOGIN_TITLE": "Iniciar sesión",
+  "LOGIN_BUTTON": "Ingresar"
+}

@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/vista-inicio"></ion-back-button>
     </ion-buttons>
-    <ion-title>Registrar usuario</ion-title>
+    <ion-title>{{ 'REGISTER_USER' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -13,25 +13,25 @@
 
     <!-- Nombre -->
     <ion-item>
-      <ion-label position="floating">Nombre</ion-label>
+      <ion-label position="floating">{{ 'REGISTER_USER' | translate }}</ion-label>
       <ion-input [(ngModel)]="nombre" name="nombre" required></ion-input>
     </ion-item>
     <ion-text color="danger" *ngIf="registroForm.submitted && registroForm.controls['nombre']?.invalid">
-      <p>El nombre es obligatorio.</p>
+      <p>{{ 'ERROR_NAME_REQUIRED' | translate }}</p>
     </ion-text>
 
     <!-- Apellidos -->
     <ion-item>
-      <ion-label position="floating">Apellidos</ion-label>
+      <ion-label position="floating">{{ 'LASTNAME' | translate }}</ion-label>
       <ion-input [(ngModel)]="apellidos" name="apellidos" required></ion-input>
     </ion-item>
     <ion-text color="danger" *ngIf="registroForm.submitted && registroForm.controls['apellidos']?.invalid">
-      <p>Los apellidos son obligatorios.</p>
+      <p>{{ 'ERROR_LASTNAME_REQUIRED' | translate }}</p>
     </ion-text>
 
     <!-- RUT -->
     <ion-item>
-      <ion-label position="floating">RUT</ion-label>
+      <ion-label position="floating">{{ 'RUT' | translate }}</ion-label>
       <ion-input
         [(ngModel)]="rut"
         name="rut"
@@ -40,12 +40,12 @@
       ></ion-input>
     </ion-item>
     <ion-text color="danger" *ngIf="registroForm.submitted && registroForm.controls['rut']?.invalid">
-      <p>Formato de RUT inválido. Ej: 12.345.678-9</p>
+      <p>{{ 'ERROR_RUT_INVALID' | translate }}</p>
     </ion-text>
 
     <!-- Teléfono -->
     <ion-item>
-      <ion-label position="floating">Teléfono</ion-label>
+      <ion-label position="floating">{{ 'PHONE' | translate }}</ion-label>
       <ion-input
         [(ngModel)]="telefono"
         name="telefono"
@@ -55,12 +55,12 @@
       ></ion-input>
     </ion-item>
     <ion-text color="danger" *ngIf="registroForm.submitted && registroForm.controls['telefono']?.invalid">
-      <p>El teléfono debe tener 9 dígitos y comenzar con 9.</p>
+      <p>{{ 'ERROR_PHONE_INVALID' | translate }}</p>
     </ion-text>
 
     <!-- Correo -->
     <ion-item>
-      <ion-label position="floating">Correo</ion-label>
+      <ion-label position="floating">{{ 'EMAIL' | translate }}</ion-label>
       <ion-input
         [(ngModel)]="correo"
         name="correo"
@@ -69,12 +69,12 @@
       ></ion-input>
     </ion-item>
     <ion-text color="danger" *ngIf="registroForm.submitted && registroForm.controls['correo']?.invalid">
-      <p>Correo inválido. Debe contener "&#64;" y un dominio.</p>
+      <p>{{ 'ERROR_EMAIL_INVALID' | translate }}</p>
     </ion-text>
 
   <!-- Contraseña -->
   <ion-item>
-    <ion-label position="floating">Contraseña</ion-label>
+    <ion-label position="floating">{{ 'PASSWORD' | translate }}</ion-label>
     <ion-input
       [(ngModel)]="clave"
       name="clave"
@@ -85,7 +85,7 @@
 
   <!-- Confirmar contraseña -->
   <ion-item>
-    <ion-label position="floating">Confirmar contraseña</ion-label>
+    <ion-label position="floating">{{ 'CONFIRM_PASSWORD' | translate }}</ion-label>
     <ion-input
       [(ngModel)]="confirmarClave"
       name="confirmarClave"
@@ -96,14 +96,14 @@
 
 <!-- Mensaje de error si no coinciden -->
 <ion-text color="danger" *ngIf="registroForm.submitted && clave !== confirmarClave">
-  <p>Las contraseñas no coinciden.</p>
+  <p>{{ 'ERROR_PASSWORD_MISMATCH' | translate }}</p>
 </ion-text>
 
 
 
     <!-- Botón -->
     <ion-button expand="block" type="submit">
-      Registrarse
+      {{ 'REGISTER' | translate }}
     </ion-button>
 
   </form>

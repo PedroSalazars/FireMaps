@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/vista-inicio"></ion-back-button>
     </ion-buttons>
-    <ion-title>Iniciar sesión</ion-title>
+    <ion-title>{{ 'LOGIN_TITLE' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -12,7 +12,7 @@
 
     <!-- Correo -->
     <ion-item>
-      <ion-label position="floating">Correo</ion-label>
+      <ion-label position="floating">{{ 'EMAIL' | translate }}</ion-label>
       <ion-input
         [(ngModel)]="correo"
         name="correo"
@@ -23,7 +23,7 @@
 
     <!-- Contraseña -->
     <ion-item>
-      <ion-label position="floating">Contraseña</ion-label>
+      <ion-label position="floating">{{ 'PASSWORD' | translate }}</ion-label>
       <ion-input
         [(ngModel)]="clave"
         name="clave"
@@ -33,7 +33,7 @@
     </ion-item>
 
     <!-- Botón -->
-    <ion-button expand="block" type="submit">Ingresar</ion-button>
+    <ion-button expand="block" type="submit">{{ 'LOGIN_BUTTON' | translate }}</ion-button>
 
   </form>
 </ion-content>
