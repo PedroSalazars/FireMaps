@@ -4,6 +4,8 @@ import { IonicModule, ToastController } from '@ionic/angular';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../firebase-config';
 
 
 @Component({
@@ -32,48 +34,48 @@ export class VistaRegistroUsuarioPage {
   }
 
   async registrarUsuario(form: NgForm) {
-    if (!form.valid) {
-      const toast = await this.toastController.create({
-        message: 'Por favor completa todos los campos correctamente.',
-        duration: 2500,
-        color: 'danger'
-      });
-      toast.present();
-      return;
-    }
+  if (!form.valid) {
+    const toast = await this.toastController.create({
+      message: 'Por favor completa todos los campos correctamente.',
+      duration: 2500,
+      color: 'danger'
+    });
+    toast.present();
+    return;
+  }
 
-    if (!this.validarCorreo(this.correo)) {
-      const toast = await this.toastController.create({
-        message: 'Correo no permitido. Usa gmail, hotmail, outlook o yahoo.',
-        duration: 2500,
-        color: 'danger'
-      });
-      toast.present();
-      return;
-    }
+  if (!this.validarCorreo(this.correo)) {
+    const toast = await this.toastController.create({
+      message: 'Correo no permitido. Usa gmail, hotmail, outlook o yahoo.',
+      duration: 2500,
+      color: 'danger'
+    });
+    toast.present();
+    return;
+  }
 
-    if (this.clave !== this.confirmarClave) {
-      const toast = await this.toastController.create({
-        message: 'Las contraseñas no coinciden.',
-        duration: 2500,
-        color: 'warning'
-      });
-      toast.present();
-      return;
-    }
+  if (this.clave !== this.confirmarClave) {
+    const toast = await this.toastController.create({
+      message: 'Las contraseñas no coinciden.',
+      duration: 2500,
+      color: 'warning'
+    });
+    toast.present();
+    return;
+  }
 
-    const nuevoUsuario = {
-      nombre: this.nombre,
-      apellidos: this.apellidos,
-      rut: this.rut,
-      telefono: this.telefono,
-      correo: this.correo,
-      clave: this.clave
-    };
+  const nuevoUsuario = {
+    nombre: this.nombre,
+    apellidos: this.apellidos,
+    rut: this.rut,
+    telefono: this.telefono,
+    correo: this.correo,
+    clave: this.clave,
+    fechaRegistro: new Date()
+  };
 
-    const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
-    usuarios.push(nuevoUsuario);
-    localStorage.setItem('usuarios', JSON.stringify(usuarios));
+  try {
+    await addDoc(collection(db, 'usuarios'), nuevoUsuario);
 
     const toast = await this.toastController.create({
       message: 'Registro exitoso 🎉',
@@ -83,9 +85,19 @@ export class VistaRegistroUsuarioPage {
     toast.present();
 
     this.router.navigate(['/vista-login']);
+  } catch (error) {
+    const toast = await this.toastController.create({
+      message: 'Error al registrar usuario. Intenta nuevamente.',
+      duration: 2500,
+      color: 'danger'
+    });
+    toast.present();
+    console.error('Error al guardar en Firestore:', error);
+  }
 
   const lang = localStorage.getItem('lang') || 'es';
   this.translate.setDefaultLang('es');
   this.translate.use(lang);
   }
+
 }
