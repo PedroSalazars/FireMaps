@@ -1,20 +1,33 @@
-import { Component, AfterViewInit } from '@angular/core';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonFab, IonFabButton, IonFabList } from '@ionic/angular/standalone';
+import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+import {
+  IonHeader, IonToolbar, IonTitle, IonContent,
+  IonFab, IonFabButton, IonFabList, IonButton, IonFooter, IonModal
+} from '@ionic/angular/standalone';
+import { RouterLink } from '@angular/router';
 import { Loader } from '@googlemaps/js-api-loader';
 import { environment } from '../../environments/environment';
-import { CommonModule } from '@angular/common';
 
-import { FooterComponent } from '../components/footer/footer.component';
-import { RouterLink } from '@angular/router';
-import { IonIcon } from '@ionic/angular/standalone';
-import { IonButtons } from '@ionic/angular/standalone';
-
-
+// Firebase SDK Web
+import { initializeApp, getApps } from 'firebase/app';
+import {
+  getFirestore, collection, onSnapshot, addDoc,
+  serverTimestamp, GeoPoint, QuerySnapshot, DocumentData
+} from 'firebase/firestore';
 
 type LatLng = { lat: number; lng: number };
 type FireStation = { name: string; position: LatLng };
 type GHydrant = { lat: number; lon: number; tags?: Record<string, string> };
 type IncidentType = 'Incendio' | 'FuGas' | 'rescate' | 'choque';
+
+type IncidentDoc = {
+  id: string;
+  type: IncidentType;
+  status: string;
+  priority?: number;
+  address?: string | null;
+  location: { latitude: number; longitude: number };
+  createdAt?: Date;
+};
 
 enum TruckState {
   STANDBY = 'En base',
@@ -39,37 +52,39 @@ type Truck = {
 
   // patrullaje
   isPatroller?: boolean;
-  patrolTimeout?: any;       // timeout del tramo de 60s
-  patrolResumeTimeout?: any; // timeout de 10 min en base
+  patrolTimeout?: any;
+  patrolResumeTimeout?: any;
 };
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-vista-home',
   standalone: true,
-  imports: [IonButtons,IonHeader, IonToolbar, IonTitle, IonContent, IonFab, IonFabButton, IonFabList,CommonModule,FooterComponent,RouterLink,IonIcon],
+  imports: [
+    IonHeader, IonToolbar, IonTitle, IonContent,
+    IonFab, IonFabButton, IonFabList,
+    IonButton, IonFooter,
+    IonModal,
+    RouterLink
+  ],
   templateUrl: './vista-home.page.html',
-  styleUrls: ['./vista-home.page.scss'],
+  styleUrls: ['./vista-home.page.scss']
 })
-export class VistaHomePage implements AfterViewInit {
+export class VistaHomePage implements AfterViewInit, OnDestroy {
   private map!: google.maps.Map;
   private infoWin!: google.maps.InfoWindow;
   private chiloeBounds!: google.maps.LatLngBounds;
-  
 
   private readonly CHILOE_BOUNDS: google.maps.LatLngBoundsLiteral = {
     north: -41.70, south: -43.30, west: -74.50, east: -73.10
   };
 
-  // Iconos
   private STATION_ICON!: google.maps.Icon;
   private HYDRANT_ICON!: google.maps.Icon;
   private INCIDENT_ICONS!: Record<IncidentType, google.maps.Icon>;
   private FIRETRUCK_ICON!: google.maps.Icon;
 
-  // Directions
   private directionsService!: google.maps.DirectionsService;
 
-  // Cache rutas (clave: A->B)
   private dirCache = new Map<string, google.maps.LatLng[]>();
   private toLiteral(p: google.maps.LatLng | google.maps.LatLngLiteral): google.maps.LatLngLiteral {
     return p instanceof google.maps.LatLng ? { lat: p.lat(), lng: p.lng() } : p;
@@ -80,28 +95,24 @@ export class VistaHomePage implements AfterViewInit {
     return `${A.lat.toFixed(5)},${A.lng.toFixed(5)}->${B.lat.toFixed(5)},${B.lng.toFixed(5)}`;
   }
 
-  // Cola/throttle de Directions (1 req c/700ms aprox)
   private routeQueue: Array<() => void> = [];
   private processingQueue = false;
   private lastRouteTs = 0;
   private readonly ROUTE_THROTTLE_MS = 700;
 
-  // Incidentes por tipo
   private incidentMarkersByType: Record<IncidentType, google.maps.Marker[]> = {
     Incendio: [], FuGas: [], rescate: [], choque: []
   };
+  private incidentMarkersById = new Map<string, google.maps.Marker>();
+  private unsubIncidents?: () => void;
 
-  // Polígonos de tierra
   private landPolygons: google.maps.Polygon[] = [];
 
-  // Cache de calles (reverse)
   private streetCacheMem = new Map<string, string>();
   private lastNominatimTs = 0;
 
-  // Flag: geometry lista
   private geometryReady = false;
 
-  // Estaciones
   private STATIONS_LIST: FireStation[] = [
     { name: 'Bomberos de Ancud',             position: { lat: -41.869, lng: -73.828 } },
     { name: 'Bomberos de Quemchi',           position: { lat: -42.141, lng: -73.484 } },
@@ -115,34 +126,38 @@ export class VistaHomePage implements AfterViewInit {
     { name: 'Bomberos de Quellón',           position: { lat: -43.116, lng: -73.616 } }
   ];
 
-  // Flota
   private trucks: Truck[] = [];
 
-  // Animación rAF + timestep fijo (20 Hz)
   private readonly STEP = 0.05;
   private acc = 0;
   private lastTs = 0;
   private rafId = 0;
 
-  // Velocidades (m/s)
   private readonly SPEED_RESPONSE   = 22;
   private readonly SPEED_RETURN     = 14;
-  private readonly SPEED_PATROL     = 12; // ~43 km/h
+  private readonly SPEED_PATROL     = 12;
 
-  // Atención (ms)
   private readonly ATTEND_MS = 20000;
 
-  // Patrullaje (ms)
-  private readonly PATROL_LEG_MAX_MS = 60_000;   // 60s patrullando
-  private readonly PATROL_DWELL_MS   = 600_000;  // 10 min en base
+  private readonly PATROL_LEG_MAX_MS = 60_000;
+  private readonly PATROL_DWELL_MS   = 600_000;
 
-  // Incidentes cantidad
   private readonly INCIDENTS_MIN = 3;
   private readonly INCIDENTS_MAX = 5;
 
-  // Hydrantes lazy por zoom
   private hydrantsLoaded = false;
   private hydrantMarkers: google.maps.Marker[] = [];
+
+  // Estado del modal de reporte
+  public reportOpen = false;
+
+  openReportModal() {
+    this.reportOpen = true;
+  }
+
+  closeReportModal() {
+    this.reportOpen = false;
+  }
 
   async ngAfterViewInit() {
     const el = document.getElementById('map') as HTMLElement;
@@ -150,7 +165,12 @@ export class VistaHomePage implements AfterViewInit {
     await new Promise<void>((resolve) => {
       const ok = () => el.offsetWidth > 0 && el.offsetHeight > 0;
       if (ok()) return resolve();
-      const id = setInterval(() => { if (ok()) { clearInterval(id); resolve(); } }, 16);
+      const id = setInterval(() => {
+        if (ok()) {
+          clearInterval(id);
+          resolve();
+        }
+      }, 16);
     });
 
     const loader = new Loader({
@@ -164,15 +184,27 @@ export class VistaHomePage implements AfterViewInit {
 
     this.geometryReady = !!google.maps.geometry?.spherical && !!google.maps.geometry?.poly;
 
-    this.STATION_ICON = { url: 'assets/icons/station@2x.png', scaledSize: new google.maps.Size(28, 28), anchor: new google.maps.Point(14, 28) };
-    this.HYDRANT_ICON = { url: 'assets/icons/hydrant@2x.png',  scaledSize: new google.maps.Size(24, 24), anchor: new google.maps.Point(12, 24) };
+    this.STATION_ICON = {
+      url: 'assets/icons/station@2x.png',
+      scaledSize: new google.maps.Size(28, 28),
+      anchor: new google.maps.Point(14, 28)
+    };
+    this.HYDRANT_ICON = {
+      url: 'assets/icons/hydrant@2x.png',
+      scaledSize: new google.maps.Size(24, 24),
+      anchor: new google.maps.Point(12, 24)
+    };
     this.INCIDENT_ICONS = {
       Incendio: { url: 'assets/icons/Incendio.png', scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(16, 32) },
       FuGas:    { url: 'assets/icons/FuGas.png',    scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(16, 32) },
       rescate:  { url: 'assets/icons/rescate.png',  scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(16, 32) },
       choque:   { url: 'assets/icons/choque.png',   scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(16, 32) },
     };
-    this.FIRETRUCK_ICON = { url: 'assets/icons/camionbomberos.png', scaledSize: new google.maps.Size(36, 36), anchor: new google.maps.Point(18, 18) };
+    this.FIRETRUCK_ICON = {
+      url: 'assets/icons/camionbomberos.png',
+      scaledSize: new google.maps.Size(36, 36),
+      anchor: new google.maps.Point(18, 18)
+    };
 
     this.chiloeBounds = new google.maps.LatLngBounds(
       { lat: this.CHILOE_BOUNDS.south, lng: this.CHILOE_BOUNDS.west },
@@ -197,54 +229,126 @@ export class VistaHomePage implements AfterViewInit {
     this.map.addListener('zoom_changed', () => this.updateHydrantsVisibility());
     this.updateHydrantsVisibility();
 
-    // Incidentes iniciales (3–5), más lejanos y pegados a calle
-    this.clearIncidents();
-    await this.generateIncidents();
+    this.startFirestoreSubscription();
 
-    // Flota: 1 en base + 1 patrullero por compañía
     this.spawnFleetPerCompany();
 
     this.lastTs = performance.now();
     this.rafId = requestAnimationFrame(this.tickRaf);
   }
 
-  /* =================== Incidentes =================== */
+  private startFirestoreSubscription() {
+    if (!getApps().length) initializeApp(environment.firebase);
+    const db = getFirestore();
+    const colRef = collection(db, 'incidents');
+
+    this.unsubIncidents = onSnapshot(colRef, (snap: QuerySnapshot<DocumentData>) => {
+      const next: IncidentDoc[] = [];
+      snap.forEach(doc => {
+        const d = doc.data() as any;
+        const loc = d.location;
+        next.push({
+          id: doc.id,
+          type: (d.type as IncidentType) ?? 'Incendio',
+          status: d.status ?? 'open',
+          priority: d.priority,
+          address: d.address ?? null,
+          location: { latitude: loc?.latitude ?? 0, longitude: loc?.longitude ?? 0 },
+          createdAt: d.createdAt?.toDate?.()
+        });
+      });
+      this.syncIncidentMarkers(next);
+    });
+  }
+
+  private syncIncidentMarkers(list: IncidentDoc[]) {
+    const seen = new Set<string>();
+
+    for (const i of list) {
+      seen.add(i.id);
+      const pos = new google.maps.LatLng(i.location.latitude, i.location.longitude);
+      const icon = this.INCIDENT_ICONS[i.type] || this.INCIDENT_ICONS['Incendio'];
+
+      let marker = this.incidentMarkersById.get(i.id);
+      if (!marker) {
+        marker = new google.maps.Marker({
+          position: pos,
+          map: this.map,
+          icon,
+          title: `${i.type}${i.address ? ' - ' + i.address : ''}`,
+          zIndex: 3
+        });
+        marker.addListener('click', () => this.dispatchBest(marker!, i.type));
+        this.incidentMarkersById.set(i.id, marker);
+        this.incidentMarkersByType[i.type].push(marker);
+      } else {
+        marker.setPosition(pos);
+        marker.setIcon(icon);
+        marker.setTitle(`${i.type}${i.address ? ' - ' + i.address : ''}`);
+        if (!marker.getMap()) marker.setMap(this.map);
+      }
+    }
+
+    for (const [id, marker] of this.incidentMarkersById.entries()) {
+      if (!seen.has(id)) {
+        marker.setMap(null);
+        this.incidentMarkersById.delete(id);
+        (Object.keys(this.incidentMarkersByType) as IncidentType[]).forEach(t => {
+          this.incidentMarkersByType[t] = this.incidentMarkersByType[t].filter(m => m !== marker);
+        });
+      }
+    }
+  }
+
+  public async reportQuickIncident() {
+    if (!getApps().length) initializeApp(environment.firebase);
+    const db = getFirestore();
+    const colRef = collection(db, 'incidents');
+    await addDoc(colRef, {
+      type: 'Incendio',
+      status: 'open',
+      priority: 2,
+      address: 'Reporte rápido desde app',
+      location: new GeoPoint(-42.481 + (Math.random() - 0.5) * 0.02, -73.764 + (Math.random() - 0.5) * 0.02),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+  }
+
   clearIncidents() {
     (Object.keys(this.incidentMarkersByType) as IncidentType[]).forEach(t => {
       this.incidentMarkersByType[t].forEach(m => m.setMap(null));
       this.incidentMarkersByType[t] = [];
     });
+    for (const [, m] of this.incidentMarkersById) m.setMap(null);
+    this.incidentMarkersById.clear();
   }
 
- public async generateIncidents(count?: number): Promise<void> {
-  const incidentCount = count ?? (this.INCIDENTS_MIN + Math.floor(Math.random() * (this.INCIDENTS_MAX - this.INCIDENTS_MIN + 1)));
-  const types: IncidentType[] = ['Incendio', 'FuGas', 'rescate', 'choque'];
+  public async generateIncidents(n?: number): Promise<void> {
+    const count = typeof n === 'number'
+      ? n
+      : this.INCIDENTS_MIN + Math.floor(Math.random() * (this.INCIDENTS_MAX - this.INCIDENTS_MIN + 1));
+    const types: IncidentType[] = ['Incendio', 'FuGas', 'rescate', 'choque'];
 
-  for (let i = 0; i < incidentCount; i++) {
-    const t = types[Math.floor(Math.random() * types.length)];
-    await this.addIncidentSnappedToRoad(t);
+    for (let i = 0; i < count; i++) {
+      const t = types[Math.floor(Math.random() * types.length)];
+      await this.addIncidentSnappedToRoad(t);
+    }
   }
-}
 
-
-  // Genera un incidente pegado a calle y con verificación de ruta (sin ferries)
   private async addIncidentSnappedToRoad(type: IncidentType) {
-    // Elegir una estación semilla aleatoria
     const station = this.randomStation();
     const stationLatLng = new google.maps.LatLng(station.position.lat, station.position.lng);
 
-    // Intentar semillas más lejanas (3–10 km) para dispersar
     for (let attempt = 0; attempt < 6; attempt++) {
-      const seed = this.pickNearbySeed(stationLatLng, 3000, 10000); // 3–10 km
+      const seed = this.pickNearbySeed(stationLatLng, 3000, 10000);
       const path = await this.safeFetchPath(stationLatLng, seed);
       if (path.length < 2) continue;
 
-      // Tomar punto de steps (en calzada), pero no demasiado cerca de la estación
       const snapped = path[Math.floor(Math.random() * path.length)];
-      const minDistFromAnyStation = 1500; // ≥1.5 km
+      const minDistFromAnyStation = 1500;
       if (this.minDistanceToStations(snapped) < minDistFromAnyStation) continue;
 
-      // Verificar alcanzabilidad
       const verify = await this.safeFetchPath(stationLatLng, snapped);
       if (verify.length < 2) continue;
 
@@ -256,7 +360,6 @@ export class VistaHomePage implements AfterViewInit {
       return;
     }
 
-    // Fallback si no se pudo (raro)
     const pos = this.randOnLand();
     const marker = new google.maps.Marker({
       position: pos, icon: this.INCIDENT_ICONS[type], title: type, zIndex: 3, map: this.map
@@ -291,13 +394,11 @@ export class VistaHomePage implements AfterViewInit {
     catch { return []; }
   }
 
-  // Asigna mejor candidato (incluye patrulleros)
   private async dispatchBest(incidentMarker: google.maps.Marker, _type: IncidentType) {
     const pos = incidentMarker.getPosition()!;
     const candidates = this.trucks.filter(t => t.state === TruckState.STANDBY || t.state === TruckState.PATROL);
     if (!candidates.length) return;
 
-    // Prefiltro por distancia
     candidates.sort((t1, t2) => {
       const d1 = google.maps.geometry.spherical.computeDistanceBetween(t1.marker.getPosition()!, pos);
       const d2 = google.maps.geometry.spherical.computeDistanceBetween(t2.marker.getPosition()!, pos);
@@ -305,7 +406,6 @@ export class VistaHomePage implements AfterViewInit {
     });
     const chosen = candidates[0];
 
-    // Si era patrullero, corta sus timers
     this.clearPatrolTimers(chosen);
 
     this.gotoByDirections(chosen, pos, () => {
@@ -314,14 +414,12 @@ export class VistaHomePage implements AfterViewInit {
       setTimeout(() => {
         incidentMarker.setMap(null);
         this.returnToBase(chosen, () => {
-          // Si es patrullero, reanuda ciclo: 10 min en base y vuelve a patrullar
           if (chosen.isPatroller) this.schedulePatrolResume(chosen);
         });
       }, this.ATTEND_MS);
     });
   }
 
-  /* =============== Random/tierra =============== */
   private rand(min: number, max: number) { return min + Math.random() * (max - min); }
 
   private randOnLand(): LatLng {
@@ -347,7 +445,6 @@ export class VistaHomePage implements AfterViewInit {
     }
   }
 
-  /* =============== Polígonos de islas (Nominatim) =============== */
   private async loadLandPolygons() {
     const islands = ['Isla Grande de Chiloé', 'Isla Quinchao', 'Isla Lemuy'];
     const polys: google.maps.Polygon[] = [];
@@ -399,7 +496,6 @@ export class VistaHomePage implements AfterViewInit {
     return polygons;
   }
 
-  /* =============== Estaciones =============== */
   private addStations() {
     for (const s of this.STATIONS_LIST) {
       const m = new google.maps.Marker({
@@ -412,7 +508,6 @@ export class VistaHomePage implements AfterViewInit {
     }
   }
 
-  /* =============== Hydrantes por zoom (ligeros) =============== */
   private async updateHydrantsVisibility() {
     const zoom = this.map.getZoom() ?? 9;
 
@@ -482,7 +577,6 @@ export class VistaHomePage implements AfterViewInit {
     this.updateHydrantsVisibility();
   }
 
-  /* =============== Máscara fuera de límites =============== */
   private addMaskPolygon() {
     const WORLD_RECT = [
       { lat: 85,  lng: -180 }, { lat: 85,  lng: 180 },
@@ -500,7 +594,6 @@ export class VistaHomePage implements AfterViewInit {
     });
   }
 
-  /* =============== Reverse helpers =============== */
   private cacheKey(lat: number, lng: number) { return `${lat.toFixed(6)},${lng.toFixed(6)}`; }
   private streetFromTags(tags?: Record<string,string>) {
     return tags?.['addr:street'] || tags?.['addr:place'] || tags?.['addr:road'] || null;
@@ -543,18 +636,14 @@ export class VistaHomePage implements AfterViewInit {
     return null;
   }
 
-  /* ===================== FLOTA ===================== */
-
   private spawnFleetPerCompany() {
     const seen = new Set<string>();
     for (const st of this.STATIONS_LIST) {
       if (seen.has(st.name)) continue; seen.add(st.name);
       const base = new google.maps.LatLng(st.position.lat, st.position.lng);
 
-      // 1 en base
       this.trucks.push(this.createTruck(st.name, base, TruckState.STANDBY));
 
-      // 1 patrullero con ciclo 60s patrulla → 10 min base
       const patrol = this.createTruck(st.name, base, TruckState.PATROL);
       patrol.isPatroller = true;
       patrol.speedMps = this.SPEED_PATROL;
@@ -586,8 +675,6 @@ export class VistaHomePage implements AfterViewInit {
     };
   }
 
-  /* === Ciclo de patrulla: 60s en calle, luego 10 min en base === */
-
   private clearPatrolTimers(t: Truck) {
     if (t.patrolTimeout) { clearTimeout(t.patrolTimeout); t.patrolTimeout = undefined; }
     if (t.patrolResumeTimeout) { clearTimeout(t.patrolResumeTimeout); t.patrolResumeTimeout = undefined; }
@@ -599,17 +686,15 @@ export class VistaHomePage implements AfterViewInit {
     t.speedMps = this.SPEED_PATROL;
     this.startPatrolLeg(t);
 
-    // límite duro de 60s: vuelve a base
     t.patrolTimeout = setTimeout(() => {
       if (t.state === TruckState.PATROL) {
-        this.returnToBase(t, () => this.schedulePatrolResume(t)); // al llegar: 10 min en base y reanuda
+        this.returnToBase(t, () => this.schedulePatrolResume(t));
       }
     }, this.PATROL_LEG_MAX_MS);
   }
 
   private schedulePatrolResume(t: Truck) {
     this.clearPatrolTimers(t);
-    // solo si sigue siendo patrullero y está en base
     if (!t.isPatroller || t.state !== TruckState.STANDBY) return;
     t.patrolResumeTimeout = setTimeout(() => {
       if (!t.isPatroller || t.state !== TruckState.STANDBY) return;
@@ -642,8 +727,6 @@ export class VistaHomePage implements AfterViewInit {
     );
   }
 
-  /* ===================== DIRECTIONS + MOVIMIENTO ===================== */
-
   private gotoByDirections(truck: Truck, target: google.maps.LatLng, onArrive: () => void) {
     truck.state = TruckState.RESPONDING;
     truck.speedMps = this.SPEED_RESPONSE;
@@ -653,7 +736,6 @@ export class VistaHomePage implements AfterViewInit {
     const key = this.dirKey(origin, target);
     const cached = this.dirCache.get(key);
 
-    // si estaba patrullando, corta timers del ciclo
     this.clearPatrolTimers(truck);
 
     const apply = (path: google.maps.LatLng[]) => {
@@ -730,7 +812,6 @@ export class VistaHomePage implements AfterViewInit {
     );
   }
 
-  // Pide Directions con avoidFerries y concatena steps[].path
   private async fetchDirectionsPath(origin: google.maps.LatLng, destination: google.maps.LatLng): Promise<google.maps.LatLng[]> {
     const res = await this.directionsService.route({
       origin,
@@ -772,7 +853,6 @@ export class VistaHomePage implements AfterViewInit {
     }
   }
 
-  /* Cola/throttle simple para Directions */
   private enqueueRouteRequest(run: () => void) {
     this.routeQueue.push(run);
     if (!this.processingQueue) {
@@ -795,7 +875,6 @@ export class VistaHomePage implements AfterViewInit {
     }
   }
 
-  /* ===================== Animación rAF ===================== */
   private tickRaf = (ts: number) => {
     const dt = (ts - this.lastTs) / 1000; this.lastTs = ts; this.acc += dt;
     while (this.acc >= this.STEP) { this.physicsStep(this.STEP); this.acc -= this.STEP; }
@@ -813,7 +892,6 @@ export class VistaHomePage implements AfterViewInit {
         case TruckState.RETURNING:
         case TruckState.PATROL:
           this.advanceAlongRoute(t, step, () => {
-            // si terminó un tramo de patrulla “por ruta”, sigue pidiendo tramos cortos
             if (t.state === TruckState.PATROL) {
               const wait = 2000 + Math.random() * 3000;
               setTimeout(() => this.startPatrolLeg(t), wait);
@@ -859,8 +937,9 @@ export class VistaHomePage implements AfterViewInit {
     }
   }
 
-  // Footer
-  
-  
-
+  ngOnDestroy(): void {
+    if (this.rafId) cancelAnimationFrame(this.rafId);
+    for (const t of this.trucks) this.clearPatrolTimers(t);
+    if (this.unsubIncidents) this.unsubIncidents();
+  }
 }
