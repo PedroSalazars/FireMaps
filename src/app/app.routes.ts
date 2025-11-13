@@ -28,13 +28,13 @@ export const routes: Routes = [
 
     path: 'vista-home',
     loadComponent: () => import('./vista-home/vista-home.page').then( m => m.VistaHomePage)
-  }
+  },
 
-
+{
     path: 'vista-registro-usuario',
     loadComponent: () =>
       import('./vista-registro-usuario/vista-registro-usuario.page').then(m => m.VistaRegistroUsuarioPage)
-  },
+},
 
   { path: '**', redirectTo: 'vista-home' }
 
