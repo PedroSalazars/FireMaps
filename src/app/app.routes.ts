@@ -32,8 +32,4 @@ export const routes: Routes = [
     loadComponent: () => import('./vista-home/vista-home.page').then( m => m.VistaHomePage)
   }
 
-
-
-
-
 ];

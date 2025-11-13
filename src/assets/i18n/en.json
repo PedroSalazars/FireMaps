@@ -1,0 +1,38 @@
+{
+  "LANGUAGE": "Language",
+  "MAP_TYPE": "Map type",
+  "GEOLOCATION": "Geolocation",
+  "DISPLAY_PREFS": "Display preferences",
+  "LIGHT": "Light",
+  "DARK": "Dark",
+  "SETTINGS": "Settings",
+  "LOGOUT": "Log out",
+  "VERSION": "Version",
+
+  "REGISTER": "Register",
+  "LOGIN": "Log in",
+  "GUEST_ACCESS": "Continue as guest",
+
+  "REGISTER_USER": "Register user",
+  "NAME": "First name",
+  "LASTNAME": "Last name",
+  "RUT": "National ID",
+  "PHONE": "Phone",
+  "EMAIL": "Email",
+  "PASSWORD": "Password",
+  "CONFIRM_PASSWORD": "Confirm password",
+
+  "ERROR_NAME_REQUIRED": "Name is required.",
+  "ERROR_LASTNAME_REQUIRED": "Last name is required.",
+  "ERROR_RUT_INVALID": "Invalid ID format. Example: 12.345.678-9",
+  "ERROR_PHONE_INVALID": "Phone must have 9 digits and start with 9.",
+  "ERROR_EMAIL_INVALID": "Invalid email. Must contain '@' and a domain.",
+  "ERROR_PASSWORD_MISMATCH": "Passwords do not match.",
+
+  "LOGIN_TITLE": "Log in",
+  "LOGIN_BUTTON": "Sign in"
+
+}
+
+
+

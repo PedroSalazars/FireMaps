@@ -3,11 +3,11 @@ import { IonicModule, ToastController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-
+import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-vista-login',
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, RouterModule],
+  imports: [IonicModule, CommonModule, FormsModule, RouterModule,TranslateModule],
   templateUrl: './vista-login.page.html',
   styleUrls: ['./vista-login.page.scss']
 })
