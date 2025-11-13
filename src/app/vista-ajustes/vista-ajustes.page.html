@@ -3,14 +3,14 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/vista-home"></ion-back-button>
     </ion-buttons>
-    <ion-title>Ajustes</ion-title>
+    <ion-title>{{ 'MAP_TYPE' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 
 <ion-content class="ion-padding">
   <ion-item>
-    <ion-label>Tipo de mapa</ion-label>
+    <ion-label>{{ 'MAP_TYPE' | translate }}</ion-label>
     <ion-select placeholder="Selecciona" interface="popover">
       <ion-select-option value="google">Google</ion-select-option>
       <ion-select-option value="osm">OpenStreetMap</ion-select-option>
@@ -18,37 +18,36 @@
   </ion-item>
 
   <ion-item>
-    <ion-label>Geolocalización</ion-label>
+    <ion-label>{{ 'GEOLOCATION' | translate }}</ion-label>
     <ion-toggle checked></ion-toggle>
   </ion-item>
 
 <ion-item>
-  <ion-label>Preferencias de visualización</ion-label>
+  <ion-label>{{ 'DISPLAY_PREFS' | translate }}</ion-label>
   <ion-select [(ngModel)]="theme" interface="popover" (ionChange)="aplicarTema()">
     <ion-select-option value="claro">Claro</ion-select-option>
     <ion-select-option value="oscuro">Oscuro</ion-select-option>
   </ion-select>
 </ion-item>
 
+<!-- Cambio de idioma -->
 
   <ion-item>
-    <ion-label>Idioma</ion-label>
-    <ion-select placeholder="Selecciona" interface="popover">
+    <ion-label>{{ 'LANGUAGE' | translate }}</ion-label>
+    <ion-select [value]="language" interface="popover" (ionChange)="changeLanguage($event.detail.value)">
       <ion-select-option value="es">Español</ion-select-option>
-      <ion-select-option value="en">Inglés</ion-select-option>
-      <ion-select-option value="pt">Portugués</ion-select-option>
-      <ion-select-option value="fr">Francés</ion-select-option>
-      <ion-select-option value="it">Italiano</ion-select-option>
+      <ion-select-option value="en">English</ion-select-option>
     </ion-select>
   </ion-item>
 
+  
   <ion-item lines="none">
-    <ion-label>Versión 0.1</ion-label>
+    <ion-label>{{ 'VERSION' | translate }} 1.0</ion-label>
   </ion-item>
 
 
   <ion-button expand="block" color="danger" [routerLink]="['/vista-inicio']" >
-    Cerrar sesión
+    {{ 'LOGOUT' | translate }}
   </ion-button>
 </ion-content>
 

@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { IonicModule, ToastController } from '@ionic/angular';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
 
 @Component({
   selector: 'app-vista-registro-usuario',
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule],
+  imports: [CommonModule, IonicModule, FormsModule,TranslateModule],
   templateUrl: './vista-registro-usuario.page.html',
   styleUrls: ['./vista-registro-usuario.page.scss']
 })
@@ -19,8 +21,9 @@ export class VistaRegistroUsuarioPage {
   correo = '';
   clave = '';
   confirmarClave = '';
+  
 
-  constructor(private toastController: ToastController, private router: Router) {}
+  constructor(private toastController: ToastController, private router: Router,private translate: TranslateService) {}
 
   validarCorreo(correo: string): boolean {
     const dominiosPermitidos = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'];
@@ -80,5 +83,9 @@ export class VistaRegistroUsuarioPage {
     toast.present();
 
     this.router.navigate(['/vista-login']);
+
+  const lang = localStorage.getItem('lang') || 'es';
+  this.translate.setDefaultLang('es');
+  this.translate.use(lang);
   }
 }
