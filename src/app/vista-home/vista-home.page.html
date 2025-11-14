@@ -1,8 +1,9 @@
 <ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>FireMaps Chiloé</ion-title>
+  <ion-toolbar class="header-toolbar">
+    <ion-title class="header-title">FireMaps Chiloé</ion-title>
   </ion-toolbar>
 </ion-header>
+
 
 <ion-content>
   <!-- Mapa -->
@@ -14,27 +15,27 @@
 
   <!-- FAB: Reportar -->
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-    <ion-fab-button color="primary" aria-label="Reportar" (click)="openReportModal()">
+    <ion-fab-button  aria-label="Reportar" (click)="openReportModal()">
       +
     </ion-fab-button>
   </ion-fab>
 
   <!-- Modal Reportar incidente -->
-  <ion-modal [isOpen]="reportOpen" (didDismiss)="closeReportModal()">
-    <ng-template>
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>Reportar problema</ion-title>
-          <ion-buttons slot="end">
-            <ion-button (click)="closeReportModal()">Cerrar</ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
+<ion-modal [isOpen]="reportOpen" (didDismiss)="closeReportModal()">
+  <ng-template>
+    <ion-header class="modal-header">
+      <ion-toolbar class="modal-toolbar">
+        <ion-title class="modal-title">Reportar problema</ion-title>
+        <ion-buttons slot="end">
+          <ion-button class="modal-close-btn" (click)="closeReportModal()">Cerrar</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
 
       <ion-content class="ion-padding">
         <!-- Ubicación actual y pin movable -->
         <div class="field">
-          <div><strong>Ubicación</strong> (máx. 100 m desde tu posición)</div>
+          <div class="ubicacion-texto"><strong>Ubicación</strong> (máx. 100 m desde tu posición)</div>
           <div class="hint">Se marcó un pin en el mapa. Puedes tocar el mapa para moverlo.</div>
           <div class="hint" *ngIf="reportDistanceM !== null">
             Distancia al GPS: {{ reportDistanceM | number:'1.0-0' }} m
@@ -56,18 +57,18 @@
         <!-- Dirección autocompletada por reverse -->
         <div class="field">
           <div><strong>Dirección</strong></div>
-          <ion-input fill="outline" placeholder="Calculando dirección..." [(ngModel)]="reportAddress"></ion-input>
+          <ion-input class="ubicacion-texto" fill="outline" placeholder="Calculando dirección..." [(ngModel)]="reportAddress"></ion-input>
         </div>
 
         <!-- Descripción breve -->
         <div class="field">
-          <div><strong>Descripción breve</strong> (opcional)</div>
-          <ion-textarea fill="outline" [rows]="3" maxlength="240" placeholder="Ej: Humo denso saliendo de vivienda" [(ngModel)]="reportNotes"></ion-textarea>
+          <div class="ubicacion-texto"><strong>Descripción breve</strong> (opcional)</div>
+          <ion-textarea class="ubicacion-texto" fill="outline" [rows]="3" maxlength="240" placeholder="Ej: Humo denso saliendo de vivienda" [(ngModel)]="reportNotes"></ion-textarea>
         </div>
 
         <!-- Fotos 1-3 -->
         <div class="field">
-          <div><strong>Fotos</strong> (1 a 3)</div>
+          <div class="ubicacion-texto" ><strong>Fotos</strong> (1 a 3)</div>
           <input type="file" accept="image/*" multiple (change)="onFilesSelected($event)">
           <div class="hint" *ngIf="selectedFiles.length">Seleccionadas: {{ selectedFiles.length }}</div>
         </div>

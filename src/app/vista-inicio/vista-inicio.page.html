@@ -1,19 +1,13 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>FireMaps</ion-title>
-  </ion-toolbar>
-</ion-header>
+
 
 <ion-content class="ion-padding ion-text-center">
 
-  <!-- Logo o imagen -->
-  <div style="margin-top: 40px;">
-    <ion-img src="assets/icons/firemaps.webp" style="width: 120px; height: 120px; margin: auto;"></ion-img>
-    <h2 style="margin-top: 10px;">FireMaps</h2>
+  <div class="logo-container">
+    <h2>FireMaps</h2>
+    <ion-img class="logo" src="assets/icons/firemaps.webp"></ion-img>
   </div>
 
-  <!-- Botones -->
-  <ion-content class="ion-padding">
+  <div class="botones">
     <ion-button expand="block" routerLink="/vista-registro-usuario">
       {{ 'REGISTER' | translate }}
     </ion-button>
@@ -21,5 +15,6 @@
     <ion-button expand="block" routerLink="/vista-login">
       {{ 'LOGIN' | translate }}
     </ion-button>
-    
+  </div>
+
 </ion-content>
