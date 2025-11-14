@@ -1,38 +1,189 @@
-:host, ion-content { height: 100%; }
+ion-content {
+  --background: #E7E3E2;
+  color: black;
+  position: relative;
+  height: 100%;
+}
 
-/* Fondo del contenido (opcional) */
-ion-content { --background: #111; }
-
-/* Centra la tarjeta del mapa */
+/* Mapa centrado y responsivo */
 .map-center {
-  min-height: calc(100dvh - 56px); /* resta el alto del toolbar */
+  margin-top: 30px;
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 16px;
-  box-sizing: border-box;
+  align-items: center;
+  padding: 10px;
 }
 
-/* Tarjeta que envuelve al mapa */
 .map-card {
-  width: min(960px, 94vw);
-  height: min(620px, 74vh);
-  border-radius: 16px;
+  width: 100%;
+  max-width: 600px;
+  height: 650px;
+  border-radius: 12px;
   overflow: hidden;
-  background: #fff;
-  box-shadow: 0 10px 30px rgba(0,0,0,.18);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
-/* El mapa ocupa toda la tarjeta */
 #map {
   width: 100%;
   height: 100%;
 }
 
-/* Quita estilos antiguos si los tenías */
-.center, .map-box { display: contents; } /* neutraliza clases viejas */
+/* FAB botón de reporte */
+ion-fab-button {
+  font-size: 24px;
+  --background: #F27B13;
+  --color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Modal de reporte */
+ion-modal::part(content) {
+  background: #E7E3E2;
+  color: black;
+  border-radius: 12px;
+}
+
+/* Campos del formulario */
+.field {
+  margin-bottom: 20px;
+
+  strong {
+    display: block;
+    margin-bottom: 6px;
+    color:#000;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: #000;
+    margin-top: 4px;
+  }
+}
+
+/* Botones de tipo de incidente */
+.types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.type-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #ff9800;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.type-btn.sel {
+  background-color: #ff9800;
+  color: #ffffff;
+}
+
+/* Footer */
+.footer-buttons {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  padding: 10px 0;
+}
+
+ion-footer ion-toolbar {
+  --background: #E7E3E2;
+  --color: black;
+}
 
 
-.icon-grande {
-  font-size: 32px; // o el tamaño que prefieras
+
+.footer-toolbar {
+  --background: #1e1e1e;
+  --color: black;
+  padding: 10px 0;
+}
+
+.footer-buttons {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  padding: 0 16px;
+}
+
+ion-button {
+  flex: 1;
+  margin: 0 6px;
+  --border-radius: 8px;
+  font-weight: bold;
+  --background: #F28972;
+  --color: #ffffff;
+  text-transform: uppercase;
+}
+
+ion-button[color="danger"] {
+  --background: #f44336;
+}
+
+ion-icon {
+  margin-right: 6px;
+  font-size: 18px;
+}
+
+ion-fab-button.custom-fab {
+  --background: #F27B13; // Naranja
+  --color: #ffffff;      // Texto blanco
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+
+/* letras en los inputs*/
+
+.ubicacion-texto {
+  color: #000000; // o cualquier color que prefieras
+}
+
+input {
+  color: #000; // Color del texto ingresado
+}
+
+// Header modal
+
+/* Estilo para el header del modal */
+.modal-header {
+  background-color: black;
+}
+
+.modal-toolbar {
+  --background: #E7E3E2;
+  --color: black;
+}
+
+.modal-title {
+  color: #000;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.modal-close-btn {
+  --color: #000;
+  font-weight: 500;
+}
+
+/*Header home*/
+.header-toolbar {
+  --background: #E7E3E2;   // Fondo oscuro
+  --color: #000;        // Color del texto por defecto
+  border-bottom: 2px solid #000; // Línea decorativa opcional
+}
+
+.header-title {
+  color: #000;          // Color del título
+  font-weight: bold;
+  font-size: 22px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: center;
 }

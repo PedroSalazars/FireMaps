@@ -1,4 +1,62 @@
 ion-content {
-  background-color: var(--ion-background-color);
-  color: var(--ion-text-color);
+  --background: #E7E3E2;
+  color: #000 ;
+  padding: 16px;
+}
+
+/* Header personalizado */
+ion-header {
+  ion-toolbar {
+    --background: #E7E3E2;
+    --color: #000;
+  }
+
+  ion-title {
+    color: #000;
+    font-weight: bold;
+    font-size: 20px;
+  }
+
+  ion-back-button {
+    --color: #000;
+  }
+}
+
+/* Estilo de los ítems */
+ion-item {
+  --background: transparent;
+  --color: #000;
+  border-radius: 8px;
+  border: 1px solid #444;
+  margin-bottom: 12px;
+  padding: 4px 8px;
+}
+
+ion-label {
+  color: #000;
+  font-weight: 500;
+}
+
+/* Select y toggle */
+ion-select,
+ion-toggle {
+  color: #000;
+}
+
+/* Botón de cerrar sesión */
+ion-button[color="danger"] {
+  margin-top: 20px;
+  --background: #f44336;
+  --color: #ffffff;
+  --border-radius: 8px;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Versión */
+ion-item[lines="none"] ion-label {
+  color: #888;
+  font-size: 14px;
+  text-align: center;
+  width: 100%;
 }
