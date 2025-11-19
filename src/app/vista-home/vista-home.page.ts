@@ -172,8 +172,13 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
   private addressAutocomplete?: google.maps.places.Autocomplete;
   private reportLatLng: google.maps.LatLng | null = null;
 
+  // Abrir modal y, una vez renderizado, inicializar Autocomplete en el input de dirección
   openReportModal() {
     this.reportOpen = true;
+
+    setTimeout(() => {
+      this.setupAddressAutocomplete();
+    }, 350);
   }
 
   closeReportModal() {
@@ -271,6 +276,8 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
 
     this.spawnFleetPerCompany();
 
+    // Esta llamada aquí suele no hacer nada porque el input aún no existe,
+    // pero no afecta. La inicialización real se hace al abrir el modal.
     this.setupAddressAutocomplete();
 
     this.lastTs = performance.now();
@@ -1379,4 +1386,3 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     if (this.unsubIncidents) this.unsubIncidents();
   }
 }
-
