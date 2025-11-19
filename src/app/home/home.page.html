@@ -16,13 +16,13 @@
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
     <ion-fab-button color="primary" aria-label="Acciones">☰</ion-fab-button>
     <ion-fab-list side="top">
-      <!-- 🔥 Aleatorios (tu lógica anterior se mantiene) -->
+      <!--  Aleatorios (tu lógica anterior se mantiene) -->
       <ion-fab-button (click)="generateIncidents(10)" aria-label="Generar 10">+10</ion-fab-button>
       <ion-fab-button (click)="generateIncidents(3)" aria-label="Generar 3">+3</ion-fab-button>
       <ion-fab-button color="danger" (click)="clearIncidents()" aria-label="Limpiar">🗑</ion-fab-button>
 
-      <!-- 🧷 Firestore (nuevo, no rompe lo anterior) -->
-      <ion-fab-button color="success" (click)="reportQuickIncident()" aria-label="Reportar siniestro">➕</ion-fab-button>
+      <!--  Firestore (nuevo, no rompe lo anterior) -->
+      <ion-fab-button color="success" (click)="reportQuickIncident()" aria-label="Reportar siniestro"></ion-fab-button>
     </ion-fab-list>
   </ion-fab>
 </ion-content>
