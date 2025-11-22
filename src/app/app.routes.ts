@@ -2,7 +2,7 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'vista-home', pathMatch: 'full' },
+  { path: '', redirectTo: 'vista-bombero', pathMatch: 'full' },
 
   {
     path: 'vista-home',
@@ -35,7 +35,17 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./vista-registro-usuario/vista-registro-usuario.page').then(m => m.VistaRegistroUsuarioPage)
 },
+  {
+    path: 'vista-bombero',
+    loadComponent: () => import('./vista-bombero/vista-bombero.page').then( m => m.VistaBomberoPage)
+  },
+  
+{
+    path: 'vista-notificaciones',
+    loadComponent: () => import('./vista-notificaciones/vista-notificaciones.page').then( m => m.VistaNotificacionesPage)
+  },
+  
+{ path: '**', redirectTo: 'vista-home' },
 
-  { path: '**', redirectTo: 'vista-home' }
 
 ];
