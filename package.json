@@ -19,13 +19,15 @@
     "@capacitor/android": "^7.4.4",
     "@googlemaps/js-api-loader": "^1.16.10",
     "@googlemaps/markerclusterer": "^2.6.2",
-    "@ionic/angular": "^8.2.0",
+    "@ionic/angular": "^8.7.10",
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^6.0.0",
     "firebase": "^12.5.0",
+    "ionicons": "^8.0.13",
     "rxjs": "^7.8.1",
     "tslib": "^2.6.3",
-    "zone.js": "^0.14.10"
+    "zone.js": "^0.14.10",
+    "@angular/fire": "^7.6.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^18.2.6",
