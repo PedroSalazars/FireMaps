@@ -13,9 +13,10 @@ import { FormsModule } from '@angular/forms';
 import { initializeApp, getApps } from 'firebase/app';
 import {
   getFirestore, collection, onSnapshot, addDoc,
-  serverTimestamp, GeoPoint, QuerySnapshot, DocumentData
+  updateDoc, doc, serverTimestamp, GeoPoint, QuerySnapshot, DocumentData
 } from 'firebase/firestore';
 
+/** Tipos básicos **/
 type LatLng = { lat: number; lng: number };
 type FireStation = { name: string; position: LatLng };
 type GHydrant = { lat: number; lon: number; tags?: Record<string, string> };
@@ -24,7 +25,7 @@ type IncidentType = 'Incendio' | 'FuGas' | 'rescate' | 'choque';
 type IncidentDoc = {
   id: string;
   type: IncidentType;
-  status: string;
+  status: 'open' | 'closed';
   priority?: number;
   address?: string | null;
   location: { latitude: number; longitude: number };
@@ -73,6 +74,8 @@ type Truck = {
   styleUrls: ['./vista-home.page.scss']
 })
 export class VistaHomePage implements AfterViewInit, OnDestroy {
+
+  /** MAPA Y GOOGLE MAPS **/
   private map!: google.maps.Map;
   private infoWin!: google.maps.InfoWindow;
   private chiloeBounds!: google.maps.LatLngBounds;
@@ -88,10 +91,17 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
 
   private directionsService!: google.maps.DirectionsService;
 
+  /** CACHE Y RUTEO **/
   private dirCache = new Map<string, google.maps.LatLng[]>();
+  private routeQueue: Array<() => void> = [];
+  private processingQueue = false;
+  private lastRouteTs = 0;
+  private readonly ROUTE_THROTTLE_MS = 700;
+
   private toLiteral(p: google.maps.LatLng | google.maps.LatLngLiteral): google.maps.LatLngLiteral {
     return p instanceof google.maps.LatLng ? { lat: p.lat(), lng: p.lng() } : p;
   }
+
   private dirKey(
     a: google.maps.LatLng | google.maps.LatLngLiteral,
     b: google.maps.LatLng | google.maps.LatLngLiteral
@@ -100,24 +110,22 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     return `${A.lat.toFixed(5)},${A.lng.toFixed(5)}->${B.lat.toFixed(5)},${B.lng.toFixed(5)}`;
   }
 
-  private routeQueue: Array<() => void> = [];
-  private processingQueue = false;
-  private lastRouteTs = 0;
-  private readonly ROUTE_THROTTLE_MS = 700;
-
+  /** INCIDENTES **/
   private incidentMarkersByType: Record<IncidentType, google.maps.Marker[]> = {
     Incendio: [], FuGas: [], rescate: [], choque: []
   };
   private incidentMarkersById = new Map<string, google.maps.Marker>();
   private unsubIncidents?: () => void;
 
+  /** GEOMETRÍA Y POLÍGONOS **/
   private landPolygons: google.maps.Polygon[] = [];
+  private geometryReady = false;
 
+  /** REVERSE GEOCODING / CALLES **/
   private streetCacheMem = new Map<string, string>();
   private lastNominatimTs = 0;
 
-  private geometryReady = false;
-
+  /** ESTACIONES & FLOTA **/
   private STATIONS_LIST: FireStation[] = [
     { name: 'Bomberos de Ancud',             position: { lat: -41.869, lng: -73.828 } },
     { name: 'Bomberos de Quemchi',           position: { lat: -42.141, lng: -73.484 } },
@@ -133,6 +141,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
 
   private trucks: Truck[] = [];
 
+  /** SIMULACIÓN (tick / física) **/
   private readonly STEP = 0.05;
   private acc = 0;
   private lastTs = 0;
@@ -142,19 +151,23 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
   private readonly SPEED_RETURN     = 14;
   private readonly SPEED_PATROL     = 12;
 
-  private readonly ATTEND_MS = 20000;
+  // Tiempo que el camión se queda atendiendo en el lugar (en ms)
+  private readonly ATTEND_MS = 10_000; // 10 segundos
 
   private readonly PATROL_LEG_MAX_MS = 60_000;
   private readonly PATROL_DWELL_MS   = 600_000;
 
+  /** HIDRANTES **/
   private hydrantsLoaded = false;
   private hydrantMarkers: google.maps.Marker[] = [];
 
+  /** FILTRO DE GARABATOS **/
   private readonly BAD_WORDS = [
     'weon', 'weón', 'wea', 'culiao', 'conchetumare', 'ctm',
     'mierda', 'pico', 'puta'
   ];
 
+  /** ESTADO DEL FORMULARIO DE REPORTE **/
   public reportOpen = false;
   public reportType: IncidentType | null = null;
   public reportAddress: string = '';
@@ -172,7 +185,10 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
   private addressAutocomplete?: google.maps.places.Autocomplete;
   private reportLatLng: google.maps.LatLng | null = null;
 
-  // Abrir modal y, una vez renderizado, inicializar Autocomplete en el input de dirección
+  // -------------------------------------------------------------
+  // MODAL DE REPORTE
+  // -------------------------------------------------------------
+
   openReportModal() {
     this.reportOpen = true;
 
@@ -185,9 +201,14 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     this.reportOpen = false;
   }
 
+  // -------------------------------------------------------------
+  // CICLO DE VIDA
+  // -------------------------------------------------------------
+
   async ngAfterViewInit() {
     const el = document.getElementById('map') as HTMLElement;
 
+    // Esperar a que el contenedor tenga tamaño
     await new Promise<void>((resolve) => {
       const ok = () => el.offsetWidth > 0 && el.offsetHeight > 0;
       if (ok()) return resolve();
@@ -199,6 +220,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       }, 16);
     });
 
+    // Cargar Google Maps
     const loader = new Loader({
       apiKey: environment.googleMapsApiKey,
       version: 'weekly',
@@ -210,6 +232,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
 
     this.geometryReady = !!google.maps.geometry?.spherical && !!google.maps.geometry?.poly;
 
+    // ICONOS
     this.STATION_ICON = {
       url: 'assets/icons/station@2x.png',
       scaledSize: new google.maps.Size(28, 28),
@@ -237,22 +260,21 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       { lat: this.CHILOE_BOUNDS.north, lng: this.CHILOE_BOUNDS.east }
     );
 
-    // Configuración del mapa (sin UI, sin joystick, full gestures)
+    // Configuración del mapa
     this.map = new google.maps.Map(el, {
       center: { lat: -42.6, lng: -73.9 },
       zoom: 9,
-      minZoom: 8,
+      minZoom: 9,
       maxZoom: 19,
-
       disableDefaultUI: true,
       gestureHandling: 'greedy',
       keyboardShortcuts: false,
-
       zoomControl: false,
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: false,
 
+      // 🔒 Sólo se puede navegar dentro de Chiloé
       restriction: {
         latLngBounds: this.CHILOE_BOUNDS,
         strictBounds: true
@@ -264,27 +286,45 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     this.infoWin = new google.maps.InfoWindow();
     this.directionsService = new google.maps.DirectionsService();
 
+    // Máscara alrededor de Chiloé
     this.addMaskPolygon();
     try { await this.loadLandPolygons(); } catch {}
 
+    // Estaciones
     this.addStations();
 
+    // Hidratnes visibles según zoom
     this.map.addListener('zoom_changed', () => this.updateHydrantsVisibility());
     this.updateHydrantsVisibility();
 
+    // Incidentes en tiempo real desde Firestore
     this.startFirestoreSubscription();
 
+    // Flota inicial
     this.spawnFleetPerCompany();
 
-    // Esta llamada aquí suele no hacer nada porque el input aún no existe,
-    // pero no afecta. La inicialización real se hace al abrir el modal.
+    // Autocomplete (llamado real al abrir modal)
     this.setupAddressAutocomplete();
 
+    // Animación
     this.lastTs = performance.now();
     this.rafId = requestAnimationFrame(this.tickRaf);
   }
 
+  ngOnDestroy(): void {
+    if (this.rafId) cancelAnimationFrame(this.rafId);
+
+    for (const t of this.trucks) {
+      this.clearPatrolTimers(t);
+    }
+
+    if (this.unsubIncidents) this.unsubIncidents();
+  }
+
+  // -------------------------------------------------------------
   // AUTOCOMPLETE – PLACES API
+  // -------------------------------------------------------------
+
   private setupAddressAutocomplete() {
     const input = document.getElementById('report-address-input') as HTMLInputElement | null;
     if (!input || !google.maps.places || !google.maps.places.Autocomplete) return;
@@ -318,7 +358,10 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     });
   }
 
+  // -------------------------------------------------------------
   // FIRESTORE — INCIDENTES EN TIEMPO REAL
+  // -------------------------------------------------------------
+
   private startFirestoreSubscription() {
     if (!getApps().length) initializeApp(environment.firebase);
 
@@ -327,13 +370,13 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
 
     this.unsubIncidents = onSnapshot(colRef, (snap: QuerySnapshot<DocumentData>) => {
       const next: IncidentDoc[] = [];
-      snap.forEach(doc => {
-        const d = doc.data() as any;
+      snap.forEach(docSnap => {
+        const d = docSnap.data() as any;
         const loc = d.location;
         next.push({
-          id: doc.id,
+          id: docSnap.id,
           type: (d.type as IncidentType) ?? 'Incendio',
-          status: d.status ?? 'open',
+          status: (d.status as 'open' | 'closed') ?? 'open',
           priority: d.priority,
           address: d.address ?? null,
           location: { latitude: loc?.latitude ?? 0, longitude: loc?.longitude ?? 0 },
@@ -348,6 +391,9 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     const seen = new Set<string>();
 
     for (const i of list) {
+      // No dibujar incidentes cerrados
+      if (i.status === 'closed') continue;
+
       seen.add(i.id);
       const pos = new google.maps.LatLng(i.location.latitude, i.location.longitude);
       const icon = this.INCIDENT_ICONS[i.type] || this.INCIDENT_ICONS['Incendio'];
@@ -361,7 +407,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
           title: `${i.type}${i.address ? ' - ' + i.address : ''}`,
           zIndex: 3
         });
-        marker.addListener('click', () => this.dispatchBest(marker!, i.type));
+        marker.addListener('click', () => this.dispatchBest(marker!, i));
         this.incidentMarkersById.set(i.id, marker);
         this.incidentMarkersByType[i.type].push(marker);
       } else {
@@ -372,6 +418,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       }
     }
 
+    // Limpiar marcadores que ya no existen
     for (const [id, marker] of this.incidentMarkersById.entries()) {
       if (!seen.has(id)) {
         marker.setMap(null);
@@ -384,7 +431,10 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     }
   }
 
-  // REPORTES
+  // -------------------------------------------------------------
+  // FORMULARIO DE REPORTE
+  // -------------------------------------------------------------
+
   public setReportType(t: IncidentType) {
     this.reportType = t;
   }
@@ -499,6 +549,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       attachmentsCount: this.selectedFiles.length
     });
 
+    // Reset form
     this.reportOpen = false;
     this.reportType = null;
     this.reportAddress = '';
@@ -508,7 +559,10 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     this.reportLatLng = null;
   }
 
+  // -------------------------------------------------------------
   // HIDRANTES + ESTACIONES + POLÍGONOS
+  // -------------------------------------------------------------
+
   private minDistanceToStations(p: google.maps.LatLng): number {
     let best = Infinity;
     for (const st of this.STATIONS_LIST) {
@@ -533,71 +587,6 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
   private async safeFetchPath(a: google.maps.LatLng, b: google.maps.LatLng): Promise<google.maps.LatLng[]> {
     try { return await this.fetchDirectionsPath(a, b); }
     catch { return []; }
-  }
-
-  private async dispatchBest(incidentMarker: google.maps.Marker, _type: IncidentType) {
-    const pos = incidentMarker.getPosition()!;
-    const candidates = this.trucks.filter(
-      t => t.state === TruckState.STANDBY || t.state === TruckState.PATROL
-    );
-    if (!candidates.length) return;
-
-    candidates.sort((t1, t2) => {
-      const d1 = google.maps.geometry.spherical.computeDistanceBetween(
-        t1.marker.getPosition()!, pos
-      );
-      const d2 = google.maps.geometry.spherical.computeDistanceBetween(
-        t2.marker.getPosition()!, pos
-      );
-      return d1 - d2;
-    });
-
-    const chosen = candidates[0];
-
-    this.clearPatrolTimers(chosen);
-
-    this.gotoByDirections(chosen, pos, () => {
-      chosen.state = TruckState.ATTENDING;
-      chosen.speedMps = 0;
-
-      setTimeout(() => {
-        incidentMarker.setMap(null);
-        this.returnToBase(chosen, () => {
-          if (chosen.isPatroller) this.schedulePatrolResume(chosen);
-        });
-      }, this.ATTEND_MS);
-    });
-  }
-
-  private rand(min: number, max: number) {
-    return min + Math.random() * (max - min);
-  }
-
-  private randOnLand(): LatLng {
-    for (let i = 0; i < 60; i++) {
-      const p = new google.maps.LatLng(
-        this.rand(this.CHILOE_BOUNDS.south, this.CHILOE_BOUNDS.north),
-        this.rand(this.CHILOE_BOUNDS.west,  this.CHILOE_BOUNDS.east)
-      );
-      if (this.isOnLand(p)) return { lat: p.lat(), lng: p.lng() };
-    }
-    return { lat: -42.6, lng: -73.9 };
-  }
-
-  private isOnLand(p: google.maps.LatLng): boolean {
-    if (!this.landPolygons.length) return this.chiloeBounds.contains(p);
-
-    if (!this.geometryReady || !google.maps.geometry?.poly?.containsLocation) {
-      return this.chiloeBounds.contains(p);
-    }
-
-    try {
-      return this.landPolygons.some(poly =>
-        google.maps.geometry.poly.containsLocation(p, poly)
-      );
-    } catch {
-      return this.chiloeBounds.contains(p);
-    }
   }
 
   private async loadLandPolygons() {
@@ -655,9 +644,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
           })
         );
       }
-    }
-
-    else if (geom?.type === 'MultiPolygon') {
+    } else if (geom?.type === 'MultiPolygon') {
       const polys: any[][][] = geom.coordinates || [];
 
       for (const poly of polys) {
@@ -780,22 +767,27 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
   }
 
   private addMaskPolygon() {
-    const WORLD = [
+    // Polígono gigante que cubre casi todo el mundo
+    const WORLD: google.maps.LatLngLiteral[] = [
       { lat: 85, lng: -180 },
       { lat: 85, lng: 180 },
       { lat: -85, lng: 180 },
       { lat: -85, lng: -180 }
     ];
 
-    const HOLE = [
+    // Rectángulo de Chiloé (el área que queremos "recortar")
+    const HOLE: google.maps.LatLngLiteral[] = [
       { lat: this.CHILOE_BOUNDS.north, lng: this.CHILOE_BOUNDS.west },
       { lat: this.CHILOE_BOUNDS.north, lng: this.CHILOE_BOUNDS.east },
       { lat: this.CHILOE_BOUNDS.south, lng: this.CHILOE_BOUNDS.east },
       { lat: this.CHILOE_BOUNDS.south, lng: this.CHILOE_BOUNDS.west }
     ];
 
+    // Google Maps interpreta los paths como huecos si van en sentido contrario
+    const HOLE_REVERSED = [...HOLE].reverse();
+
     new google.maps.Polygon({
-      paths: [WORLD, HOLE],
+      paths: [WORLD, HOLE_REVERSED],
       strokeOpacity: 0,
       fillColor: '#000',
       fillOpacity: 0.45,
@@ -803,6 +795,10 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       map: this.map
     });
   }
+
+  // -------------------------------------------------------------
+  // REVERSE GEOCODING (CALLES)
+  // -------------------------------------------------------------
 
   private cacheKey(lat: number, lng: number) {
     return `${lat.toFixed(6)},${lng.toFixed(6)}`;
@@ -915,7 +911,10 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     return null;
   }
 
+  // -------------------------------------------------------------
   // FLOTA, RUTAS Y PATRULLAJE
+  // -------------------------------------------------------------
+
   private spawnFleetPerCompany() {
     const seen = new Set<string>();
 
@@ -925,14 +924,18 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
 
       const base = new google.maps.LatLng(st.position.lat, st.position.lng);
 
-      this.trucks.push(this.createTruck(st.name, base, TruckState.STANDBY));
+      // 👉 2 camiones en base (STANDBY)
+      const standby1 = this.createTruck(st.name, base, TruckState.STANDBY);
+      const standby2 = this.createTruck(st.name, base, TruckState.STANDBY);
 
+      // 👉 1 camión patrullero
       const patrol = this.createTruck(st.name, base, TruckState.PATROL);
       patrol.isPatroller = true;
       patrol.speedMps = this.SPEED_PATROL;
 
+      this.trucks.push(standby1, standby2, patrol);
+
       this.startPatrolCycle(patrol);
-      this.trucks.push(patrol);
     }
   }
 
@@ -1014,7 +1017,8 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     if (t.state !== TruckState.PATROL) return;
 
     const origin = t.marker.getPosition()!;
-    const roughTarget = this.pickNearbySeed(origin, 400, 1200);
+    // Patrulla en radio ~0.5 km (diámetro ~1 km)
+    const roughTarget = this.pickNearbySeed(origin, 450, 550);
 
     this.enqueueRouteRequest(() =>
       this.fetchDirectionsPath(origin, roughTarget)
@@ -1041,6 +1045,129 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
           setTimeout(() => this.startPatrolLeg(t), 2000);
         })
     );
+  }
+
+  // -------------------------------------------------------------
+  // DISPATCH — LÓGICA A (RUTA REAL + PREFILTRO)
+  // -------------------------------------------------------------
+
+  private async dispatchBest(incidentMarker: google.maps.Marker, incident: IncidentDoc) {
+    const pos = incidentMarker.getPosition()!;
+    // Patrulleros y camiones en base pueden responder
+    const candidates = this.trucks.filter(
+      t => t.state === TruckState.STANDBY || t.state === TruckState.PATROL
+    );
+    if (!candidates.length) return;
+
+    // 1) Pre-filtro por distancia en línea recta
+    const withStraight = candidates.map(t => ({
+      truck: t,
+      straightDist: google.maps.geometry.spherical.computeDistanceBetween(
+        t.marker.getPosition()!,
+        pos
+      )
+    }));
+
+    // Ordenar por más cercano en línea recta
+    withStraight.sort((a, b) => a.straightDist - b.straightDist);
+
+    // Quedarnos solo con los 3 más cercanos (ajustable)
+    const shortlist = withStraight.slice(0, Math.min(3, withStraight.length));
+
+    // 2) Calcular distancia real de ruta (Directions) solo para la shortlist
+    const results = await Promise.all(
+      shortlist.map(async ({ truck }) => {
+        const origin = truck.marker.getPosition()!;
+        try {
+          const res = await this.directionsService.route({
+            origin,
+            destination: pos,
+            travelMode: google.maps.TravelMode.DRIVING,
+            avoidFerries: true
+          });
+          const leg = res.routes?.[0]?.legs?.[0];
+          const distMeters = leg?.distance?.value ?? Number.POSITIVE_INFINITY;
+          return { truck, distMeters };
+        } catch {
+          return { truck, distMeters: Number.POSITIVE_INFINITY };
+        }
+      })
+    );
+
+    const valid = results.filter(r => isFinite(r.distMeters));
+    if (!valid.length) return;
+
+    // 3) Elegir el de menor distancia de ruta
+    valid.sort((a, b) => a.distMeters - b.distMeters);
+    const chosen = valid[0].truck;
+
+    this.clearPatrolTimers(chosen);
+
+    this.gotoByDirections(chosen, pos, () => {
+      chosen.state = TruckState.ATTENDING;
+      chosen.speedMps = 0;
+
+      setTimeout(() => {
+        this.closeIncident(incident, incidentMarker);
+        this.returnToBase(chosen, () => {
+          if (chosen.isPatroller) this.schedulePatrolResume(chosen);
+        });
+      }, this.ATTEND_MS);
+    });
+  }
+
+  // Cerrar incidente en Firestore (open -> closed)
+  private async closeIncident(incident: IncidentDoc, incidentMarker: google.maps.Marker) {
+    incidentMarker.setMap(null);
+
+    try {
+      if (!getApps().length) initializeApp(environment.firebase);
+      const db = getFirestore();
+      const ref = doc(db, 'incidents', incident.id);
+      await updateDoc(ref, {
+        status: 'closed',
+        updatedAt: serverTimestamp(),
+        closedAt: serverTimestamp()
+      });
+      console.log(`Incidente ${incident.id} cerrado en Firestore`);
+    } catch (e) {
+      console.error('Error al cerrar incidente en Firestore', e);
+    }
+  }
+
+  // -------------------------------------------------------------
+  // RUTEO / DIRECTIONS API
+  // -------------------------------------------------------------
+
+  private rand(min: number, max: number) {
+    return min + Math.random() * (max - min);
+  }
+
+  private randOnLand(): LatLng {
+    for (let i = 0; i < 60; i++) {
+      const p = new google.maps.LatLng(
+        this.rand(this.CHILOE_BOUNDS.south, this.CHILOE_BOUNDS.north),
+        this.rand(this.CHILOE_BOUNDS.west,  this.CHILOE_BOUNDS.east)
+      );
+      if (this.isOnLand(p)) return { lat: p.lat(), lng: p.lng() };
+    }
+    return { lat: -42.6, lng: -73.9 };
+  }
+
+  private isOnLand(p: google.maps.LatLng): boolean {
+    if (!this.landPolygons.length) return this.chiloeBounds.contains(p);
+
+    if (!this.geometryReady || !google.maps.geometry?.poly?.containsLocation) {
+      return this.chiloeBounds.contains(p);
+    }
+
+    try {
+      return this.landPolygons.some(poly =>
+        google.maps.geometry.poly.containsLocation(p, poly)
+      );
+    } catch {
+      return this.chiloeBounds.contains(p);
+    }
   }
 
   // IR A INCIDENTE
@@ -1262,7 +1389,10 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     }
   }
 
+  // -------------------------------------------------------------
   // ANIMACIÓN — tickRaf + física
+  // -------------------------------------------------------------
+
   private tickRaf = (ts: number) => {
     const dt = (ts - this.lastTs) / 1000;
     this.lastTs = ts;
@@ -1281,6 +1411,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       switch (t.state) {
         case TruckState.STANDBY:
         case TruckState.ATTENDING:
+          // quietos en base o atendiendo
           break;
 
         case TruckState.RESPONDING:
@@ -1288,8 +1419,10 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
         case TruckState.PATROL:
           this.advanceAlongRoute(t, step, () => {
             if (t.state === TruckState.PATROL) {
-              const wait = 2000 + Math.random() * 3000;
-              setTimeout(() => this.startPatrolLeg(t), wait);
+              // Cuando termina la pierna de patrulla, vuelve a base
+              this.returnToBase(t, () => {
+                if (t.isPatroller) this.schedulePatrolResume(t);
+              });
             }
           });
           break;
@@ -1307,26 +1440,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       return;
     }
 
-    let a = t.route[t.segIdx];
-    let b = t.route[t.segIdx + 1];
-
-    if (!b) {
-      onEnd();
-      return;
-    }
-
-    const segLen = google.maps.geometry.spherical.computeDistanceBetween(a, b);
-
-    if (segLen <= 0.1) {
-      t.segIdx++;
-      t.segT = 0;
-
-      if (t.segIdx >= t.route.length - 1) {
-        onEnd();
-        return;
-      }
-    }
-
+    // Velocidad según estado
     const speed =
       t.state === TruckState.RESPONDING
         ? this.SPEED_RESPONSE :
@@ -1336,53 +1450,56 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
         ? (t.speedMps || this.SPEED_PATROL) :
         0;
 
+    if (speed <= 0) return;
+
     let remaining = speed * dt;
 
-    while (remaining > 0) {
+    while (remaining > 0 && t.segIdx < t.route.length - 1) {
+      const a = t.route[t.segIdx];
+      const b = t.route[t.segIdx + 1];
+
+      const segLen = google.maps.geometry.spherical.computeDistanceBetween(a, b);
+      if (segLen <= 0.1) {
+        t.segIdx++;
+        t.segT = 0;
+        continue;
+      }
+
       const distOnSeg = segLen * (1 - t.segT);
 
       if (remaining < distOnSeg) {
+        // nos quedamos en este segmento
         t.segT += remaining / segLen;
         remaining = 0;
       } else {
+        // consumimos este segmento completo y pasamos al siguiente
         remaining -= distOnSeg;
         t.segIdx++;
         t.segT = 0;
-
-        a = t.route[t.segIdx];
-        b = t.route[t.segIdx + 1];
-
-        if (!b) {
-          onEnd();
-          break;
-        }
       }
     }
 
+    // Si llegamos al final de la ruta
+    if (t.segIdx >= t.route.length - 1) {
+      const last = t.route[t.route.length - 1];
+      t.marker.setPosition(last);
+      onEnd();
+      return;
+    }
+
+    // Interpolación dentro del segmento actual
     const start = t.route[t.segIdx];
     const end = t.route[t.segIdx + 1];
 
-    if (end) {
-      const heading = google.maps.geometry.spherical.computeHeading(start, end);
-      const segDist = google.maps.geometry.spherical.computeDistanceBetween(start, end);
+    const heading = google.maps.geometry.spherical.computeHeading(start, end);
+    const segDist = google.maps.geometry.spherical.computeDistanceBetween(start, end);
 
-      const pos = google.maps.geometry.spherical.computeOffset(
-        start,
-        segDist * t.segT,
-        heading
-      );
+    const pos = google.maps.geometry.spherical.computeOffset(
+      start,
+      segDist * t.segT,
+      heading
+    );
 
-      t.marker.setPosition(pos);
-    }
-  }
-
-  ngOnDestroy(): void {
-    if (this.rafId) cancelAnimationFrame(this.rafId);
-
-    for (const t of this.trucks) {
-      this.clearPatrolTimers(t);
-    }
-
-    if (this.unsubIncidents) this.unsubIncidents();
+    t.marker.setPosition(pos);
   }
 }
