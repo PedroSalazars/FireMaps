@@ -18,6 +18,7 @@ import { db } from '../firebase-config';
 export class VistaLoginPage {
   correo = '';
   clave = '';
+  usuarioActivo: any = null;
 
   constructor(private toastController: ToastController, private router: Router) {}
 
@@ -54,7 +55,13 @@ async iniciarSesion(form: NgForm) {
       // Guardar sesión local si lo necesitas
       localStorage.setItem('usuarioActivo', JSON.stringify(usuario));
 
-      this.router.navigate(['/home']);
+      // 🚀 Redirección según rol
+      if (usuario['rol'] === 'bombero') {
+        this.router.navigate(['/vista-bombero']);   // vista especial para bomberos
+      } else {
+        this.router.navigate(['/vista-home']);      // vista normal
+      }
+
     } else {
       const toast = await this.toastController.create({
         message: 'Correo o contraseña incorrectos.',

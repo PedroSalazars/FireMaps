@@ -19,7 +19,7 @@ import { RouterLink } from '@angular/router';
   imports: [ CommonModule, FormsModule,IonicModule, RouterLink ]
 })
 export class VistaBomberoPage implements OnInit {
-
+  usuario: any = null;
   constructor() {
     addIcons({
       chatboxEllipses,
@@ -30,6 +30,9 @@ export class VistaBomberoPage implements OnInit {
    }
 
   ngOnInit() {
+    const data = localStorage.getItem('usuarioActivo');
+    if (data) {
+      this.usuario = JSON.parse(data);
+    }
   }
-
 }

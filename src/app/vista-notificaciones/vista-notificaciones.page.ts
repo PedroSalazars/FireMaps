@@ -47,4 +47,10 @@ export class VistaNotificacionesPage implements OnInit {
       console.error('Error al cargar incidentes:', error);
     }
   }
+  async cargarMas(event: any) {
+  // Aquí podrías traer más incidentes desde Firebase con paginación
+  console.log('Cargar más incidentes...');
+  event.target.complete();
+}
+
 }

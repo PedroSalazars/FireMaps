@@ -1,17 +1,27 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>vista-bombero</ion-title>
+    <ion-title>Bombero</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-item lines="none" class="welcome-message">
+  <ion-item lines="none" class="welcome-message" *ngIf="usuario">
     <ion-label>
-      <ion-text>Hola Bombero</ion-text>
-      <p>asdasd</p>
+      <ion-text>
+        Hola Bombero {{ usuario.nombre }}
+      </ion-text>
+      <p><strong>Correo:</strong> {{ usuario.correo }}</p>
+      <p><strong>Rol:</strong> {{ usuario.rol }}</p>
+      <p>Revisa tus notificaciones, para accedera a la informacion de las emergencias</p>
     </ion-label>
   </ion-item>
+
+  <div *ngIf="!usuario" class="empty-state">
+    <ion-icon name="person-circle-outline" size="large"></ion-icon>
+    <p>No se encontró información del usuario</p>
+  </div>
 </ion-content>
+
 
 <!-- Footer-->
 <ion-tabs #tabs>

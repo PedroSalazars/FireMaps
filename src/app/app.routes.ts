@@ -2,7 +2,7 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'vista-bombero', pathMatch: 'full' },
+  { path: '', redirectTo: 'vista-inicio', pathMatch: 'full' },
 
   {
     path: 'vista-home',
