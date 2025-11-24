@@ -1,12 +1,11 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>vista-notificaciones</ion-title>
+    <ion-title>Notificaciones</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content fullscreen>
   <ion-list>
-    <!-- Itera sobre los incidentes obtenidos desde Firebase -->
     <ion-item *ngFor="let incidente of incidentes">
       <ion-icon name="alert-circle" slot="start" color="danger"></ion-icon>
       <ion-label>
@@ -19,12 +18,12 @@
     </ion-item>
   </ion-list>
 
-  <!-- Mensaje si no hay incidentes -->
   <div *ngIf="incidentes.length === 0" class="empty-state">
     <ion-icon name="notifications-off" size="large"></ion-icon>
     <p>No hay notificaciones registradas</p>
   </div>
 </ion-content>
+
 
 <!-- Footer-->
 <ion-tabs #tabs>
