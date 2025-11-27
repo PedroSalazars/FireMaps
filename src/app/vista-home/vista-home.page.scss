@@ -6,6 +6,7 @@ ion-content {
 
 /* Mapa responsivo */
 .map-container {
+  position: relative;
   width: 100%;
   height: calc(100vh - 140px); /* Altura disponible menos header y footer */
   padding: 8px;
@@ -134,16 +135,9 @@ ion-textarea.ubicacion-texto {
 }
 
 /* Input nativo de archivos */
-input[type="file"] {
+input[type='file'] {
   color: #000;
   font-size: 14px;
-}
-
-/* Ajustes adicionales del contenedor de mapa */
-.map-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
 }
 
 /* Posición del botón FAB de reporte */
@@ -164,7 +158,7 @@ input[type="file"] {
    – Tamaño fijo y forma circular
    – Sombra suave tipo FAB */
 .report-fab ion-fab-button {
-  --background: #FFC078;
+  --background: #ffc078;
   --color: #ffffff;
 
   font-size: 24px;
@@ -183,4 +177,38 @@ input[type="file"] {
 .report-fab ion-icon {
   color: #ffffff;
   font-size: 26px;
+}
+
+/* ---------------------------------------------------
+   TOAST ESTÉTICO PARA INCIDENTES (incident-toast)
+   --------------------------------------------------- */
+
+/* Quitamos el fondo por defecto del ion-toast */
+ion-toast.incident-toast {
+  --background: transparent;      /* fondo transparente para que se vea solo la tarjeta */
+  --box-shadow: none;
+  --color: #000;
+}
+
+/* Contenedor interno del toast: tarjeta blanca redondeada */
+ion-toast.incident-toast .toast-container {
+  background: #ffffff;
+  color: #000000;
+  border-radius: 12px;
+
+  padding: 12px 16px;
+  margin: 0 16px 32px;            /* separarlo de los bordes y del bottom */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Por si Ionic usa botón dentro del toast */
+ion-toast.incident-toast .toast-button {
+  color: #f27b13;
+  font-weight: 600;
 }

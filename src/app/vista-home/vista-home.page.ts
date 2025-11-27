@@ -4,6 +4,7 @@ import {
   IonFab, IonFabButton, IonFabList, IonButton, IonFooter,
   IonModal, IonButtons, IonInput, IonTextarea, IonIcon
 } from '@ionic/angular/standalone';
+import { ToastController } from '@ionic/angular';
 import { RouterLink } from '@angular/router';
 import { Loader } from '@googlemaps/js-api-loader';
 import { environment } from '../../environments/environment';
@@ -75,6 +76,8 @@ type Truck = {
 })
 export class VistaHomePage implements AfterViewInit, OnDestroy {
 
+  constructor(private toastController: ToastController) {}
+
   /** MAPA Y GOOGLE MAPS **/
   private map!: google.maps.Map;
   private infoWin!: google.maps.InfoWindow;
@@ -117,6 +120,9 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
   private incidentMarkersById = new Map<string, google.maps.Marker>();
   private unsubIncidents?: () => void;
 
+  // 👉 Seguimiento de camiones asignados por incidente
+  private incidentAssignments = new Map<string, { truckIds: Set<string>; max: number; closed: boolean }>();
+
   /** GEOMETRÍA Y POLÍGONOS **/
   private landPolygons: google.maps.Polygon[] = [];
   private geometryReady = false;
@@ -154,7 +160,8 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
   // Tiempo que el camión se queda atendiendo en el lugar (en ms)
   private readonly ATTEND_MS = 10_000; // 10 segundos
 
-  private readonly PATROL_LEG_MAX_MS = 60_000;
+  // ⏱ Máximo de una ronda de patrulla ~5 minutos
+  private readonly PATROL_LEG_MAX_MS = 300_000;
   private readonly PATROL_DWELL_MS   = 600_000;
 
   /** HIDRANTES **/
@@ -483,6 +490,38 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     }
   }
 
+  // Máximo de camiones según prioridad: alta => 2, resto => 1
+  private maxTrucksForIncident(incident: IncidentDoc): number {
+    const p = incident.priority ?? this.defaultPriorityForType(incident.type);
+    return p >= 3 ? 2 : 1;
+  }
+
+  // 🔹 Snap a la calle más cercana usando Roads API
+  private async snapToNearestRoad(
+    lat: number,
+    lng: number
+  ): Promise<{ lat: number; lng: number } | null> {
+    const url =
+      `https://roads.googleapis.com/v1/nearestRoads?points=${lat},${lng}` +
+      `&key=${environment.googleMapsApiKey}`;
+
+    try {
+      const res = await fetch(url);
+      if (!res.ok) return null;
+
+      const data: any = await res.json();
+      const snapped = data?.snappedPoints?.[0]?.location;
+      if (!snapped) return null;
+
+      return {
+        lat: snapped.latitude,
+        lng: snapped.longitude
+      };
+    } catch {
+      return null;
+    }
+  }
+
   public async submitReport() {
     this.formErrors = { type: '', address: '', notes: '', photos: '' };
 
@@ -529,8 +568,21 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       return;
     }
 
-    const lat = point.lat();
-    const lng = point.lng();
+    // Coordenadas originales del geocoder
+    let lat = point.lat();
+    let lng = point.lng();
+
+    // 🔹 Ajustar a la calle más cercana (Roads API)
+    const snapped = await this.snapToNearestRoad(lat, lng);
+    if (snapped) {
+      const snappedLatLng = new google.maps.LatLng(snapped.lat, snapped.lng);
+
+      // Solo usamos el punto ajustado si sigue dentro de Chiloé
+      if (this.chiloeBounds.contains(snappedLatLng)) {
+        lat = snapped.lat;
+        lng = snapped.lng;
+      }
+    }
 
     if (!getApps().length) initializeApp(environment.firebase);
 
@@ -543,6 +595,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       priority: this.defaultPriorityForType(this.reportType!),
       address: cleanAddress,
       notes: cleanNotes || null,
+      // 🔹 Ahora guardamos la coordenada ya “snappeada” a la calle
       location: new GeoPoint(lat, lng),
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -956,8 +1009,19 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       const t = this.trucks.find(x => x.marker === m);
       if (!t) return;
 
+      // 👉 Agregamos ETA si va respondiendo o retornando
+      let etaHtml = '';
+      if (t.state === TruckState.RESPONDING || t.state === TruckState.RETURNING) {
+        const remaining = this.getRemainingDistance(t);
+        const speed = t.speedMps || 0;
+        if (remaining > 0 && speed > 0) {
+          const etaSeconds = remaining / speed;
+          etaHtml = `<br><b>Hora de llegada en:</b> ${this.formatEta(etaSeconds)}`;
+        }
+      }
+
       this.infoWin.setContent(
-        `<b>Camión de:</b> ${t.company}<br><b>Estado:</b> ${t.state}`
+        `<b>Camión de:</b> ${t.company}<br><b>Estado:</b> ${t.state}${etaHtml}`
       );
 
       this.infoWin.open({ map: this.map, anchor: m });
@@ -995,6 +1059,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
 
     this.startPatrolLeg(t);
 
+    // Máximo de tiempo en patrulla antes de forzar regreso
     t.patrolTimeout = setTimeout(() => {
       if (t.state === TruckState.PATROL) {
         this.returnToBase(t, () => this.schedulePatrolResume(t));
@@ -1017,8 +1082,8 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     if (t.state !== TruckState.PATROL) return;
 
     const origin = t.marker.getPosition()!;
-    // Patrulla en radio ~0.5 km (diámetro ~1 km)
-    const roughTarget = this.pickNearbySeed(origin, 450, 550);
+    // 👉 Patrulla en radio aproximado 2 km desde su posición actual
+    const roughTarget = this.pickNearbySeed(origin, 1800, 2200);
 
     this.enqueueRouteRequest(() =>
       this.fetchDirectionsPath(origin, roughTarget)
@@ -1048,14 +1113,58 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
   }
 
   // -------------------------------------------------------------
-  // DISPATCH — LÓGICA A (RUTA REAL + PREFILTRO)
+  // DISPATCH — LÓGICA CON LÍMITE DE CAMIONES POR INCIDENTE
   // -------------------------------------------------------------
 
   private async dispatchBest(incidentMarker: google.maps.Marker, incident: IncidentDoc) {
     const pos = incidentMarker.getPosition()!;
+    const incidentId = incident.id;
+
+    // Configuración del incidente en memoria
+    const max = this.maxTrucksForIncident(incident);
+    let entry = this.incidentAssignments.get(incidentId);
+    if (!entry) {
+      entry = { truckIds: new Set<string>(), max, closed: false };
+      this.incidentAssignments.set(incidentId, entry);
+    } else {
+      entry.max = max; // por si cambia la prioridad en Firestore
+    }
+
+    if (entry.closed) {
+      const toast = await this.toastController.create({
+        message: 'Este incidente ya fue cerrado.',
+        duration: 2500,
+        color: 'medium',
+        position: 'bottom',
+        cssClass: 'incident-toast'
+      });
+      await toast.present();
+      return;
+    }
+
+    // ¿Ya llegamos al máximo de camiones asignados?
+    if (entry.truckIds.size >= entry.max) {
+      const msg =
+        entry.max === 1
+          ? 'Ya se está haciendo cargo un carro bomba.'
+          : 'Ya se están haciendo cargo 2 carros bomba.';
+
+      const toast = await this.toastController.create({
+        message: msg,
+        duration: 2500,
+        color: 'warning',
+        position: 'bottom',
+        cssClass: 'incident-toast'
+      });
+      await toast.present();
+      return;
+    }
+
     // Patrulleros y camiones en base pueden responder
     const candidates = this.trucks.filter(
-      t => t.state === TruckState.STANDBY || t.state === TruckState.PATROL
+      t =>
+        (t.state === TruckState.STANDBY || t.state === TruckState.PATROL) &&
+        !entry!.truckIds.has(t.id) // no reasignar el mismo camión al mismo incidente
     );
     if (!candidates.length) return;
 
@@ -1101,24 +1210,76 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     valid.sort((a, b) => a.distMeters - b.distMeters);
     const chosen = valid[0].truck;
 
+    // Registrar que este camión está asignado a este incidente
+    entry.truckIds.add(chosen.id);
+
     this.clearPatrolTimers(chosen);
+
+    // Asegurar que existe routeLine para la ruta roja
+    if (!chosen.routeLine) {
+      chosen.routeLine = new google.maps.Polyline({
+        path: [],
+        geodesic: true,
+        strokeColor: '#ff3b30',
+        strokeOpacity: 0.95,
+        strokeWeight: 3,
+        map: this.map,
+        zIndex: 3
+      });
+    }
 
     this.gotoByDirections(chosen, pos, () => {
       chosen.state = TruckState.ATTENDING;
       chosen.speedMps = 0;
 
       setTimeout(() => {
-        this.closeIncident(incident, incidentMarker);
-        this.returnToBase(chosen, () => {
-          if (chosen.isPatroller) this.schedulePatrolResume(chosen);
-        });
+        this.onTruckFinishedIncident(incident, incidentMarker, chosen);
       }, this.ATTEND_MS);
+    });
+  }
+
+  // Cuando un camión termina de atender un incidente
+  private onTruckFinishedIncident(
+    incident: IncidentDoc,
+    incidentMarker: google.maps.Marker,
+    truck: Truck
+  ) {
+    const incidentId = incident.id;
+    const entry = this.incidentAssignments.get(incidentId);
+
+    if (entry) {
+      if (entry.closed) {
+        // Ya estaba cerrado por otro camión, sólo regresamos a base
+        this.returnToBase(truck, () => {
+          if (truck.isPatroller) this.schedulePatrolResume(truck);
+        });
+        return;
+      }
+
+      entry.truckIds.delete(truck.id);
+
+      // Si ya no queda ningún camión asignado → cerrar incidente
+      if (entry.truckIds.size === 0) {
+        this.closeIncident(incident, incidentMarker);
+        entry.closed = true;
+      }
+    } else {
+      // Por seguridad: si no hay entry, sólo cerramos
+      this.closeIncident(incident, incidentMarker);
+    }
+
+    this.returnToBase(truck, () => {
+      if (truck.isPatroller) this.schedulePatrolResume(truck);
     });
   }
 
   // Cerrar incidente en Firestore (open -> closed)
   private async closeIncident(incident: IncidentDoc, incidentMarker: google.maps.Marker) {
     incidentMarker.setMap(null);
+
+    // Marcar como cerrado en la estructura local si existe
+    const entry = this.incidentAssignments.get(incident.id);
+    if (entry) entry.closed = true;
 
     try {
       if (!getApps().length) initializeApp(environment.firebase);
@@ -1483,6 +1644,11 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     if (t.segIdx >= t.route.length - 1) {
       const last = t.route[t.route.length - 1];
       t.marker.setPosition(last);
+
+      if (t.routeLine) {
+        t.routeLine.setMap(null);
+      }
+
       onEnd();
       return;
     }
@@ -1501,5 +1667,59 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     );
 
     t.marker.setPosition(pos);
+
+    // 🔥 Actualizar polilínea para que se vaya achicando
+    if (t.routeLine) {
+      const remainingPath: google.maps.LatLng[] = [pos];
+      for (let i = t.segIdx + 1; i < t.route.length; i++) {
+        remainingPath.push(t.route[i]);
+      }
+      t.routeLine.setPath(remainingPath);
+    }
+  }
+
+  // -------------------------------------------------------------
+  // HELPERS PARA ETA (DISTANCIA RESTANTE)
+  // -------------------------------------------------------------
+
+  private getRemainingDistance(t: Truck): number {
+    if (!t.route || t.route.length < 2) return 0;
+    const currentPos = t.marker.getPosition();
+    if (!currentPos) return 0;
+
+    let dist = 0;
+
+    const idx = t.segIdx;
+    const nextIdx = Math.min(idx + 1, t.route.length - 1);
+
+    // Distancia desde la posición actual al siguiente punto de la ruta
+    dist += google.maps.geometry.spherical.computeDistanceBetween(
+      currentPos,
+      t.route[nextIdx]
+    );
+
+    // Distancia de los siguientes segmentos completos
+    for (let i = nextIdx; i < t.route.length - 1; i++) {
+      dist += google.maps.geometry.spherical.computeDistanceBetween(
+        t.route[i],
+        t.route[i + 1]
+      );
+    }
+
+    return dist; // en metros
+  }
+
+  private formatEta(totalSeconds: number): string {
+    const sec = Math.max(0, Math.round(totalSeconds));
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+
+    const parts: string[] = [];
+    if (h > 0) parts.push(`${h} h`);
+    if (m > 0) parts.push(`${m} min`);
+    parts.push(`${s} s`);
+
+    return parts.join(' ');
   }
 }
