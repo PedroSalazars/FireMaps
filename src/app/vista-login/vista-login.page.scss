@@ -1,23 +1,22 @@
+/* Fondo y color general */
 ion-content {
   --background: #E7E3E2;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  padding: 0;
   color: black;
+  padding: 0;
 }
 
+/* Contenedor del formulario */
 form {
   width: 100%;
   max-width: 360px;
   padding: 20px;
-  margin: auto;
+  margin: 40px auto 0 auto; // centrado similar al que ya tenías
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
+/* Input container */
 ion-item {
   --background: transparent;
   --color: black;
@@ -26,15 +25,24 @@ ion-item {
   padding: 4px 8px;
 }
 
+/* Label */
 ion-label {
   color: black;
   font-weight: 500;
 }
 
-ion-input {
+/* INPUT NATIVO dentro de ion-item */
+.native-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
   color: black;
+  font-size: 16px;
+  padding: 6px 0;
 }
 
+/* Botón */
 ion-button {
   margin-top: 20px;
   --background: #F27B13;
@@ -49,6 +57,7 @@ ion-button:hover {
   --background: #F2CB57;
 }
 
+/* Header */
 ion-header {
   ion-toolbar {
     --background: #E7E3E2;

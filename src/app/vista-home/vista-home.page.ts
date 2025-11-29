@@ -17,7 +17,7 @@ import {
   updateDoc, doc, serverTimestamp, GeoPoint, QuerySnapshot, DocumentData
 } from 'firebase/firestore';
 
-/** Tipos básicos **/
+/** Tipos básicos de coordenadas y entidades **/
 type LatLng = { lat: number; lng: number };
 type FireStation = { name: string; position: LatLng };
 type GHydrant = { lat: number; lon: number; tags?: Record<string, string> };
@@ -33,6 +33,7 @@ type IncidentDoc = {
   createdAt?: Date;
 };
 
+/** Estados operacionales de un carro bomba **/
 enum TruckState {
   STANDBY = 'En base',
   RESPONDING = 'Respondiendo',
@@ -41,6 +42,7 @@ enum TruckState {
   PATROL = 'Patrullando'
 }
 
+/** Estructura interna de cada camión simulado en el mapa **/
 type Truck = {
   id: string;
   company: string;
@@ -78,7 +80,9 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
 
   constructor(private toastController: ToastController) {}
 
-  /** MAPA Y GOOGLE MAPS **/
+  /** ---------------------------
+   *  CONFIGURACIÓN DE MAPA
+   *  --------------------------- */
   private map!: google.maps.Map;
   private infoWin!: google.maps.InfoWindow;
   private chiloeBounds!: google.maps.LatLngBounds;
@@ -94,14 +98,16 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
 
   private directionsService!: google.maps.DirectionsService;
 
-  /** CACHE Y RUTEO **/
+  /** Cache para ruteo (Directions API) **/
   private dirCache = new Map<string, google.maps.LatLng[]>();
   private routeQueue: Array<() => void> = [];
   private processingQueue = false;
   private lastRouteTs = 0;
   private readonly ROUTE_THROTTLE_MS = 700;
 
-  private toLiteral(p: google.maps.LatLng | google.maps.LatLngLiteral): google.maps.LatLngLiteral {
+  private toLiteral(
+    p: google.maps.LatLng | google.maps.LatLngLiteral
+  ): google.maps.LatLngLiteral {
     return p instanceof google.maps.LatLng ? { lat: p.lat(), lng: p.lng() } : p;
   }
 
@@ -113,25 +119,30 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     return `${A.lat.toFixed(5)},${A.lng.toFixed(5)}->${B.lat.toFixed(5)},${B.lng.toFixed(5)}`;
   }
 
-  /** INCIDENTES **/
+  /** ---------------------------
+   *  INCIDENTES (Marcadores)
+   *  --------------------------- */
   private incidentMarkersByType: Record<IncidentType, google.maps.Marker[]> = {
     Incendio: [], FuGas: [], rescate: [], choque: []
   };
   private incidentMarkersById = new Map<string, google.maps.Marker>();
   private unsubIncidents?: () => void;
 
-  // 👉 Seguimiento de camiones asignados por incidente
-  private incidentAssignments = new Map<string, { truckIds: Set<string>; max: number; closed: boolean }>();
+  // Seguimiento de camiones por incidente (control de asignaciones y cierre)
+  private incidentAssignments = new Map<
+    string,
+    { truckIds: Set<string>; max: number; closed: boolean }
+  >();
 
-  /** GEOMETRÍA Y POLÍGONOS **/
+  /** Geometría y polígonos (para máscara y detección de tierra) **/
   private landPolygons: google.maps.Polygon[] = [];
   private geometryReady = false;
 
-  /** REVERSE GEOCODING / CALLES **/
+  /** Cache de calles (reverse geocoding) **/
   private streetCacheMem = new Map<string, string>();
   private lastNominatimTs = 0;
 
-  /** ESTACIONES & FLOTA **/
+  /** Estaciones de bomberos y flota simulada **/
   private STATIONS_LIST: FireStation[] = [
     { name: 'Bomberos de Ancud',             position: { lat: -41.869, lng: -73.828 } },
     { name: 'Bomberos de Quemchi',           position: { lat: -42.141, lng: -73.484 } },
@@ -147,34 +158,34 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
 
   private trucks: Truck[] = [];
 
-  /** SIMULACIÓN (tick / física) **/
+  /** Parámetros de simulación (animación física de los camiones) **/
   private readonly STEP = 0.05;
   private acc = 0;
   private lastTs = 0;
   private rafId = 0;
 
-  private readonly SPEED_RESPONSE   = 22;
-  private readonly SPEED_RETURN     = 14;
-  private readonly SPEED_PATROL     = 12;
+  private readonly SPEED_RESPONSE   = 22; // m/s en respuesta a incidente
+  private readonly SPEED_RETURN     = 14; // m/s al retornar a base
+  private readonly SPEED_PATROL     = 12; // m/s en patrullaje
 
-  // Tiempo que el camión se queda atendiendo en el lugar (en ms)
-  private readonly ATTEND_MS = 10_000; // 10 segundos
+  // Tiempo de permanencia en el incidente (ms)
+  private readonly ATTEND_MS = 10_000;
 
-  // ⏱ Máximo de una ronda de patrulla ~5 minutos
+  // Patrullaje: tiempo máx de pierna y de espera antes de reanudar
   private readonly PATROL_LEG_MAX_MS = 300_000;
   private readonly PATROL_DWELL_MS   = 600_000;
 
-  /** HIDRANTES **/
+  /** Hidrantes **/
   private hydrantsLoaded = false;
   private hydrantMarkers: google.maps.Marker[] = [];
 
-  /** FILTRO DE GARABATOS **/
+  /** Filtro de lenguaje inadecuado **/
   private readonly BAD_WORDS = [
     'weon', 'weón', 'wea', 'culiao', 'conchetumare', 'ctm',
     'mierda', 'pico', 'puta'
   ];
 
-  /** ESTADO DEL FORMULARIO DE REPORTE **/
+  /** Estado del formulario de reporte **/
   public reportOpen = false;
   public reportType: IncidentType | null = null;
   public reportAddress: string = '';
@@ -196,6 +207,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
   // MODAL DE REPORTE
   // -------------------------------------------------------------
 
+  /** Abre el modal de reporte y configura Autocomplete de dirección */
   openReportModal() {
     this.reportOpen = true;
 
@@ -204,18 +216,19 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     }, 350);
   }
 
+  /** Cierra el modal de reporte (sin limpiar datos aún) */
   closeReportModal() {
     this.reportOpen = false;
   }
 
   // -------------------------------------------------------------
-  // CICLO DE VIDA
+  // CICLO DE VIDA – INICIALIZACIÓN DE MAPA
   // -------------------------------------------------------------
 
   async ngAfterViewInit() {
     const el = document.getElementById('map') as HTMLElement;
 
-    // Esperar a que el contenedor tenga tamaño
+    // Esperar a que el contenedor del mapa tenga tamaño visible
     await new Promise<void>((resolve) => {
       const ok = () => el.offsetWidth > 0 && el.offsetHeight > 0;
       if (ok()) return resolve();
@@ -227,7 +240,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       }, 16);
     });
 
-    // Cargar Google Maps
+    // Cargar librerías de Google Maps
     const loader = new Loader({
       apiKey: environment.googleMapsApiKey,
       version: 'weekly',
@@ -239,7 +252,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
 
     this.geometryReady = !!google.maps.geometry?.spherical && !!google.maps.geometry?.poly;
 
-    // ICONOS
+    // Iconos personalizados para el mapa
     this.STATION_ICON = {
       url: 'assets/icons/station@2x.png',
       scaledSize: new google.maps.Size(28, 28),
@@ -267,7 +280,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       { lat: this.CHILOE_BOUNDS.north, lng: this.CHILOE_BOUNDS.east }
     );
 
-    // Configuración del mapa
+    // Configuración del mapa centrado en Chiloé
     this.map = new google.maps.Map(el, {
       center: { lat: -42.6, lng: -73.9 },
       zoom: 9,
@@ -280,8 +293,6 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: false,
-
-      // 🔒 Sólo se puede navegar dentro de Chiloé
       restriction: {
         latLngBounds: this.CHILOE_BOUNDS,
         strictBounds: true
@@ -293,27 +304,27 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     this.infoWin = new google.maps.InfoWindow();
     this.directionsService = new google.maps.DirectionsService();
 
-    // Máscara alrededor de Chiloé
+    // Máscara oscura alrededor de Chiloé
     this.addMaskPolygon();
     try { await this.loadLandPolygons(); } catch {}
 
-    // Estaciones
+    // Renderizar estaciones de bomberos
     this.addStations();
 
     // Hidratnes visibles según zoom
     this.map.addListener('zoom_changed', () => this.updateHydrantsVisibility());
     this.updateHydrantsVisibility();
 
-    // Incidentes en tiempo real desde Firestore
+    // Suscripción en tiempo real a incidentes desde Firestore
     this.startFirestoreSubscription();
 
-    // Flota inicial
+    // Flota inicial de camiones por compañía
     this.spawnFleetPerCompany();
 
-    // Autocomplete (llamado real al abrir modal)
+    // Autocomplete (utilizado al abrir modal de reporte)
     this.setupAddressAutocomplete();
 
-    // Animación
+    // Arrancar bucle de animación
     this.lastTs = performance.now();
     this.rafId = requestAnimationFrame(this.tickRaf);
   }
@@ -329,9 +340,10 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
   }
 
   // -------------------------------------------------------------
-  // AUTOCOMPLETE – PLACES API
+  // AUTOCOMPLETE – PLACES API PARA DIRECCIONES
   // -------------------------------------------------------------
 
+  /** Configura Autocomplete en el input de dirección del reporte */
   private setupAddressAutocomplete() {
     const input = document.getElementById('report-address-input') as HTMLInputElement | null;
     if (!input || !google.maps.places || !google.maps.places.Autocomplete) return;
@@ -366,9 +378,10 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
   }
 
   // -------------------------------------------------------------
-  // FIRESTORE — INCIDENTES EN TIEMPO REAL
+  // FIRESTORE — SUSCRIPCIÓN A INCIDENTES EN TIEMPO REAL
   // -------------------------------------------------------------
 
+  /** Escucha los cambios en la colección "incidents" en Firestore */
   private startFirestoreSubscription() {
     if (!getApps().length) initializeApp(environment.firebase);
 
@@ -377,28 +390,34 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
 
     this.unsubIncidents = onSnapshot(colRef, (snap: QuerySnapshot<DocumentData>) => {
       const next: IncidentDoc[] = [];
+
       snap.forEach(docSnap => {
         const d = docSnap.data() as any;
         const loc = d.location;
+
         next.push({
           id: docSnap.id,
           type: (d.type as IncidentType) ?? 'Incendio',
           status: (d.status as 'open' | 'closed') ?? 'open',
           priority: d.priority,
           address: d.address ?? null,
-          location: { latitude: loc?.latitude ?? 0, longitude: loc?.longitude ?? 0 },
+          location: {
+            latitude:  loc?.latitude ?? 0,
+            longitude: loc?.longitude ?? 0
+          },
           createdAt: d.createdAt?.toDate?.()
         });
       });
+
       this.syncIncidentMarkers(next);
     });
   }
 
+  /** Sincroniza los marcadores de incidentes con la data en Firestore */
   private syncIncidentMarkers(list: IncidentDoc[]) {
     const seen = new Set<string>();
 
     for (const i of list) {
-      // No dibujar incidentes cerrados
       if (i.status === 'closed') continue;
 
       seen.add(i.id);
@@ -406,6 +425,8 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       const icon = this.INCIDENT_ICONS[i.type] || this.INCIDENT_ICONS['Incendio'];
 
       let marker = this.incidentMarkersById.get(i.id);
+
+      // Crear marcador si no existe
       if (!marker) {
         marker = new google.maps.Marker({
           position: pos,
@@ -414,10 +435,15 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
           title: `${i.type}${i.address ? ' - ' + i.address : ''}`,
           zIndex: 3
         });
+
         marker.addListener('click', () => this.dispatchBest(marker!, i));
+
         this.incidentMarkersById.set(i.id, marker);
         this.incidentMarkersByType[i.type].push(marker);
-      } else {
+      }
+
+      // Actualizar marcador existente
+      else {
         marker.setPosition(pos);
         marker.setIcon(icon);
         marker.setTitle(`${i.type}${i.address ? ' - ' + i.address : ''}`);
@@ -425,15 +451,17 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       }
     }
 
-    // Limpiar marcadores que ya no existen
+    // Remover incidentes eliminados o cerrados
     for (const [id, marker] of this.incidentMarkersById.entries()) {
       if (!seen.has(id)) {
         marker.setMap(null);
         this.incidentMarkersById.delete(id);
-        (Object.keys(this.incidentMarkersByType) as IncidentType[]).forEach(t => {
-          this.incidentMarkersByType[t] =
-            this.incidentMarkersByType[t].filter(m => m !== marker);
-        });
+
+        (Object.keys(this.incidentMarkersByType) as IncidentType[])
+          .forEach(t => {
+            this.incidentMarkersByType[t] =
+              this.incidentMarkersByType[t].filter(m => m !== marker);
+          });
       }
     }
   }
@@ -442,10 +470,12 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
   // FORMULARIO DE REPORTE
   // -------------------------------------------------------------
 
+  /** Asigna el tipo de incidente seleccionado */
   public setReportType(t: IncidentType) {
     this.reportType = t;
   }
 
+  /** Maneja selección de fotos (máximo 3) */
   public onFilesSelected(ev: Event) {
     const input = ev.target as HTMLInputElement;
     if (!input.files) return;
@@ -454,16 +484,19 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     this.formErrors.photos = files.length > 3 ? 'Máximo 3 fotos' : '';
   }
 
+  /** Habilita el botón de "Enviar reporte" */
   public canSubmitReport(): boolean {
     return !!this.reportType && this.reportAddress.trim().length >= 5;
   }
 
+  /** Detecta lenguaje inapropiado para filtrar insultos */
   private containsBadWords(text: string | null | undefined): boolean {
     if (!text) return false;
     const lower = text.toLowerCase();
     return this.BAD_WORDS.some(w => lower.includes(w));
   }
 
+  /** Geocoding estándar de Google (de texto a coordenadas) */
   private geocodeAddress(address: string): Promise<google.maps.LatLng | null> {
     return new Promise(resolve => {
       const geocoder = new google.maps.Geocoder();
@@ -480,6 +513,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     });
   }
 
+  /** Prioridad automática según tipo de incidente */
   private defaultPriorityForType(t: IncidentType): number {
     switch (t) {
       case 'Incendio': return 3;
@@ -490,13 +524,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     }
   }
 
-  // Máximo de camiones según prioridad: alta => 2, resto => 1
-  private maxTrucksForIncident(incident: IncidentDoc): number {
-    const p = incident.priority ?? this.defaultPriorityForType(incident.type);
-    return p >= 3 ? 2 : 1;
-  }
-
-  // 🔹 Snap a la calle más cercana usando Roads API
+  /** Snap al camino más cercano usando Roads API */
   private async snapToNearestRoad(
     lat: number,
     lng: number
@@ -522,9 +550,14 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     }
   }
 
+  // -------------------------------------------------------------
+  // SUBMIT — ENVÍO DE REPORTE A FIRESTORE + TOAST VERDE
+  // -------------------------------------------------------------
+
   public async submitReport() {
     this.formErrors = { type: '', address: '', notes: '', photos: '' };
 
+    /** --- Validaciones básicas --- */
     if (!this.reportType) {
       this.formErrors.type = 'Selecciona el tipo de incidente.';
     }
@@ -543,11 +576,13 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       this.formErrors.notes = 'Por favor evita usar garabatos en la descripción.';
     }
 
+    // Si hay errores, cancelar envío
     if (this.formErrors.type || this.formErrors.address ||
         this.formErrors.notes || this.formErrors.photos) {
       return;
     }
 
+    /** --- Convertir dirección a coordenadas si no viene de Autocomplete --- */
     let point: google.maps.LatLng | null = this.reportLatLng;
 
     if (!point) {
@@ -568,22 +603,21 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       return;
     }
 
-    // Coordenadas originales del geocoder
+    /** --- Coordenadas iniciales --- */
     let lat = point.lat();
     let lng = point.lng();
 
-    // 🔹 Ajustar a la calle más cercana (Roads API)
+    /** --- Aplicar Snap-to-Road --- */
     const snapped = await this.snapToNearestRoad(lat, lng);
     if (snapped) {
       const snappedLatLng = new google.maps.LatLng(snapped.lat, snapped.lng);
-
-      // Solo usamos el punto ajustado si sigue dentro de Chiloé
       if (this.chiloeBounds.contains(snappedLatLng)) {
         lat = snapped.lat;
         lng = snapped.lng;
       }
     }
 
+    /** --- Guardar a Firestore --- */
     if (!getApps().length) initializeApp(environment.firebase);
 
     const db = getFirestore();
@@ -595,14 +629,13 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       priority: this.defaultPriorityForType(this.reportType!),
       address: cleanAddress,
       notes: cleanNotes || null,
-      // 🔹 Ahora guardamos la coordenada ya “snappeada” a la calle
       location: new GeoPoint(lat, lng),
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       attachmentsCount: this.selectedFiles.length
     });
 
-    // Reset form
+    /** --- Cerrar modal y resetear formulario --- */
     this.reportOpen = false;
     this.reportType = null;
     this.reportAddress = '';
@@ -610,38 +643,56 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     this.selectedFiles = [];
     this.reportDistanceM = null;
     this.reportLatLng = null;
+
+    /** --- Mostrar Toast verde de éxito --- */
+    const toast = await this.toastController.create({
+      message: '✔ El reporte ha sido enviado correctamente',
+      duration: 2500,
+      color: 'success',
+      position: 'bottom'
+    });
+    await toast.present();
   }
 
   // -------------------------------------------------------------
-  // HIDRANTES + ESTACIONES + POLÍGONOS
+  // MÁSCARA, TIERRA, ESTACIONES E HIDRANTES
   // -------------------------------------------------------------
 
-  private minDistanceToStations(p: google.maps.LatLng): number {
-    let best = Infinity;
-    for (const st of this.STATIONS_LIST) {
-      const d = google.maps.geometry.spherical.computeDistanceBetween(
-        p, new google.maps.LatLng(st.position.lat, st.position.lng)
-      );
-      if (d < best) best = d;
-    }
-    return best;
+  /** Máscara oscura fuera del rectángulo de Chiloé */
+  private addMaskPolygon() {
+    // Polígono gigante que cubre casi todo el mundo
+    const WORLD: google.maps.LatLngLiteral[] = [
+      { lat: 85, lng: -180 },
+      { lat: 85, lng: 180 },
+      { lat: -85, lng: 180 },
+      { lat: -85, lng: -180 }
+    ];
+
+    // Rectángulo de Chiloé (el área visible)
+    const HOLE: google.maps.LatLngLiteral[] = [
+      { lat: this.CHILOE_BOUNDS.north, lng: this.CHILOE_BOUNDS.west },
+      { lat: this.CHILOE_BOUNDS.north, lng: this.CHILOE_BOUNDS.east },
+      { lat: this.CHILOE_BOUNDS.south, lng: this.CHILOE_BOUNDS.east },
+      { lat: this.CHILOE_BOUNDS.south, lng: this.CHILOE_BOUNDS.west }
+    ];
+
+    // Google interpreta paths invertidos como “huecos”
+    const HOLE_REVERSED = [...HOLE].reverse();
+
+    new google.maps.Polygon({
+      paths: [WORLD, HOLE_REVERSED],
+      strokeOpacity: 0,
+      fillColor: '#000',
+      fillOpacity: 0.45,
+      clickable: false,
+      map: this.map
+    });
   }
 
-  private randomStation(): FireStation {
-    return this.STATIONS_LIST[Math.floor(Math.random() * this.STATIONS_LIST.length)];
-  }
-
-  private pickNearbySeed(origin: google.maps.LatLng, minM: number, maxM: number): google.maps.LatLng {
-    const dist = minM + Math.random() * (maxM - minM);
-    const bear = Math.random() * 360;
-    return google.maps.geometry.spherical.computeOffset(origin, dist, bear);
-  }
-
-  private async safeFetchPath(a: google.maps.LatLng, b: google.maps.LatLng): Promise<google.maps.LatLng[]> {
-    try { return await this.fetchDirectionsPath(a, b); }
-    catch { return []; }
-  }
-
+  /**
+   * Carga polígonos de tierra (islas principales de Chiloé) desde Nominatim.
+   * Se usan solo para distinguir tierra / mar en isOnLand().
+   */
   private async loadLandPolygons() {
     const islands = ['Isla Grande de Chiloé', 'Isla Quinchao', 'Isla Lemuy'];
     const polys: google.maps.Polygon[] = [];
@@ -649,7 +700,9 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     for (const name of islands) {
       const diff = Date.now() - this.lastNominatimTs;
       const wait = 1100 - diff;
-      if (wait > 0) await new Promise(r => setTimeout(r, wait));
+      if (wait > 0) {
+        await new Promise(r => setTimeout(r, wait));
+      }
       this.lastNominatimTs = Date.now();
 
       const url =
@@ -669,12 +722,15 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
 
         const parsed = this.polygonsFromGeoJSONGeometry(f.geometry);
         polys.push(...parsed);
-      } catch {}
+      } catch {
+        // En caso de error, simplemente no se agregan polígonos
+      }
     }
 
     this.landPolygons = polys;
   }
 
+  /** Convierte geometrías GeoJSON en polígonos de Google Maps (solo contornos, sin relleno visible). */
   private polygonsFromGeoJSONGeometry(geom: any): google.maps.Polygon[] {
     const ringToPath = (ring: any[]): google.maps.LatLngLiteral[] =>
       ring
@@ -719,6 +775,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     return polygons;
   }
 
+  /** Crea y dibuja los marcadores de las compañías de bomberos. */
   private addStations() {
     for (const s of this.STATIONS_LIST) {
       const m = new google.maps.Marker({
@@ -736,6 +793,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     }
   }
 
+  /** Actualiza visibilidad de hidrantes según zoom; carga desde Overpass en zoom >= 14. */
   private async updateHydrantsVisibility() {
     const zoom = this.map.getZoom() ?? 9;
 
@@ -751,6 +809,10 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     }
   }
 
+  /**
+   * Carga hidrantes desde Overpass, los dibuja en el mapa
+   * y permite consultar la calle cercana al hacer clic.
+   */
   private async addHydrantsWithStreet() {
     const query = `[out:json][timeout:50];
       node["emergency"="fire_hydrant"](${this.CHILOE_BOUNDS.south},${this.CHILOE_BOUNDS.west},${this.CHILOE_BOUNDS.north},${this.CHILOE_BOUNDS.east});
@@ -772,7 +834,9 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
         hydrants = (json.elements || []).filter((e: any) => e.type === 'node');
         localStorage.setItem(cacheKey, JSON.stringify(hydrants));
       }
-    } catch {}
+    } catch {
+      // Si falla la carga, no se muestran hidrantes
+    }
 
     const geocoder = new google.maps.Geocoder();
 
@@ -819,38 +883,8 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     this.updateHydrantsVisibility();
   }
 
-  private addMaskPolygon() {
-    // Polígono gigante que cubre casi todo el mundo
-    const WORLD: google.maps.LatLngLiteral[] = [
-      { lat: 85, lng: -180 },
-      { lat: 85, lng: 180 },
-      { lat: -85, lng: 180 },
-      { lat: -85, lng: -180 }
-    ];
-
-    // Rectángulo de Chiloé (el área que queremos "recortar")
-    const HOLE: google.maps.LatLngLiteral[] = [
-      { lat: this.CHILOE_BOUNDS.north, lng: this.CHILOE_BOUNDS.west },
-      { lat: this.CHILOE_BOUNDS.north, lng: this.CHILOE_BOUNDS.east },
-      { lat: this.CHILOE_BOUNDS.south, lng: this.CHILOE_BOUNDS.east },
-      { lat: this.CHILOE_BOUNDS.south, lng: this.CHILOE_BOUNDS.west }
-    ];
-
-    // Google Maps interpreta los paths como huecos si van en sentido contrario
-    const HOLE_REVERSED = [...HOLE].reverse();
-
-    new google.maps.Polygon({
-      paths: [WORLD, HOLE_REVERSED],
-      strokeOpacity: 0,
-      fillColor: '#000',
-      fillOpacity: 0.45,
-      clickable: false,
-      map: this.map
-    });
-  }
-
   // -------------------------------------------------------------
-  // REVERSE GEOCODING (CALLES)
+  // REVERSE GEOCODING (CALLES PARA HIDRANTES)
   // -------------------------------------------------------------
 
   private cacheKey(lat: number, lng: number) {
@@ -864,7 +898,10 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
            null;
   }
 
-  private reverseWithGoogle(pos: google.maps.LatLng, geocoder: google.maps.Geocoder): Promise<string | null> {
+  private reverseWithGoogle(
+    pos: google.maps.LatLng,
+    geocoder: google.maps.Geocoder
+  ): Promise<string | null> {
     return new Promise(resolve => {
       geocoder.geocode({ location: pos }, (results, status) => {
         if (status === 'OK' && results?.length) {
@@ -965,9 +1002,60 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
   }
 
   // -------------------------------------------------------------
+  // HELPERS DE PATRULLAJE Y PRIORIDADES
+  // -------------------------------------------------------------
+
+  /**
+   * Genera un punto aleatorio cerca del origen, en un rango de metros.
+   * Utilizado para que los camiones patrullen alrededor de su posición actual.
+   */
+  private pickNearbySeed(
+    origin: google.maps.LatLng,
+    minDistM: number,
+    maxDistM: number
+  ): google.maps.LatLng {
+    const dist = minDistM + Math.random() * (maxDistM - minDistM);
+    const bearing = Math.random() * 360;
+
+    const p = google.maps.geometry.spherical.computeOffset(origin, dist, bearing);
+
+    // Se fuerza a permanecer dentro de los límites de Chiloé
+    if (!this.chiloeBounds.contains(p)) {
+      return origin;
+    }
+
+    return p;
+  }
+
+  /**
+   * Define el número máximo de camiones asignables a un incidente,
+   * en función de su prioridad.
+   */
+  private maxTrucksForIncident(incident: IncidentDoc): number {
+    const p = incident.priority ?? this.defaultPriorityForType(incident.type);
+
+    // Política simple:
+    //  - Prioridad 3 o 2: hasta 2 camiones
+    //  - Prioridad 1: 1 camión
+    switch (p) {
+      case 3:
+      case 2:
+        return 2;
+      case 1:
+      default:
+        return 1;
+    }
+  }
+
+  // -------------------------------------------------------------
   // FLOTA, RUTAS Y PATRULLAJE
   // -------------------------------------------------------------
 
+  /**
+   * Crea la flota inicial: por cada estación se generan:
+   *  - 2 camiones en base (STANDBY)
+   *  - 1 camión patrullero (PATROL)
+   */
   private spawnFleetPerCompany() {
     const seen = new Set<string>();
 
@@ -977,11 +1065,11 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
 
       const base = new google.maps.LatLng(st.position.lat, st.position.lng);
 
-      // 👉 2 camiones en base (STANDBY)
+      // 2 camiones en base
       const standby1 = this.createTruck(st.name, base, TruckState.STANDBY);
       const standby2 = this.createTruck(st.name, base, TruckState.STANDBY);
 
-      // 👉 1 camión patrullero
+      // 1 camión patrullero
       const patrol = this.createTruck(st.name, base, TruckState.PATROL);
       patrol.isPatroller = true;
       patrol.speedMps = this.SPEED_PATROL;
@@ -992,6 +1080,13 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     }
   }
 
+  /**
+   * Crea un camión con marcador en el mapa.
+   * El InfoWindow muestra:
+   *  - Compañía
+   *  - Estado
+   *  - ETA (si está respondiendo o retornando)
+   */
   private createTruck(
     company: string,
     start: google.maps.LatLng,
@@ -1009,7 +1104,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       const t = this.trucks.find(x => x.marker === m);
       if (!t) return;
 
-      // 👉 Agregamos ETA si va respondiendo o retornando
+      // Mostrar ETA sólo si está en movimiento hacia incidente o base
       let etaHtml = '';
       if (t.state === TruckState.RESPONDING || t.state === TruckState.RETURNING) {
         const remaining = this.getRemainingDistance(t);
@@ -1040,6 +1135,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     };
   }
 
+  /** Limpia timers asociados al patrullaje de un camión */
   private clearPatrolTimers(t: Truck) {
     if (t.patrolTimeout) {
       clearTimeout(t.patrolTimeout);
@@ -1051,6 +1147,13 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     }
   }
 
+  /**
+   * Inicia el ciclo de patrullaje de un camión:
+   *  - Cambia estado a PATROL
+   *  - Define velocidad
+   *  - Inicia una "pierna" de patrulla
+   *  - Define tiempo máximo en patrulla antes de forzar retorno
+   */
   private startPatrolCycle(t: Truck) {
     this.clearPatrolTimers(t);
 
@@ -1059,7 +1162,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
 
     this.startPatrolLeg(t);
 
-    // Máximo de tiempo en patrulla antes de forzar regreso
+    // Máximo de tiempo en patrulla antes de forzar regreso a base
     t.patrolTimeout = setTimeout(() => {
       if (t.state === TruckState.PATROL) {
         this.returnToBase(t, () => this.schedulePatrolResume(t));
@@ -1067,6 +1170,10 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     }, this.PATROL_LEG_MAX_MS);
   }
 
+  /**
+   * Programa cuándo retomar el patrullaje
+   * después de estar en STANDBY en la base.
+   */
   private schedulePatrolResume(t: Truck) {
     this.clearPatrolTimers(t);
 
@@ -1078,11 +1185,17 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     }, this.PATROL_DWELL_MS);
   }
 
+  /**
+   * Define una "pierna" de patrulla:
+   *  - Selecciona un punto aleatorio a ~2 km
+   *  - Pide ruta a Directions API
+   *  - Si falla, usa una línea recta de fallback
+   */
   private startPatrolLeg(t: Truck) {
     if (t.state !== TruckState.PATROL) return;
 
     const origin = t.marker.getPosition()!;
-    // 👉 Patrulla en radio aproximado 2 km desde su posición actual
+    // Patrulla en radio aproximado 2 km desde su posición actual
     const roughTarget = this.pickNearbySeed(origin, 1800, 2200);
 
     this.enqueueRouteRequest(() =>
@@ -1116,13 +1229,21 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
   // DISPATCH — LÓGICA CON LÍMITE DE CAMIONES POR INCIDENTE
   // -------------------------------------------------------------
 
+  /**
+   * Selecciona el mejor camión disponible para un incidente:
+   *  1. Revisa máximo de camiones permitidos por prioridad.
+   *  2. Pre-filtra por distancia en línea recta.
+   *  3. Para los 3 más cercanos, calcula distancia real de ruta.
+   *  4. Asigna el camión con menor distancia.
+   */
   private async dispatchBest(incidentMarker: google.maps.Marker, incident: IncidentDoc) {
     const pos = incidentMarker.getPosition()!;
     const incidentId = incident.id;
 
-    // Configuración del incidente en memoria
+    // Estado de asignaciones para este incidente
     const max = this.maxTrucksForIncident(incident);
     let entry = this.incidentAssignments.get(incidentId);
+
     if (!entry) {
       entry = { truckIds: new Set<string>(), max, closed: false };
       this.incidentAssignments.set(incidentId, entry);
@@ -1142,7 +1263,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       return;
     }
 
-    // ¿Ya llegamos al máximo de camiones asignados?
+    // ¿Ya se alcanzó el máximo de camiones asignados?
     if (entry.truckIds.size >= entry.max) {
       const msg =
         entry.max === 1
@@ -1160,11 +1281,11 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       return;
     }
 
-    // Patrulleros y camiones en base pueden responder
+    // Candidatos: camiones en base o patrullando que NO estén ya asignados a este incidente
     const candidates = this.trucks.filter(
       t =>
         (t.state === TruckState.STANDBY || t.state === TruckState.PATROL) &&
-        !entry!.truckIds.has(t.id) // no reasignar el mismo camión al mismo incidente
+        !entry!.truckIds.has(t.id)
     );
     if (!candidates.length) return;
 
@@ -1177,13 +1298,13 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       )
     }));
 
-    // Ordenar por más cercano en línea recta
+    // Ordenar por más cercano (straight line)
     withStraight.sort((a, b) => a.straightDist - b.straightDist);
 
-    // Quedarnos solo con los 3 más cercanos (ajustable)
+    // Tomar como máximo los 3 más cercanos
     const shortlist = withStraight.slice(0, Math.min(3, withStraight.length));
 
-    // 2) Calcular distancia real de ruta (Directions) solo para la shortlist
+    // 2) Distancia real de ruta usando Directions API
     const results = await Promise.all(
       shortlist.map(async ({ truck }) => {
         const origin = truck.marker.getPosition()!;
@@ -1206,16 +1327,16 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     const valid = results.filter(r => isFinite(r.distMeters));
     if (!valid.length) return;
 
-    // 3) Elegir el de menor distancia de ruta
+    // 3) Elegir el camión con menor distancia de ruta
     valid.sort((a, b) => a.distMeters - b.distMeters);
     const chosen = valid[0].truck;
 
-    // Registrar que este camión está asignado a este incidente
+    // Registrar asignación
     entry.truckIds.add(chosen.id);
 
     this.clearPatrolTimers(chosen);
 
-    // Asegurar que existe routeLine para la ruta roja
+    // Asegurar que exista polilínea para la ruta roja
     if (!chosen.routeLine) {
       chosen.routeLine = new google.maps.Polyline({
         path: [],
@@ -1228,6 +1349,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       });
     }
 
+    // Enviar camión al incidente
     this.gotoByDirections(chosen, pos, () => {
       chosen.state = TruckState.ATTENDING;
       chosen.speedMps = 0;
@@ -1238,7 +1360,12 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     });
   }
 
-  // Cuando un camión termina de atender un incidente
+  /**
+   * Cuando un camión termina de atender un incidente:
+   *  - Se actualiza el estado de asignaciones.
+   *  - Si fue el último camión, se cierra el incidente en Firestore.
+   *  - El camión retorna a su base.
+   */
   private onTruckFinishedIncident(
     incident: IncidentDoc,
     incidentMarker: google.maps.Marker,
@@ -1249,35 +1376,38 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
 
     if (entry) {
       if (entry.closed) {
-        // Ya estaba cerrado por otro camión, sólo regresamos a base
+        // El incidente ya estaba cerrado
         this.returnToBase(truck, () => {
           if (truck.isPatroller) this.schedulePatrolResume(truck);
         });
         return;
       }
 
+      // Desasociar este camión
       entry.truckIds.delete(truck.id);
 
-      // Si ya no queda ningún camión asignado → cerrar incidente
+      // Si ya no quedan camiones asignados → cerrar incidente
       if (entry.truckIds.size === 0) {
         this.closeIncident(incident, incidentMarker);
         entry.closed = true;
       }
     } else {
-      // Por seguridad: si no hay entry, sólo cerramos
+      // Sin entry en memoria, se intenta cerrar por seguridad
       this.closeIncident(incident, incidentMarker);
     }
 
+    // En todos los casos, el camión vuelve a base
     this.returnToBase(truck, () => {
       if (truck.isPatroller) this.schedulePatrolResume(truck);
     });
   }
 
-  // Cerrar incidente en Firestore (open -> closed)
+  /**
+   * Cierra el incidente en Firestore y limpia marcador en el mapa.
+   */
   private async closeIncident(incident: IncidentDoc, incidentMarker: google.maps.Marker) {
     incidentMarker.setMap(null);
 
-    // Marcar como cerrado en la estructura local si existe
     const entry = this.incidentAssignments.get(incident.id);
     if (entry) entry.closed = true;
 
@@ -1300,10 +1430,12 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
   // RUTEO / DIRECTIONS API
   // -------------------------------------------------------------
 
+  /** Genera un número aleatorio en rango */
   private rand(min: number, max: number) {
     return min + Math.random() * (max - min);
   }
 
+  /** Punto aleatorio dentro de Chiloé (fallback geométrico) */
   private randOnLand(): LatLng {
     for (let i = 0; i < 60; i++) {
       const p = new google.maps.LatLng(
@@ -1315,6 +1447,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     return { lat: -42.6, lng: -73.9 };
   }
 
+  /** Verifica si un punto está dentro de tierra (polígonos o bounds) */
   private isOnLand(p: google.maps.LatLng): boolean {
     if (!this.landPolygons.length) return this.chiloeBounds.contains(p);
 
@@ -1331,7 +1464,10 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     }
   }
 
-  // IR A INCIDENTE
+  /**
+   * Envía un camión al destino usando Directions API.
+   * Mantiene referencia al callback en caso de llegada.
+   */
   private gotoByDirections(
     truck: Truck,
     target: google.maps.LatLng,
@@ -1343,7 +1479,6 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
 
     const origin = truck.marker.getPosition()!;
     const key = this.dirKey(origin, target);
-
     const cached = this.dirCache.get(key);
 
     this.clearPatrolTimers(truck);
@@ -1389,7 +1524,9 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     );
   }
 
-  // VOLVER A BASE
+  /**
+   * Retorna un camión a su base (home).
+   */
   private returnToBase(
     truck: Truck,
     onArrivedBase?: () => void
@@ -1417,7 +1554,9 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
         truck.segIdx = 0;
         truck.segT = 0;
 
-        if (truck.routeLine) truck.routeLine.setMap(null);
+        if (truck.routeLine) {
+          truck.routeLine.setMap(null);
+        }
 
         if (onArrivedBase) onArrivedBase();
         else if (truck.isPatroller) this.schedulePatrolResume(truck);
@@ -1450,7 +1589,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     );
   }
 
-  // DIRECCIONES API
+  /** Usa Directions API y obtiene la ruta paso a paso */
   private async fetchDirectionsPath(
     origin: google.maps.LatLng,
     destination: google.maps.LatLng
@@ -1477,6 +1616,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     return points.length ? points : (route?.overview_path ?? []);
   }
 
+  /** Aplica una ruta completa a un camión */
   private applyRoute(truck: Truck, path: google.maps.LatLng[]) {
     truck.route = path;
     truck.segIdx = 0;
@@ -1498,6 +1638,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     }
   }
 
+  /** Fallback: línea recta si Directions API falla */
   private useStraightFallback(truck: Truck, target: google.maps.LatLng) {
     truck.route = [truck.marker.getPosition()!, target];
     truck.segIdx = 0;
@@ -1519,6 +1660,10 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     }
   }
 
+  /**
+   * Cola de peticiones a Directions API
+   * Evita saturar la API con muchas solicitudes simultáneas.
+   */
   private enqueueRouteRequest(run: () => void) {
     this.routeQueue.push(run);
 
@@ -1551,7 +1696,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
   }
 
   // -------------------------------------------------------------
-  // ANIMACIÓN — tickRaf + física
+  // ANIMACIÓN — requestAnimationFrame + Motor de física
   // -------------------------------------------------------------
 
   private tickRaf = (ts: number) => {
@@ -1567,12 +1712,16 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     this.rafId = requestAnimationFrame(this.tickRaf);
   };
 
+  /**
+   * Avanza la simulación física de TODOS los camiones.
+   * Según su estado, se mueven o permanecen quietos.
+   */
   private physicsStep(step: number) {
     for (const t of this.trucks) {
       switch (t.state) {
         case TruckState.STANDBY:
         case TruckState.ATTENDING:
-          // quietos en base o atendiendo
+          // No se mueven
           break;
 
         case TruckState.RESPONDING:
@@ -1580,7 +1729,6 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
         case TruckState.PATROL:
           this.advanceAlongRoute(t, step, () => {
             if (t.state === TruckState.PATROL) {
-              // Cuando termina la pierna de patrulla, vuelve a base
               this.returnToBase(t, () => {
                 if (t.isPatroller) this.schedulePatrolResume(t);
               });
@@ -1591,6 +1739,12 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     }
   }
 
+  /**
+   * Lógica de movimiento de un camión sobre su ruta:
+   *  - Interpolación entre puntos
+   *  - Eliminación del tramo recorrido (ruta "achicándose")
+   *  - Llamado al callback cuando llega al final
+   */
   private advanceAlongRoute(
     t: Truck,
     dt: number,
@@ -1629,18 +1783,18 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       const distOnSeg = segLen * (1 - t.segT);
 
       if (remaining < distOnSeg) {
-        // nos quedamos en este segmento
+        // Permanecemos en el mismo segmento
         t.segT += remaining / segLen;
         remaining = 0;
       } else {
-        // consumimos este segmento completo y pasamos al siguiente
+        // Avanzamos al siguiente segmento
         remaining -= distOnSeg;
         t.segIdx++;
         t.segT = 0;
       }
     }
 
-    // Si llegamos al final de la ruta
+    // Al final de la ruta
     if (t.segIdx >= t.route.length - 1) {
       const last = t.route[t.route.length - 1];
       t.marker.setPosition(last);
@@ -1682,6 +1836,7 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
   // HELPERS PARA ETA (DISTANCIA RESTANTE)
   // -------------------------------------------------------------
 
+  /** Distancia restante a lo largo de la ruta actual (para ETA) */
   private getRemainingDistance(t: Truck): number {
     if (!t.route || t.route.length < 2) return 0;
     const currentPos = t.marker.getPosition();
@@ -1692,13 +1847,13 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
     const idx = t.segIdx;
     const nextIdx = Math.min(idx + 1, t.route.length - 1);
 
-    // Distancia desde la posición actual al siguiente punto de la ruta
+    // Distancia desde la posición actual al siguiente punto
     dist += google.maps.geometry.spherical.computeDistanceBetween(
       currentPos,
       t.route[nextIdx]
     );
 
-    // Distancia de los siguientes segmentos completos
+    // Sumar segmentos restantes completos
     for (let i = nextIdx; i < t.route.length - 1; i++) {
       dist += google.maps.geometry.spherical.computeDistanceBetween(
         t.route[i],
@@ -1706,9 +1861,10 @@ export class VistaHomePage implements AfterViewInit, OnDestroy {
       );
     }
 
-    return dist; // en metros
+    return dist;
   }
 
+  /** Formato bonito para ETA */
   private formatEta(totalSeconds: number): string {
     const sec = Math.max(0, Math.round(totalSeconds));
     const h = Math.floor(sec / 3600);
