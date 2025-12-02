@@ -1,13 +1,10 @@
-// src/app/app.routes.ts
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'vista-inicio', pathMatch: 'full' },
-
   {
-    path: 'vista-home',
-    loadComponent: () =>
-      import('./vista-home/vista-home.page').then(m => (m as any).VistaHomePage || (m as any).default)
+    path: '',
+    redirectTo: 'vista-inicio',
+    pathMatch: 'full'
   },
   {
     path: 'vista-inicio',
@@ -15,37 +12,41 @@ export const routes: Routes = [
       import('./vista-inicio/vista-inicio.page').then(m => m.VistaInicioPage)
   },
   {
-    path: 'vista-ajustes',
-    loadComponent: () =>
-      import('./vista-ajustes/vista-ajustes.page').then(m => m.VistaAjustesPage)
-  },
-  {
     path: 'vista-login',
     loadComponent: () =>
       import('./vista-login/vista-login.page').then(m => m.VistaLoginPage)
   },
   {
-
     path: 'vista-home',
-    loadComponent: () => import('./vista-home/vista-home.page').then( m => m.VistaHomePage)
+    loadComponent: () =>
+      import('./vista-home/vista-home.page').then(m => m.VistaHomePage)
   },
-
-{
+  {
+    path: 'vista-ajustes',
+    loadComponent: () =>
+      import('./vista-ajustes/vista-ajustes.page').then(m => m.VistaAjustesPage)
+  },
+  {
     path: 'vista-registro-usuario',
     loadComponent: () =>
-      import('./vista-registro-usuario/vista-registro-usuario.page').then(m => m.VistaRegistroUsuarioPage)
-},
+      import('./vista-registro-usuario/vista-registro-usuario.page').then(
+        m => m.RegistroUsuarioPage
+      )
+  },
   {
     path: 'vista-bombero',
-    loadComponent: () => import('./vista-bombero/vista-bombero.page').then( m => m.VistaBomberoPage)
+    loadComponent: () =>
+      import('./vista-bombero/vista-bombero.page').then(m => m.VistaBomberoPage)
   },
-  
-{
+  {
     path: 'vista-notificaciones',
-    loadComponent: () => import('./vista-notificaciones/vista-notificaciones.page').then( m => m.VistaNotificacionesPage)
+    loadComponent: () =>
+      import('./vista-notificaciones/vista-notificaciones.page').then(
+        m => m.VistaNotificacionesPage
+      )
   },
-  
-{ path: '**', redirectTo: 'vista-home' },
-
-
+  {
+    path: '**',
+    redirectTo: 'vista-inicio'
+  }
 ];
