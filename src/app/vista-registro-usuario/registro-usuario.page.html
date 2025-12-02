@@ -1,8 +1,17 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/vista-inicio"></ion-back-button>
+      <!-- Flecha estilo iPhone SIEMPRE visible -->
+      <ion-button
+        fill="clear"
+        mode="ios"
+        class="back-btn-ios"
+        (click)="goBack()">
+        <ion-icon slot="start" name="chevron-back-outline"></ion-icon>
+        <span>Volver</span>
+      </ion-button>
     </ion-buttons>
+
     <ion-title>Registrar usuario</ion-title>
   </ion-toolbar>
 </ion-header>

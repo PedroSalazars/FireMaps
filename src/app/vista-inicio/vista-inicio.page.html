@@ -1,18 +1,29 @@
-
-
-<ion-content class="ion-padding ion-text-center">
+<ion-content class="ion-padding ion-text-center inicio-content">
 
   <div class="logo-container">
-    <h2>FireMaps</h2>
-    <ion-img class="logo" src="assets/icons/firemaps.webp"></ion-img>
+    <h2 class="app-title">FireMaps</h2>
+
+    <!-- Logo de FireMaps -->
+    <img
+      class="logo"
+      src="assets/icons/icon.png"
+      alt="FireMaps logo"
+    />
   </div>
 
   <div class="botones">
-    <ion-button expand="block" routerLink="/vista-registro-usuario">
+    <ion-button
+      expand="block"
+      routerLink="/vista-registro-usuario"
+    >
       {{ 'REGISTER' | translate }}
     </ion-button>
 
-    <ion-button expand="block" routerLink="/vista-login">
+    <ion-button
+      expand="block"
+      routerLink="/vista-login"
+      color="warning"
+    >
       {{ 'LOGIN' | translate }}
     </ion-button>
   </div>
