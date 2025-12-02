@@ -1,17 +1,30 @@
 import { Component } from '@angular/core';
-import { IonicModule, ToastController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { FormsModule, NgForm } from '@angular/forms';
-import { RouterModule, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { IonicModule, ToastController, NavController } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { collection, getDocs, query, where } from 'firebase/firestore';
+
+// Firestore
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase-config';
+
+
+
+interface Usuario {
+  nombre: string;
+  apellido: string;
+  correo: string;
+  clave: string;
+  rut: string;
+  telefono: string;
+  rol: string;
+}
 
 @Component({
   selector: 'app-vista-login',
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, RouterModule, TranslateModule],
+  imports: [CommonModule, IonicModule, FormsModule, TranslateModule],
   templateUrl: './vista-login.page.html',
   styleUrls: ['./vista-login.page.scss']
 })
@@ -19,105 +32,119 @@ export class VistaLoginPage {
 
   correo = '';
   clave = '';
-  usuarioActivo: any = null;
+
+  submitted = false;
+  cargando = false;
 
   constructor(
     private toastController: ToastController,
-    private router: Router
-  ) {}
+    private navCtrl: NavController,
+    private translate: TranslateService
+  ) {
+    const lang = localStorage.getItem('lang') || 'es';
+    this.translate.setDefaultLang('es');
+    this.translate.use(lang);
+  }
 
-  async iniciarSesion(form: NgForm) {
+  esCorreoBasicoValido(correo: string): boolean {
+    if (!correo) return false;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(correo);
+  }
 
-    // 1) Validación del formulario
-    if (!form.valid) {
+  async iniciarSesion() {
+    this.submitted = true;
+
+    // Validaciones
+    if (!this.correo || !this.clave) {
       const toast = await this.toastController.create({
-        message: 'Completa todos los campos.',
+        message: 'Por favor completa todos los campos.',
         duration: 2500,
         color: 'danger'
       });
-      await toast.present();
+      toast.present();
       return;
     }
 
-    // 2) Limpiar espacios sobrantes (muy importante en Android)
-    const correoLimpio = this.correo.trim();
-    const claveLimpia = this.clave.trim();
-
-    if (!correoLimpio || !claveLimpia) {
+    if (!this.esCorreoBasicoValido(this.correo)) {
       const toast = await this.toastController.create({
-        message: 'Correo y contraseña no pueden estar vacíos.',
+        message: 'El correo no es válido.',
         duration: 2500,
         color: 'danger'
       });
-      await toast.present();
+      toast.present();
       return;
     }
+
+    this.cargando = true;
 
     try {
-      // 3) Consulta Firestore
+      // Query Firestore para buscar usuario por correo
       const usuariosRef = collection(db, 'usuarios');
-      const q = query(
-        usuariosRef,
-        where('correo', '==', correoLimpio),
-        where('clave', '==', claveLimpia)
-      );
-
+      const q = query(usuariosRef, where('correo', '==', this.correo.trim()));
       const querySnapshot = await getDocs(q);
 
-      if (!querySnapshot.empty) {
-
-        // 4) Usuario encontrado
-        const doc = querySnapshot.docs[0];
-
-        const usuario: any = {
-          id: doc.id,
-          ...doc.data()
-        };
-
-        this.usuarioActivo = usuario;
-
-        const nombreUsuario = usuario.nombre || correoLimpio;
-        const rolUsuario = usuario.rol;
-
+      if (querySnapshot.empty) {
         const toast = await this.toastController.create({
-          message: `Bienvenido, ${nombreUsuario}!`,
-          duration: 2000,
-          color: 'success'
-        });
-        await toast.present();
-
-        // 5) Guardar sesión
-        localStorage.setItem('usuarioActivo', JSON.stringify(usuario));
-
-        // 6) Navegación según rol
-        if (rolUsuario === 'bombero') {
-          await this.router.navigate(['/vista-bombero']);
-        } else {
-          await this.router.navigate(['/vista-home']);
-        }
-
-      } else {
-
-        // Usuario NO encontrado
-        const toast = await this.toastController.create({
-          message: 'Correo o contraseña incorrectos.',
+          message: 'Correo no encontrado.',
           duration: 2500,
-          color: 'warning'
+          color: 'danger'
         });
-        await toast.present();
+        toast.present();
+        return;
+      }
+
+      let usuario = querySnapshot.docs[0].data() as Usuario;
+
+      // Verificar contraseña guardada en Firestore
+      if (usuario.clave !== this.clave) {
+        const toast = await this.toastController.create({
+          message: 'Contraseña incorrecta.',
+          duration: 2500,
+          color: 'danger'
+        });
+        toast.present();
+        return;
+      }
+
+      // Login exitoso
+      const toast = await this.toastController.create({
+        message: `Bienvenido ${usuario.nombre}!`,
+        duration: 2000,
+        color: 'success'
+      });
+      toast.present();
+
+      // Redirección según el rol
+      switch (usuario.rol) {
+        case 'bombero':
+          this.navCtrl.navigateRoot('/vista-bombero');
+          break;
+
+        case 'admin':
+          this.navCtrl.navigateRoot('/vista-admin');
+          break;
+
+        case 'usuario':
+          this.navCtrl.navigateRoot('/vista-home');
+          break;
+
+        default:
+          this.navCtrl.navigateRoot('/vista-home');
+          break;
       }
 
     } catch (error) {
-
-      // Error inesperado
-      console.error('Error en login:', error);
-
+      console.error('Error al iniciar sesión:', error);
       const toast = await this.toastController.create({
-        message: 'Error al iniciar sesión. Intenta nuevamente.',
+        message: 'Error al procesar el inicio de sesión.',
         duration: 2500,
         color: 'danger'
       });
-      await toast.present();
+      toast.present();
+
+    } finally {
+      this.cargando = false;
     }
   }
 }
