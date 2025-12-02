@@ -1,7 +1,3 @@
-/* =============================
-   ESTILOS DE LA PÁGINA
-   ============================= */
-
 ion-toolbar {
   --background: #e7e3e2;
   --color: black;
@@ -89,10 +85,6 @@ ion-text p {
    ALERT PERSONALIZADO
    ============================= */
 
-/* Este estilo *sí se aplica* porque IONIC 
-   inserta el alert dentro del Shadow DOM
-   pero permite custom-alert como clase global */
-
 ion-alert.custom-alert {
   --background: #ffffff;
   --border-radius: 16px;
@@ -102,7 +94,6 @@ ion-alert.custom-alert {
   --box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* Encabezado */
 ion-alert.custom-alert .alert-head {
   text-align: center;
 }
@@ -114,7 +105,6 @@ ion-alert.custom-alert .alert-title {
   text-align: center;
 }
 
-/* Texto */
 ion-alert.custom-alert .alert-message {
   font-size: 1rem;
   color: #555;
@@ -122,7 +112,6 @@ ion-alert.custom-alert .alert-message {
   padding-top: 4px;
 }
 
-/* Botón */
 ion-alert.custom-alert .alert-button {
   color: #ffffff !important;
   background: #007bff !important;
@@ -133,4 +122,23 @@ ion-alert.custom-alert .alert-button {
 
 ion-alert.custom-alert .alert-button-group {
   justify-content: center;
+}
+
+/* ======== MENSAJE GLOBAL ÉXITO / ERROR ======== */
+
+.mensaje-global {
+  margin-top: 12px;
+  font-size: 15px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Verde para éxito */
+.mensaje-exito {
+  color: #0f9d58 !important; /* verde estilo Google */
+}
+
+/* Rojo para error */
+.mensaje-error {
+  color: #d93025 !important; /* rojo estilo Google */
 }

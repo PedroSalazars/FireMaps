@@ -33,6 +33,10 @@ export class RegistroUsuarioPage implements OnInit {
 
   submitted = false;
 
+  // 🔹 Mensaje visible en la página
+  mensajeRegistro = '';
+  tipoMensajeRegistro: 'ok' | 'error' | '' = '';
+
   constructor(private alertController: AlertController) {
     this.initFirebase();
   }
@@ -80,12 +84,21 @@ export class RegistroUsuarioPage implements OnInit {
     return regex.test(correo.trim());
   }
 
+  private setMensaje(tipo: 'ok' | 'error', texto: string) {
+    this.tipoMensajeRegistro = tipo;
+    this.mensajeRegistro = texto;
+  }
+
   // ================================
   //  REGISTRO: AUTH + FIRESTORE
   // ================================
   async registrarUsuario() {
     this.submitted = true;
     console.log('DEBUG REGISTRO: registrarUsuario() llamado');
+
+    // limpiamos mensaje anterior
+    this.mensajeRegistro = '';
+    this.tipoMensajeRegistro = '';
 
     // 1) Validaciones básicas
     if (
@@ -97,6 +110,7 @@ export class RegistroUsuarioPage implements OnInit {
       !this.clave ||
       !this.confirmarClave
     ) {
+      this.setMensaje('error', 'Por favor completa todos los campos.');
       await this.mostrarAlerta(
         'Campos incompletos',
         'Por favor completa todos los campos.'
@@ -105,6 +119,7 @@ export class RegistroUsuarioPage implements OnInit {
     }
 
     if (!this.esRutValido(this.rut)) {
+      this.setMensaje('error', 'El RUT ingresado no es válido.');
       await this.mostrarAlerta(
         'RUT inválido',
         'El RUT ingresado no es válido.'
@@ -113,6 +128,7 @@ export class RegistroUsuarioPage implements OnInit {
     }
 
     if (!this.esTelefonoValido(this.telefono)) {
+      this.setMensaje('error', 'Revisa el número de teléfono.');
       await this.mostrarAlerta(
         'Teléfono inválido',
         'Revisa el número de teléfono.'
@@ -121,6 +137,7 @@ export class RegistroUsuarioPage implements OnInit {
     }
 
     if (!this.esCorreoBasicoValido(this.correo)) {
+      this.setMensaje('error', 'Ingresa un correo electrónico válido.');
       await this.mostrarAlerta(
         'Correo inválido',
         'Ingresa un correo electrónico válido.'
@@ -129,6 +146,7 @@ export class RegistroUsuarioPage implements OnInit {
     }
 
     if (this.clave !== this.confirmarClave) {
+      this.setMensaje('error', 'Las contraseñas no coinciden.');
       await this.mostrarAlerta(
         'Contraseñas incorrectas',
         'Las contraseñas no coinciden.'
@@ -164,7 +182,10 @@ export class RegistroUsuarioPage implements OnInit {
       await setDoc(ref, dataUsuario);
       console.log('DEBUG REGISTRO: Documento usuarios/' + uid + ' creado en Firestore');
 
-      // ✅ PopUp de EXITO
+      // ✅ Mensaje en pantalla
+      this.setMensaje('ok', 'Usuario registrado con éxito. Tu cuenta se ha guardado en Firebase.');
+
+      // ✅ PopUp de EXITO (si funciona)
       await this.mostrarAlerta(
         'Usuario registrado con éxito 🎉',
         'Tu cuenta ha sido creada y guardada en Firebase.'
@@ -183,7 +204,10 @@ export class RegistroUsuarioPage implements OnInit {
         mensaje = 'La contraseña es demasiado débil. Usa al menos 6 caracteres.';
       }
 
-      // ❌ PopUp de ERROR
+      // ❌ Mensaje en pantalla
+      this.setMensaje('error', mensaje);
+
+      // ❌ PopUp de ERROR (si funciona)
       await this.mostrarAlerta(
         'El usuario no ha podido registrarse ❌',
         mensaje
@@ -220,7 +244,11 @@ export class RegistroUsuarioPage implements OnInit {
     } catch (e) {
       console.error('ERROR MOSTRANDO ALERTA:', e);
       // Fallback por si algo raro pasa con AlertController
-      window.alert(`${header}\n\n${message}`);
+      try {
+        window.alert(`${header}\n\n${message}`);
+      } catch {
+        console.log('window.alert falló, pero al menos se mostró mensaje en pantalla.');
+      }
     }
   }
 }

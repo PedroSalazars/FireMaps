@@ -119,6 +119,15 @@
         Registrarse
       </ion-button>
 
+      <!-- ⚠️ MENSAJE GLOBAL DE REGISTRO (ÉXITO/ERROR) -->
+      <ion-text *ngIf="mensajeRegistro">
+        <p
+          class="mensaje-global"
+          [ngClass]="tipoMensajeRegistro === 'ok' ? 'mensaje-exito' : 'mensaje-error'">
+          {{ mensajeRegistro }}
+        </p>
+      </ion-text>
+
     </form>
 
   </div>
