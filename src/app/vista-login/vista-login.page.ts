@@ -1,24 +1,28 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, ToastController, NavController } from '@ionic/angular';
+import { IonicModule, ToastController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Router } from '@angular/router';
 
+// Firebase App & Auth
+import { getApps, initializeApp } from 'firebase/app';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
 // Firestore
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase-config';
 
+// Environment
+import { environment } from '../../environments/environment';
 
-
-interface Usuario {
-  nombre: string;
-  apellido: string;
-  correo: string;
-  clave: string;
-  rut: string;
-  telefono: string;
-  rol: string;
+interface UsuarioPerfil {
+  nombre?: string;
+  apellidos?: string;
+  correo?: string;
+  rut?: string;
+  telefono?: string;
+  rol?: string;   // opcional
 }
 
 @Component({
@@ -38,25 +42,65 @@ export class VistaLoginPage {
 
   constructor(
     private toastController: ToastController,
-    private navCtrl: NavController,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private router: Router
   ) {
+    // Idioma
     const lang = localStorage.getItem('lang') || 'es';
     this.translate.setDefaultLang('es');
     this.translate.use(lang);
+
+    // Firebase
+    this.initFirebase();
+
+    console.log('DEBUG LOGIN: VistaLoginPage construida');
   }
 
+  // ================================
+  //  INIT FIREBASE
+  // ================================
+  private initFirebase() {
+    try {
+      const apps = getApps();
+      if (!apps.length) {
+        initializeApp(environment.firebase);
+        console.log('DEBUG LOGIN: Firebase inicializado en VistaLoginPage');
+      } else {
+        console.log('DEBUG LOGIN: Firebase ya estaba inicializado (login)');
+      }
+    } catch (e) {
+      console.error('DEBUG LOGIN: Error inicializando Firebase', e);
+    }
+  }
+
+  // ================================
+  //  VALIDACIONES
+  // ================================
   esCorreoBasicoValido(correo: string): boolean {
     if (!correo) return false;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(correo);
+    return emailRegex.test(correo.trim());
   }
 
+  // ================================
+  //  INICIO DE SESIÓN (AUTH + FIRESTORE)
+  // ================================
   async iniciarSesion() {
     this.submitted = true;
 
-    // Validaciones
-    if (!this.correo || !this.clave) {
+    // 🔹 DEBUG 1: Confirmar que el click llega al método
+    console.log('DEBUG LOGIN: iniciarSesion() llamado');
+    try {
+      window.alert('DEBUG: click login'); // si esto NO aparece, el botón no llama a este método
+    } catch (e) {
+      console.warn('DEBUG LOGIN: window.alert no disponible', e);
+    }
+
+    const email = this.correo.trim().toLowerCase();
+    const password = this.clave;
+
+    // Validaciones básicas
+    if (!email || !password) {
       const toast = await this.toastController.create({
         message: 'Por favor completa todos los campos.',
         duration: 2500,
@@ -66,7 +110,7 @@ export class VistaLoginPage {
       return;
     }
 
-    if (!this.esCorreoBasicoValido(this.correo)) {
+    if (!this.esCorreoBasicoValido(email)) {
       const toast = await this.toastController.create({
         message: 'El correo no es válido.',
         duration: 2500,
@@ -77,67 +121,81 @@ export class VistaLoginPage {
     }
 
     this.cargando = true;
+    console.log('DEBUG LOGIN: Intentando login con', email);
 
     try {
-      // Query Firestore para buscar usuario por correo
-      const usuariosRef = collection(db, 'usuarios');
-      const q = query(usuariosRef, where('correo', '==', this.correo.trim()));
-      const querySnapshot = await getDocs(q);
+      const auth = getAuth();
+      console.log('DEBUG LOGIN: Llamando a signInWithEmailAndPassword...');
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      console.log('DEBUG LOGIN: Usuario autenticado UID =', cred.user.uid);
 
-      if (querySnapshot.empty) {
-        const toast = await this.toastController.create({
-          message: 'Correo no encontrado.',
-          duration: 2500,
-          color: 'danger'
-        });
-        toast.present();
-        return;
+      const uid = cred.user.uid;
+
+      // Leer perfil en Firestore (usuarios/{uid})
+      let nombreMostrar = 'Usuario';
+      let rol: string = 'usuario';
+
+      try {
+        const ref = doc(db, 'usuarios', uid);
+        const snap = await getDoc(ref);
+
+        if (snap.exists()) {
+          const datos = snap.data() as UsuarioPerfil;
+          nombreMostrar = datos.nombre || nombreMostrar;
+          rol = datos.rol || rol;
+          console.log('DEBUG LOGIN: Perfil Firestore =', datos);
+        } else {
+          console.warn('DEBUG LOGIN: No existe documento usuarios/' + uid);
+        }
+      } catch (err) {
+        console.warn('DEBUG LOGIN: Error leyendo perfil en Firestore', err);
       }
 
-      let usuario = querySnapshot.docs[0].data() as Usuario;
-
-      // Verificar contraseña guardada en Firestore
-      if (usuario.clave !== this.clave) {
-        const toast = await this.toastController.create({
-          message: 'Contraseña incorrecta.',
-          duration: 2500,
-          color: 'danger'
-        });
-        toast.present();
-        return;
-      }
-
-      // Login exitoso
+      // ✅ Login exitoso
       const toast = await this.toastController.create({
-        message: `Bienvenido ${usuario.nombre}!`,
+        message: `Bienvenido ${nombreMostrar}!`,
         duration: 2000,
         color: 'success'
       });
       toast.present();
 
-      // Redirección según el rol
-      switch (usuario.rol) {
+      // ✅ Redirección al mapa (igual que registro)
+      console.log('DEBUG LOGIN: Navegando a /vista-home');
+      this.router.navigate(['/vista-home']);
+
+      // Si más adelante quieres respetar roles, puedes usar esto:
+      /*
+      switch (rol) {
         case 'bombero':
-          this.navCtrl.navigateRoot('/vista-bombero');
+          this.router.navigate(['/vista-bombero']);
           break;
-
         case 'admin':
-          this.navCtrl.navigateRoot('/vista-admin');
+          this.router.navigate(['/vista-admin']);
           break;
-
         case 'usuario':
-          this.navCtrl.navigateRoot('/vista-home');
-          break;
-
         default:
-          this.navCtrl.navigateRoot('/vista-home');
+          this.router.navigate(['/vista-home']);
           break;
       }
+      */
 
-    } catch (error) {
-      console.error('Error al iniciar sesión:', error);
+    } catch (error: any) {
+      console.error('DEBUG LOGIN: Error completo =>', error);
+
+      let mensaje = 'No se pudo iniciar sesión.';
+
+      if (error.code === 'auth/user-not-found') {
+        mensaje = 'No existe un usuario con ese correo.';
+      } else if (error.code === 'auth/wrong-password') {
+        mensaje = 'La contraseña es incorrecta.';
+      } else if (error.code === 'auth/too-many-requests') {
+        mensaje = 'Demasiados intentos. Intenta más tarde.';
+      } else if (error.code === 'auth/invalid-email') {
+        mensaje = 'El correo no es válido.';
+      }
+
       const toast = await this.toastController.create({
-        message: 'Error al procesar el inicio de sesión.',
+        message: mensaje,
         duration: 2500,
         color: 'danger'
       });

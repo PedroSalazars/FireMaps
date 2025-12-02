@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController } from '@ionic/angular';
+import { Router } from '@angular/router';   // 👈 NUEVO: usaremos Router
 
 // Firebase core & auth
 import { initializeApp, getApps } from 'firebase/app';
@@ -33,11 +34,14 @@ export class RegistroUsuarioPage implements OnInit {
 
   submitted = false;
 
-  // 🔹 Mensaje visible en la página
+  // Mensaje visible en la página
   mensajeRegistro = '';
   tipoMensajeRegistro: 'ok' | 'error' | '' = '';
 
-  constructor(private alertController: AlertController) {
+  constructor(
+    private alertController: AlertController,
+    private router: Router        // 👈 inyectamos Router
+  ) {
     this.initFirebase();
   }
 
@@ -182,15 +186,16 @@ export class RegistroUsuarioPage implements OnInit {
       await setDoc(ref, dataUsuario);
       console.log('DEBUG REGISTRO: Documento usuarios/' + uid + ' creado en Firestore');
 
-      // ✅ Mensaje en pantalla
+      // ✅ Mensaje global en pantalla
       this.setMensaje('ok', 'Usuario registrado con éxito. Tu cuenta se ha guardado en Firebase.');
 
-      // ✅ PopUp de EXITO (si funciona)
-      await this.mostrarAlerta(
-        'Usuario registrado con éxito 🎉',
-        'Tu cuenta ha sido creada y guardada en Firebase.'
-      );
+      // ✅ Redirección directa a vista-home
+      console.log('DEBUG NAVIGATE: Navegando inmediatamente a /vista-home');
+      // si quieres que sea con un pequeño delay:
+      // setTimeout(() => this.router.navigate(['/vista-home']), 1500);
+      this.router.navigate(['/vista-home']);
 
+      // Limpieza del formulario (opcional)
       this.resetFormulario();
 
     } catch (error: any) {
@@ -207,7 +212,7 @@ export class RegistroUsuarioPage implements OnInit {
       // ❌ Mensaje en pantalla
       this.setMensaje('error', mensaje);
 
-      // ❌ PopUp de ERROR (si funciona)
+      // ❌ PopUp de ERROR
       await this.mostrarAlerta(
         'El usuario no ha podido registrarse ❌',
         mensaje
@@ -229,6 +234,7 @@ export class RegistroUsuarioPage implements OnInit {
     this.confirmarClave = '';
   }
 
+  // ALERTA GENÉRICA (para errores, mensajes normales)
   private async mostrarAlerta(header: string, message: string) {
     console.log('DEBUG ALERT:', header, message);
 
@@ -243,11 +249,10 @@ export class RegistroUsuarioPage implements OnInit {
       await alert.present();
     } catch (e) {
       console.error('ERROR MOSTRANDO ALERTA:', e);
-      // Fallback por si algo raro pasa con AlertController
       try {
         window.alert(`${header}\n\n${message}`);
       } catch {
-        console.log('window.alert falló, pero al menos se mostró mensaje en pantalla.');
+        console.log('window.alert falló, pero al menos se mostró mensaje en consola.');
       }
     }
   }
