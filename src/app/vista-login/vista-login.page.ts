@@ -122,7 +122,7 @@ export class VistaLoginPage {
           break;
 
         case 'admin':
-          this.navCtrl.navigateRoot('/vista-admin');
+          this.navCtrl.navigateRoot('/vista-bombero');
           break;
 
         case 'usuario':
