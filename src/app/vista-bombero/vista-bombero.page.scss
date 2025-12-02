@@ -1,7 +1,74 @@
-.home {
-  --ion-background-color: red
-;
+/* Estilo general del contenido */
+ion-content {
+  --background: #f5f2f0; /* fondo claro */
+  font-family: 'Segoe UI', Roboto, sans-serif;
+}
+ion-toolbar {
+  --background: #f5f2f0;
+  color: #444;
+  text-align: center;
+}
+/* Bloque de información del usuario */
+ion-item {
+  margin: 16px;
+  border-radius: 8px;
+  --background: #ccc;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-.welcome {
-  background-color: #F2921D;}
+ion-item ion-label {
+  display: block;
+  color: #333;
+}
+
+ion-item ion-text {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #f28972; /* rojo bombero */
+}
+
+ion-item p {
+  margin: 4px 0;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+/* Estado vacío */
+.empty-state {
+  text-align: center;
+  margin-top: 40px;
+  color: #777;
+}
+
+.empty-state ion-icon {
+  font-size: 64px;
+  color: #ccc;
+  margin-bottom: 12px;
+}
+
+.empty-state p {
+  font-size: 1rem;
+  color: #999;
+}
+
+/* Footer con tabs */
+ion-footer {
+  border-top: 1px solid #f5f2f0;
+}
+
+ion-tab-bar {
+  --background: #e7e3e2;
+}
+
+ion-tab-button {
+  --color: #444;
+  --color-selected: #f28972; /* rojo bombero para el tab activo */
+}
+
+ion-tab-button ion-icon {
+  font-size: 22px;
+}
+
+ion-tab-button ion-label {
+  font-size: 0.85rem;
+}

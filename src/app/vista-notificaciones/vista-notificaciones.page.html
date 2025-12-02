@@ -4,19 +4,24 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content fullscreen>
-  <ion-list>
-    <ion-item *ngFor="let incidente of incidentes">
-      <ion-icon name="alert-circle" slot="start" color="danger"></ion-icon>
-      <ion-label>
-        <h2>{{ incidente.type }}</h2>
+<ion-content fullscreen [fullscreen]="true" class="ion-padding">
+  <div class="card-container">
+    <ion-card *ngFor="let incidente of incidentes" class="incidente-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="alert-circle" color="danger" style="margin-right: 8px;"></ion-icon>
+          {{ incidente.type }}
+        </ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content >
         <p><strong>Dirección:</strong> {{ incidente.address }}</p>
         <p><strong>Estado:</strong> {{ incidente.status }}</p>
         <p><strong>Prioridad:</strong> {{ incidente.priority }}</p>
         <p><strong>Fecha:</strong> {{ incidente.createdAt?.seconds * 1000 | date:'short' }}</p>
-      </ion-label>
-    </ion-item>
-  </ion-list>
+      </ion-card-content>
+    </ion-card>
+  </div>
 
   <div *ngIf="incidentes.length === 0" class="empty-state">
     <ion-icon name="notifications-off" size="large"></ion-icon>
@@ -24,28 +29,22 @@
   </div>
 </ion-content>
 
-
-<!-- Footer-->
+<!-- Footer -->
 <ion-tabs #tabs>
   <ion-tab-bar slot="bottom">
-
-    <!-- Boton Notificaciones-->
     <ion-tab-button routerLink="/vista-notificaciones">
       <ion-icon name="notifications"></ion-icon>
-      <ion-label >Notificaciones</ion-label>
+      <ion-label>Notificaciones</ion-label>
     </ion-tab-button>
 
-    <!-- Boton home-->
     <ion-tab-button routerLink="/vista-bombero">
       <ion-icon name="home"></ion-icon>
-      <ion-label >Home</ion-label>
+      <ion-label>Home</ion-label>
     </ion-tab-button>
 
-    <!-- Boton Ajuestes-->
     <ion-tab-button routerLink="/vista-ajustes">
       <ion-icon name="settings"></ion-icon>
-      <ion-label >Ajustes</ion-label>
+      <ion-label>Ajustes</ion-label>
     </ion-tab-button>
-
   </ion-tab-bar>
 </ion-tabs>

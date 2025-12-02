@@ -1,51 +1,71 @@
-/* Fondo y color general */
-ion-content {
-  --background: #E7E3E2;
-  color: black;
-  padding: 0;
+ion-toolbar {
+  --background: #e7e3e2;
+  --color: black;
 }
 
-/* Contenedor del formulario */
+.login-content {
+  --background: #e7e3e2;
+}
+
+/* Contenedor general debajo del header */
+.login-inner {
+  min-height: calc(100vh - 56px); /* alto de pantalla menos el header */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 24px 16px;
+}
+
+/* Formulario */
 form {
   width: 100%;
   max-width: 360px;
-  padding: 20px;
-  margin: 40px auto 0 auto; // centrado similar al que ya tenías
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
 }
 
-/* Input container */
-ion-item {
-  --background: transparent;
-  --color: black;
-  border-radius: 8px;
-  border: 1px solid #444;
-  padding: 4px 8px;
+/* Campo (label + input) */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 4px;
 }
 
-/* Label */
-ion-label {
-  color: black;
+.campo label {
+  font-size: 14px;
+  color: #555;
   font-weight: 500;
 }
 
-/* INPUT NATIVO dentro de ion-item */
-.native-input {
-  width: 100%;
-  border: none;
+/* Input nativo */
+.campo input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background-color: #f5f2f0;
+  font-size: 15px;
+  color: #000;
   outline: none;
-  background: transparent;
-  color: black;
-  font-size: 16px;
-  padding: 6px 0;
 }
 
-/* Botón */
-ion-button {
-  margin-top: 20px;
-  --background: #F27B13;
+/* Focus */
+.campo input:focus {
+  border-color: #f28972;
+}
+
+/* Mensajes de error */
+ion-text p {
+  font-size: 13px;
+  margin: 2px 0 4px;
+}
+
+/* Botón login */
+.btn-login {
+  margin-top: 16px;
+  --background: #f28972;
   --color: #ffffff;
   --border-radius: 8px;
   font-weight: bold;
@@ -53,23 +73,6 @@ ion-button {
   transition: background-color 0.3s ease;
 }
 
-ion-button:hover {
-  --background: #F2CB57;
-}
-
-/* Header */
-ion-header {
-  ion-toolbar {
-    --background: #E7E3E2;
-    --color: black;
-  }
-
-  ion-title {
-    color: black;
-    font-weight: bold;
-  }
-
-  ion-back-button {
-    --color: black;
-  }
+.btn-login:hover {
+  --background: #f28972;
 }

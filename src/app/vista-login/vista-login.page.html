@@ -3,44 +3,58 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/vista-inicio"></ion-back-button>
     </ion-buttons>
-    <ion-title>{{ 'LOGIN_TITLE' | translate }}</ion-title>
+    <ion-title>{{ 'LOGIN_USER' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <form #loginForm="ngForm" (ngSubmit)="iniciarSesion(loginForm)" novalidate>
+<ion-content class="login-content">
+  <div class="login-inner">
 
-    <!-- Correo -->
-    <ion-item>
-      <ion-label position="stacked">{{ 'EMAIL' | translate }}</ion-label>
-      <input
-        class="native-input"
-        [(ngModel)]="correo"
-        name="correo"
-        type="email"
-        required
-        autocomplete="off"
-        inputmode="email"
-      />
-    </ion-item>
+    <form #loginForm="ngForm" novalidate>
 
-    <!-- Contraseña -->
-    <ion-item>
-      <ion-label position="stacked">{{ 'PASSWORD' | translate }}</ion-label>
-      <input
-        class="native-input"
-        [(ngModel)]="clave"
-        name="clave"
-        type="password"
-        required
-        autocomplete="off"
-      />
-    </ion-item>
+      <!-- Correo -->
+      <div class="campo">
+        <label>Correo</label>
+        <input
+          type="email"
+          [(ngModel)]="correo"
+          name="correo"
+          required
+          autocomplete="off"
+        />
+      </div>
 
-    <!-- Botón -->
-    <ion-button expand="block" type="submit">
-      {{ 'LOGIN_BUTTON' | translate }}
-    </ion-button>
+      <ion-text color="danger" *ngIf="submitted && !esCorreoBasicoValido(correo)">
+        <p>Correo no válido</p>
+      </ion-text>
 
-  </form>
+      <!-- Contraseña -->
+      <div class="campo">
+        <label>Contraseña</label>
+        <input
+          type="password"
+          [(ngModel)]="clave"
+          name="clave"
+          required
+          autocomplete="off"
+        />
+      </div>
+
+      <ion-text color="danger" *ngIf="submitted && !clave">
+        <p>La contraseña es obligatoria</p>
+      </ion-text>
+
+      <!-- BOTÓN INGRESAR -->
+      <ion-button
+        expand="block"
+        class="btn-login"
+        type="button"
+        (click)="iniciarSesion()"
+      >
+        {{ 'LOGIN' | translate }}
+      </ion-button>
+
+    </form>
+
+  </div>
 </ion-content>
