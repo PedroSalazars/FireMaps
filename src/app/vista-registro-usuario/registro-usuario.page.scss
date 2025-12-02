@@ -1,0 +1,136 @@
+/* =============================
+   ESTILOS DE LA PÁGINA
+   ============================= */
+
+ion-toolbar {
+  --background: #e7e3e2;
+  --color: black;
+}
+
+.registro-content {
+  --background: #e7e3e2;
+}
+
+/* Contenedor general debajo del header */
+.registro-inner {
+  min-height: calc(100vh - 56px); /* alto de pantalla menos el header */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 24px 16px;
+}
+
+/* Formulario */
+form {
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Campo (label + input) */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.campo label {
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
+}
+
+/* Input nativo */
+.campo input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background-color: #f5f2f0;
+  font-size: 15px;
+  color: #000;
+  outline: none;
+}
+
+/* Focus bonito */
+.campo input:focus {
+  border-color: #f28972;
+}
+
+/* Mensajes de error */
+ion-text p {
+  font-size: 13px;
+  margin: 2px 0 4px;
+  color: #c62828;
+}
+
+/* BOTÓN REGISTRAR */
+.btn-registrar {
+  margin-top: 16px;
+  --background: #f28972;
+  --color: #ffffff;
+  --border-radius: 8px;
+  font-weight: bold;
+  height: 48px;
+  font-size: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.25s ease;
+}
+
+.btn-registrar:hover {
+  --background: #d96d57;
+}
+
+
+/* =============================
+   ALERT PERSONALIZADO
+   ============================= */
+
+/* Este estilo *sí se aplica* porque IONIC 
+   inserta el alert dentro del Shadow DOM
+   pero permite custom-alert como clase global */
+
+ion-alert.custom-alert {
+  --background: #ffffff;
+  --border-radius: 16px;
+  --border-color: #e5e5e5;
+  --border-width: 1px;
+  --border-style: solid;
+  --box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Encabezado */
+ion-alert.custom-alert .alert-head {
+  text-align: center;
+}
+
+ion-alert.custom-alert .alert-title {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #333;
+  text-align: center;
+}
+
+/* Texto */
+ion-alert.custom-alert .alert-message {
+  font-size: 1rem;
+  color: #555;
+  text-align: center;
+  padding-top: 4px;
+}
+
+/* Botón */
+ion-alert.custom-alert .alert-button {
+  color: #ffffff !important;
+  background: #007bff !important;
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 6px 12px;
+}
+
+ion-alert.custom-alert .alert-button-group {
+  justify-content: center;
+}

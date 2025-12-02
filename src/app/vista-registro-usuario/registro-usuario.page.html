@@ -1,0 +1,125 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/vista-inicio"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Registrar usuario</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="registro-content">
+  <div class="registro-inner">
+
+    <form novalidate>
+
+      <!-- Nombres -->
+      <div class="campo">
+        <label>Nombres</label>
+        <input
+          type="text"
+          [(ngModel)]="nombre"
+          name="nombre"
+          required
+        />
+      </div>
+      <ion-text color="danger" *ngIf="submitted && !nombre">
+        <p>El nombre es obligatorio.</p>
+      </ion-text>
+
+      <!-- Apellidos -->
+      <div class="campo">
+        <label>Apellidos</label>
+        <input
+          type="text"
+          [(ngModel)]="apellidos"
+          name="apellidos"
+          required
+        />
+      </div>
+      <ion-text color="danger" *ngIf="submitted && !apellidos">
+        <p>Los apellidos son obligatorios.</p>
+      </ion-text>
+
+      <!-- RUT -->
+      <div class="campo">
+        <label>RUT</label>
+        <input
+          type="text"
+          [(ngModel)]="rut"
+          name="rut"
+          required
+        />
+      </div>
+      <ion-text color="danger" *ngIf="submitted && !esRutValido(rut)">
+        <p>El RUT ingresado no es válido.</p>
+      </ion-text>
+
+      <!-- Teléfono -->
+      <div class="campo">
+        <label>Teléfono</label>
+        <input
+          type="tel"
+          [(ngModel)]="telefono"
+          name="telefono"
+          required
+        />
+      </div>
+      <ion-text color="danger" *ngIf="submitted && !esTelefonoValido(telefono)">
+        <p>El teléfono ingresado no es válido.</p>
+      </ion-text>
+
+      <!-- Correo -->
+      <div class="campo">
+        <label>Correo</label>
+        <input
+          type="email"
+          [(ngModel)]="correo"
+          name="correo"
+          required
+        />
+      </div>
+      <ion-text color="danger" *ngIf="submitted && !esCorreoBasicoValido(correo)">
+        <p>El correo electrónico ingresado no es válido.</p>
+      </ion-text>
+
+      <!-- Contraseña -->
+      <div class="campo">
+        <label>Contraseña</label>
+        <input
+          type="password"
+          [(ngModel)]="clave"
+          name="clave"
+          required
+        />
+      </div>
+
+      <!-- Confirmar contraseña -->
+      <div class="campo">
+        <label>Confirmar contraseña</label>
+        <input
+          type="password"
+          [(ngModel)]="confirmarClave"
+          name="confirmarClave"
+          required
+        />
+      </div>
+
+      <!-- Error si no coinciden -->
+      <ion-text color="danger" *ngIf="submitted && clave !== confirmarClave">
+        <p>Las contraseñas no coinciden.</p>
+      </ion-text>
+
+      <!-- BOTÓN REGISTRARSE -->
+      <ion-button
+        expand="block"
+        type="button"
+        class="btn-registrar"
+        (click)="registrarUsuario()"
+      >
+        Registrarse
+      </ion-button>
+
+    </form>
+
+  </div>
+</ion-content>

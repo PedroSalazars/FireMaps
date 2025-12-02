@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "64009841672",
+    "project_id": "firemaps-38e99",
+    "storage_bucket": "firemaps-38e99.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:64009841672:android:9f4f27815f189fba66b5bd",
+        "android_client_info": {
+          "package_name": "io.ionic.starter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCtqTp35yc7yG0LEAcnSlAFeSe63rZQBI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
