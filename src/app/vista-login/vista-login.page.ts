@@ -113,13 +113,8 @@ export class VistaLoginPage {
       console.log('DEBUG LOGIN: Navegando a /vista-home');
       this.router.navigate(['/vista-home']);
 
-        case 'admin':
-          this.navCtrl.navigateRoot('/vista-bombero');
-          break;
-
     } catch (error: any) {
       console.error('DEBUG LOGIN: Error completo =>', error);
-
 
       let mensaje = 'No se pudo iniciar sesión.';
 
@@ -143,5 +138,13 @@ export class VistaLoginPage {
     } finally {
       this.cargando = false;
     }
+  }
+
+  // ================================
+  //  BOTÓN VOLVER ESTILO IOS
+  // ================================
+  goBack() {
+    // Siempre volver a la vista de inicio
+    this.router.navigate(['/vista-inicio']);
   }
 }
