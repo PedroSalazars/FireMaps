@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/vista-inicio"></ion-back-button>
     </ion-buttons>
-    <ion-title>{{ 'LOGIN_USER' | translate }}</ion-title>
+    <ion-title>{{ 'LOGIN_TITLE' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -24,6 +24,7 @@
         />
       </div>
 
+      <!-- Error de correo -->
       <ion-text color="danger" *ngIf="submitted && !esCorreoBasicoValido(correo)">
         <p>Correo no válido</p>
       </ion-text>
@@ -40,6 +41,7 @@
         />
       </div>
 
+      <!-- Error de contraseña vacía -->
       <ion-text color="danger" *ngIf="submitted && !clave">
         <p>La contraseña es obligatoria</p>
       </ion-text>
@@ -50,8 +52,9 @@
         class="btn-login"
         type="button"
         (click)="iniciarSesion()"
+        [disabled]="cargando"
       >
-        {{ 'LOGIN' | translate }}
+        {{ cargando ? ('LOGIN_LOADING' | translate) : ('LOGIN' | translate) }}
       </ion-button>
     </form>
 

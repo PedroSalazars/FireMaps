@@ -1,25 +1,16 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, ToastController, NavController } from '@ionic/angular';
+import { IonicModule, ToastController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Router } from '@angular/router';
 
+// Firebase App & Auth
+import { getApps, initializeApp } from 'firebase/app';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
-// Firestore
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../firebase-config';
-
-
-
-interface Usuario {
-  nombre: string;
-  apellido: string;
-  correo: string;
-  clave: string;
-  rut: string;
-  telefono: string;
-  rol: string;
-}
+// Environment
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-vista-login',
@@ -38,25 +29,56 @@ export class VistaLoginPage {
 
   constructor(
     private toastController: ToastController,
-    private navCtrl: NavController,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private router: Router
   ) {
     const lang = localStorage.getItem('lang') || 'es';
     this.translate.setDefaultLang('es');
     this.translate.use(lang);
+
+    this.initFirebase();
+    console.log('DEBUG LOGIN: VistaLoginPage construida');
   }
 
+  // ================================
+  //  INIT FIREBASE
+  // ================================
+  private initFirebase() {
+    try {
+      const apps = getApps();
+      if (!apps.length) {
+        initializeApp(environment.firebase);
+        console.log('DEBUG LOGIN: Firebase inicializado en VistaLoginPage');
+      } else {
+        console.log('DEBUG LOGIN: Firebase ya estaba inicializado (login)');
+      }
+    } catch (e) {
+      console.error('DEBUG LOGIN: Error inicializando Firebase', e);
+    }
+  }
+
+  // ================================
+  //  VALIDACIONES
+  // ================================
   esCorreoBasicoValido(correo: string): boolean {
     if (!correo) return false;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(correo);
+    return emailRegex.test(correo.trim());
   }
 
+  // ================================
+  //  INICIO DE SESIÓN (SOLO AUTH + NAVEGACIÓN)
+  // ================================
   async iniciarSesion() {
     this.submitted = true;
 
-    // Validaciones
-    if (!this.correo || !this.clave) {
+    const email = this.correo.trim().toLowerCase();
+    const password = this.clave;
+
+    console.log('DEBUG LOGIN: iniciarSesion() llamado con', email);
+
+    // Validaciones básicas
+    if (!email || !password) {
       const toast = await this.toastController.create({
         message: 'Por favor completa todos los campos.',
         duration: 2500,
@@ -66,7 +88,7 @@ export class VistaLoginPage {
       return;
     }
 
-    if (!this.esCorreoBasicoValido(this.correo)) {
+    if (!this.esCorreoBasicoValido(email)) {
       const toast = await this.toastController.create({
         message: 'El correo no es válido.',
         duration: 2500,
@@ -79,65 +101,40 @@ export class VistaLoginPage {
     this.cargando = true;
 
     try {
-      // Query Firestore para buscar usuario por correo
-      const usuariosRef = collection(db, 'usuarios');
-      const q = query(usuariosRef, where('correo', '==', this.correo.trim()));
-      const querySnapshot = await getDocs(q);
+      const auth = getAuth();
+      console.log('DEBUG LOGIN: Llamando a Firebase Auth…');
 
-      if (querySnapshot.empty) {
-        const toast = await this.toastController.create({
-          message: 'Correo no encontrado.',
-          duration: 2500,
-          color: 'danger'
-        });
-        toast.present();
-        return;
-      }
+      const cred = await signInWithEmailAndPassword(auth, email, password);
 
-      let usuario = querySnapshot.docs[0].data() as Usuario;
+      const uid = cred.user.uid;
+      console.log('DEBUG LOGIN: login OK, UID =', uid);
 
-      // Verificar contraseña guardada en Firestore
-      if (usuario.clave !== this.clave) {
-        const toast = await this.toastController.create({
-          message: 'Contraseña incorrecta.',
-          duration: 2500,
-          color: 'danger'
-        });
-        toast.present();
-        return;
-      }
-
-      // Login exitoso
-      const toast = await this.toastController.create({
-        message: `Bienvenido ${usuario.nombre}!`,
-        duration: 2000,
-        color: 'success'
-      });
-      toast.present();
-
-      // Redirección según el rol
-      switch (usuario.rol) {
-        case 'bombero':
-          this.navCtrl.navigateRoot('/vista-bombero');
-          break;
+      // 🔥 REDIRECCIÓN DIRECTA AL MAPA
+      console.log('DEBUG LOGIN: Navegando a /vista-home');
+      this.router.navigate(['/vista-home']);
 
         case 'admin':
           this.navCtrl.navigateRoot('/vista-bombero');
           break;
 
-        case 'usuario':
-          this.navCtrl.navigateRoot('/vista-home');
-          break;
+    } catch (error: any) {
+      console.error('DEBUG LOGIN: Error completo =>', error);
 
-        default:
-          this.navCtrl.navigateRoot('/vista-home');
-          break;
+
+      let mensaje = 'No se pudo iniciar sesión.';
+
+      if (error.code === 'auth/user-not-found') {
+        mensaje = 'Correo no registrado.';
+      } else if (error.code === 'auth/wrong-password') {
+        mensaje = 'Contraseña incorrecta.';
+      } else if (error.code === 'auth/too-many-requests') {
+        mensaje = 'Demasiados intentos, intenta más tarde.';
+      } else if (error.code === 'auth/invalid-email') {
+        mensaje = 'Correo inválido.';
       }
 
-    } catch (error) {
-      console.error('Error al iniciar sesión:', error);
       const toast = await this.toastController.create({
-        message: 'Error al procesar el inicio de sesión.',
+        message: mensaje,
         duration: 2500,
         color: 'danger'
       });
