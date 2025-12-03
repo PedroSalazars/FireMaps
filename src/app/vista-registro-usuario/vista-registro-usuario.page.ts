@@ -179,6 +179,7 @@ export class RegistroUsuarioPage implements OnInit {
         rut: this.rut,
         telefono: this.telefono,
         correo: emailNormalizado,
+        rol: 'usuario',              // 👈 todos los nuevos quedan marcados como "usuario"
         creadoEn: serverTimestamp(),
       };
 
@@ -259,7 +260,6 @@ export class RegistroUsuarioPage implements OnInit {
   //  BOTÓN VOLVER ESTILO IOS
   // ================================
   goBack() {
-    // Siempre volver a la vista de inicio
     this.router.navigate(['/vista-inicio']);
   }
 }

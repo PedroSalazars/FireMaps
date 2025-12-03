@@ -1,50 +1,124 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>Notificaciones</ion-title>
+    <ion-title>Bombero</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content fullscreen [fullscreen]="true" class="ion-padding">
-  <div class="card-container">
-    <ion-card *ngFor="let incidente of incidentes" class="incidente-card">
-      <ion-card-header>
-        <ion-card-title>
-          <ion-icon name="alert-circle" color="danger" style="margin-right: 8px;"></ion-icon>
-          {{ incidente.type }}
-        </ion-card-title>
-      </ion-card-header>
+<ion-content class="page-background">
 
-      <ion-card-content >
-        <p><strong>Dirección:</strong> {{ incidente.address }}</p>
-        <p><strong>Estado:</strong> {{ incidente.status }}</p>
-        <p><strong>Prioridad:</strong> {{ incidente.priority }}</p>
-        <p><strong>Fecha:</strong> {{ incidente.createdAt?.seconds * 1000 | date:'short' }}</p>
-      </ion-card-content>
-    </ion-card>
-  </div>
+  <!-- Si hay usuario cargado -->
+  <ng-container *ngIf="usuario; else noUsuario">
 
-  <div *ngIf="incidentes.length === 0" class="empty-state">
-    <ion-icon name="notifications-off" size="large"></ion-icon>
-    <p>No hay notificaciones registradas</p>
-  </div>
+    <!-- HERO SUPERIOR -->
+    <div class="hero">
+      <div class="hero-icon">
+        <ion-icon name="flame-outline"></ion-icon>
+      </div>
+      <div class="hero-text">
+        <div class="hero-greeting">Hola, bombero</div>
+        <div class="hero-name">{{ usuario.nombre }}</div>
+        <div class="hero-subtitle">
+          {{ usuario.compania || 'Compañía de Bomberos asignada' }}
+        </div>
+        <div class="hero-info">
+          <span>{{ usuario.correo }}</span>
+          <span class="dot">•</span>
+          <span>Rol: {{ usuario.rol || 'bombero' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="page-inner">
+
+      <!-- EMERGENCIA ACTIVA -->
+      <div class="card card-emergency" *ngIf="emergenciaActiva">
+        <div class="card-header">
+          <div class="badge-danger">Emergencia activa</div>
+          <div class="time">
+            {{ emergenciaActiva.hace || 'Hace unos minutos' }}
+          </div>
+        </div>
+
+        <div class="card-title">
+          {{ emergenciaActiva.titulo || 'Incendio estructural – Castro' }}
+        </div>
+
+        <div class="card-text">
+          {{ emergenciaActiva.descripcion || 'Foco activo en zona urbana, se requieren unidades de apoyo.' }}
+        </div>
+
+        <div class="priority">
+          Prioridad: <span>{{ emergenciaActiva.prioridad || 'Alta' }}</span>
+        </div>
+
+        <button class="btn-main" (click)="irAlMapa()">
+          <ion-icon name="map-outline"></ion-icon>
+          <span>Ir al mapa de la emergencia</span>
+        </button>
+      </div>
+
+      <!-- CAJA INFORMATIVA -->
+      <div class="info-box">
+        <ion-icon name="notifications-outline"></ion-icon>
+        <p>
+          Tus notificaciones recientes se encuentran en la pestaña
+          <strong>Notificaciones</strong> de la barra inferior.
+        </p>
+      </div>
+
+    </div>
+  </ng-container>
+
+  <!-- Si NO hay usuario -->
+  <ng-template #noUsuario>
+    <div class="empty-state">
+      <ion-icon name="person-circle-outline"></ion-icon>
+      <p>No se encontró información del usuario.</p>
+    </div>
+  </ng-template>
+
 </ion-content>
 
-<!-- Footer -->
-<ion-tabs #tabs>
+<!-- TABS INFERIORES -->
+<ion-tabs>
   <ion-tab-bar slot="bottom">
     <ion-tab-button routerLink="/vista-notificaciones">
-      <ion-icon name="notifications"></ion-icon>
+      <ion-icon name="notifications-outline"></ion-icon>
       <ion-label>Notificaciones</ion-label>
     </ion-tab-button>
 
     <ion-tab-button routerLink="/vista-bombero">
-      <ion-icon name="home"></ion-icon>
+      <ion-icon name="home-outline"></ion-icon>
       <ion-label>Home</ion-label>
     </ion-tab-button>
 
     <ion-tab-button routerLink="/vista-ajustes">
-      <ion-icon name="settings"></ion-icon>
+      <ion-icon name="settings-outline"></ion-icon>
       <ion-label>Ajustes</ion-label>
     </ion-tab-button>
   </ion-tab-bar>
 </ion-tabs>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-tabs #tabs>
+      <ion-tab-bar slot="bottom">
+        <ion-tab-button routerLink="/vista-notificaciones">
+          <ion-icon name="notifications"></ion-icon>
+          <ion-label>Notificaciones</ion-label>
+        </ion-tab-button>
+
+        <ion-tab-button routerLink="/vista-bombero">
+          <ion-icon name="home"></ion-icon>
+          <ion-label>Home</ion-label>
+        </ion-tab-button>
+
+        <ion-tab-button routerLink="/vista-ajustes">
+          <ion-icon name="settings"></ion-icon>
+          <ion-label>Ajustes</ion-label>
+        </ion-tab-button>
+      </ion-tab-bar>
+    </ion-tabs>
+  </ion-toolbar>
+</ion-footer>

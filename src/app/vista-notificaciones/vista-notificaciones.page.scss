@@ -1,66 +1,207 @@
-ion-content {
-  height: 100%;
-  overflow-y: auto;
-}
-
-/* Fondo general */
-ion-content {
-  --background: #f5f2f0;
+/* ===== Fondo general y fuente ===== */
+.page-background {
+  --background: #f4f0ee;
   font-family: 'Segoe UI', Roboto, sans-serif;
 }
 
+/* Toolbar */
 ion-toolbar {
-  --background: #f5f2f0;
+  --background: #f4f0ee;
   color: #444;
   text-align: center;
-}
-
-/* Lista de incidentes */
-.card-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px;
-}
-.incidente-card {
-  --background: #ccc;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
-.incidente-card ion-card-header {
-  background-color: grey;
-  color: #fff;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-}
-.incidente-card ion-card-title {
-  font-size: 1.2rem;
   font-weight: 600;
 }
-.incidente-card ion-card-content p {
-  margin: 4px 0;
-  font-size: 0.95rem;
+
+/* ===== HERO SUPERIOR ===== */
+.hero {
+  padding: 18px 18px 16px;
+  background: linear-gradient(135deg, #ff9b73, #ffb88c);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 0 0 20px 20px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+  margin-bottom: 0; /* para no dejar hueco extra */
+}
+
+.hero-icon ion-icon {
+  font-size: 40px;
+  color: #fff;
+}
+
+.hero-text {
+  color: #fff;
+  flex: 1;
+}
+
+.hero-greeting {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.hero-name {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.hero-subtitle {
+  font-size: 13px;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
+.hero-info {
+  margin-top: 4px;
+  font-size: 11px;
+  opacity: 0.9;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.hero-info .dot {
+  font-size: 10px;
+}
+
+/* Contenido debajo del hero */
+.page-inner {
+  padding: 12px 14px 16px;
+}
+
+/* ===== CARD BASE ===== */
+.card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 14px 14px 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== EMERGENCIA ACTIVA ===== */
+.card-emergency {
+  border-left: 4px solid #e63946;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.badge-danger {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background-color: #ffe5e3;
+  color: #c53030;
+}
+
+.card-header .time {
+  font-size: 11px;
+  color: #777;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.card-text {
+  font-size: 13px;
   color: #555;
+  margin-bottom: 6px;
 }
 
-/* Footer con tabs */
-ion-footer {
-  border-top: 1px solid #f5f2f0;
+.priority {
+  font-size: 13px;
+  margin-bottom: 10px;
 }
 
+.priority span {
+  font-weight: 600;
+  color: #c53030;
+}
+
+/* Botón principal */
+.btn-main {
+  width: 100%;
+  border: none;
+  outline: none;
+  border-radius: 999px;
+  padding: 10px 14px;
+  background-color: #ff8c42;
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+}
+
+.btn-main ion-icon {
+  font-size: 16px;
+}
+
+/* ===== CAJA INFORMATIVA ===== */
+.info-box {
+  margin-top: 12px;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 13px;
+  color: #444;
+}
+
+.info-box ion-icon {
+  font-size: 20px;
+  color: #ff8c42;
+}
+
+/* ===== Estado vacío (sin usuario) ===== */
+.empty-state {
+  text-align: center;
+  margin: 32px 16px;
+  color: #777;
+}
+
+.empty-state ion-icon {
+  font-size: 48px;
+  color: #ccc;
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  font-size: 13px;
+  color: #999;
+}
+
+/* ===== Tabs inferiores ===== */
 ion-tab-bar {
   --background: #e7e3e2;
+  border-top: 1px solid #e0dddb;
 }
 
 ion-tab-button {
-  --color: #444;
-  --color-selected: #f28972; /* rojo bombero para el tab activo */
+  --color: #555;
+  --color-selected: #f28972;
 }
 
 ion-tab-button ion-icon {
-  font-size: 22px;
+  font-size: 20px;
 }
 
 ion-tab-button ion-label {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }

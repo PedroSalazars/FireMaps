@@ -9,6 +9,10 @@ import { Router } from '@angular/router';
 import { getApps, initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
+// Firestore
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../firebase-config'; // 👈 ajusta la ruta si tu archivo está en otro lado
+
 // Environment
 import { environment } from '../../environments/environment';
 
@@ -67,7 +71,7 @@ export class VistaLoginPage {
   }
 
   // ================================
-  //  INICIO DE SESIÓN (SOLO AUTH + NAVEGACIÓN)
+  //  INICIO DE SESIÓN (AUTH + PERFIL + NAVEGACIÓN POR ROL)
   // ================================
   async iniciarSesion() {
     this.submitted = true;
@@ -104,14 +108,63 @@ export class VistaLoginPage {
       const auth = getAuth();
       console.log('DEBUG LOGIN: Llamando a Firebase Auth…');
 
+      // 1) LOGIN EN AUTH
       const cred = await signInWithEmailAndPassword(auth, email, password);
 
       const uid = cred.user.uid;
       console.log('DEBUG LOGIN: login OK, UID =', uid);
 
-      // 🔥 REDIRECCIÓN DIRECTA AL MAPA
-      console.log('DEBUG LOGIN: Navegando a /vista-home');
-      this.router.navigate(['/vista-home']);
+      // ================================
+      //  2) OBTENER PERFIL DESDE FIRESTORE
+      // ================================
+      const usuarioRef = doc(db, 'usuarios', uid);
+      const snap = await getDoc(usuarioRef);
+
+      let perfil: any;
+
+      if (snap.exists()) {
+        perfil = snap.data();
+        console.log('DEBUG LOGIN: perfil Firestore =', perfil);
+      } else {
+        // Si NO hay perfil en Firestore, creamos uno básico
+        // (idealmente no debería pasar si tu registro ya lo crea siempre)
+        perfil = {
+          nombre: cred.user.displayName || email,
+          correo: email,
+          rol: 'usuario'  // 👈 por defecto "usuario" en minúscula
+        };
+        await setDoc(usuarioRef, perfil);
+        console.log('DEBUG LOGIN: perfil creado en Firestore =', perfil);
+      }
+
+      // Normalizamos el rol (acepta 'Bombero', 'bombero', 'BOMBERO', etc.)
+      const rolNormalizado = (perfil.rol || 'usuario').toString().toLowerCase();
+
+      // Construimos el objeto que usas en la app
+      const usuarioActivo = {
+        uid,
+        nombre: perfil.nombre || cred.user.displayName || email,
+        correo: perfil.correo || email,
+        rol: rolNormalizado    // 👈 guardamos el rol normalizado en localStorage
+      };
+
+      // Guardar en localStorage (lo que lees en vista-bombero)
+      localStorage.setItem('usuarioActivo', JSON.stringify(usuarioActivo));
+      console.log('DEBUG LOGIN: usuarioActivo guardado =>', usuarioActivo);
+
+      // ================================
+      //  3) NAVEGAR SEGÚN ROL
+      // ================================
+      if (rolNormalizado === 'bombero') {
+        console.log('DEBUG LOGIN: Rol bombero → navegando a /vista-bombero');
+        this.router.navigate(['/vista-bombero']);
+      } else if (rolNormalizado === 'admin') {
+        console.log('DEBUG LOGIN: Rol admin → navegando a /vista-admin');
+        this.router.navigate(['/vista-admin']);
+      } else {
+        console.log('DEBUG LOGIN: Rol', rolNormalizado, '→ navegando a /vista-home');
+        this.router.navigate(['/vista-home']);
+      }
 
     } catch (error: any) {
       console.error('DEBUG LOGIN: Error completo =>', error);
