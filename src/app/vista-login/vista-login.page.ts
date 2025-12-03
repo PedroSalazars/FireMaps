@@ -92,7 +92,7 @@ export class VistaLoginPage {
         return;
       }
 
-      // Buscar en colección bomberos
+      // Buscar en colección bomberos 
       const refBombero = doc(db, 'bomberos', uid);
       const snapBombero = await getDoc(refBombero);
       if (snapBombero.exists()) {
