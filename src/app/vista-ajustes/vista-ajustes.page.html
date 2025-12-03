@@ -1,55 +1,74 @@
-<ion-header>
+<ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/vista-home"></ion-back-button>
-    </ion-buttons>
-    <ion-title>{{ 'MAP_TYPE' | translate }}</ion-title>
+    <ion-title>Ajustes</ion-title>
   </ion-toolbar>
 </ion-header>
 
+<ion-content class="page-background">
+  <div class="page-inner">
 
-<ion-content class="ion-padding">
-  <ion-item>
-    <ion-label>{{ 'MAP_TYPE' | translate }}</ion-label>
-    <ion-select placeholder="Selecciona" interface="popover">
-      <ion-select-option value="google">Google</ion-select-option>
-      <ion-select-option value="osm">OpenStreetMap</ion-select-option>
-    </ion-select>
-  </ion-item>
+    <!-- Tipo de mapa -->
+    <div class="card">
+      <div class="card-label">Tipo de mapa</div>
+      <div class="dropdown" (click)="mostrarMapa = !mostrarMapa">
+        <span>{{ mapType === 'google' ? 'Google Maps' : 'OpenStreetMap' }}</span>
+        <div class="dropdown-options" *ngIf="mostrarMapa">
+          <div (click)="mapType = 'google'; mostrarMapa = false">Google Maps</div>
+          <div (click)="mapType = 'osm'; mostrarMapa = false">OpenStreetMap</div>
+        </div>
+      </div>
+    </div>
 
-  <ion-item>
-    <ion-label>{{ 'GEOLOCATION' | translate }}</ion-label>
-    <ion-toggle checked></ion-toggle>
-  </ion-item>
+    <!-- Geolocalización -->
+    <div class="card">
+      <div class="card-label">Geolocalización</div>
+      <div class="toggle-box" (click)="geolocationEnabled = !geolocationEnabled">
+        <span>{{ geolocationEnabled ? 'Activada' : 'Desactivada' }}</span>
+      </div>
+    </div>
 
-<ion-item>
-  <ion-label>{{ 'DISPLAY_PREFS' | translate }}</ion-label>
-  <ion-select [(ngModel)]="theme" interface="popover" (ionChange)="aplicarTema()">
-    <ion-select-option value="claro">Claro</ion-select-option>
-    <ion-select-option value="oscuro">Oscuro</ion-select-option>
-  </ion-select>
-</ion-item>
+    <!-- Tema -->
+    <div class="card">
+      <div class="card-label">Tema</div>
+      <div class="dropdown" (click)="mostrarTema = !mostrarTema">
+        <span>{{ theme === 'claro' ? 'Claro' : 'Oscuro' }}</span>
+        <div class="dropdown-options" *ngIf="mostrarTema">
+          <div (click)="theme = 'claro'; aplicarTema(); mostrarTema = false">Claro</div>
+          <div (click)="theme = 'oscuro'; aplicarTema(); mostrarTema = false">Oscuro</div>
+        </div>
+      </div>
+    </div>
 
-<!-- Cambio de idioma -->
+    <!-- Idioma -->
+    <div class="card">
+      <div class="card-label">Idioma</div>
+      <div class="dropdown" (click)="mostrarIdioma = !mostrarIdioma">
+        <span>{{ language === 'es' ? 'Español' : 'English' }}</span>
+        <div class="dropdown-options" *ngIf="mostrarIdioma">
+          <div (click)="changeLanguage('es'); mostrarIdioma = false">Español</div>
+          <div (click)="changeLanguage('en'); mostrarIdioma = false">English</div>
+        </div>
+      </div>
+    </div>
 
-  <ion-item>
-    <ion-label>{{ 'LANGUAGE' | translate }}</ion-label>
-    <ion-select [value]="language" interface="popover" (ionChange)="changeLanguage($event.detail.value)">
-      <ion-select-option value="es">Español</ion-select-option>
-      <ion-select-option value="en">English</ion-select-option>
-    </ion-select>
-  </ion-item>
+    <!-- Versión -->
+    <div class="info-box">
+      <ion-icon name="information-circle-outline"></ion-icon>
+      <span>Versión 1.0</span>
+    </div>
 
-  
-  <ion-item lines="none">
-    <ion-label>{{ 'VERSION' | translate }} 1.0</ion-label>
-  </ion-item>
+    <!-- Botones -->
+    <div class="actions">
+      <button class="btn-main" (click)="guardarAjustes()">
+        <ion-icon name="save-outline"></ion-icon>
+        <span>Guardar Ajustes</span>
+      </button>
 
+      <button class="btn-danger" routerLink="/vista-inicio">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
 
-  <ion-button expand="block" color="danger" [routerLink]="['/vista-inicio']" >
-    {{ 'LOGOUT' | translate }}
-  </ion-button>
+  </div>
 </ion-content>
-
-<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>

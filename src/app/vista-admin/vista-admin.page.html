@@ -1,0 +1,82 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Administración de Bomberos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-background">
+  <div class="page-inner">
+
+    <!-- Formulario de Bombero -->
+    <div class="card">
+      <div class="card-label">Nuevo Bombero</div>
+
+      <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" [(ngModel)]="nuevoBombero.nombre" placeholder="Ingrese nombre" />
+      </div>
+
+      <div class="form-group">
+        <label>Apellidos</label>
+        <input type="text" [(ngModel)]="nuevoBombero.apellidos" placeholder="Ingrese apellidos" />
+      </div>
+
+      <div class="form-group">
+        <label>Correo</label>
+        <input type="email" [(ngModel)]="nuevoBombero.correo" placeholder="Ingrese correo" />
+      </div>
+
+      <div class="form-group">
+        <label>RUT</label>
+        <input type="text" [(ngModel)]="nuevoBombero.rut" placeholder="Ej: 21.230.093-4" />
+      </div>
+
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input type="tel" [(ngModel)]="nuevoBombero.telefono" placeholder="Ej: 942275527" />
+      </div>
+
+      <div class="form-group">
+        <label>Rol</label>
+        <div class="dropdown" (click)="mostrarRol = !mostrarRol">
+          <span>{{ nuevoBombero.rol || 'Seleccione rol' }}</span>
+          <div class="dropdown-options" *ngIf="mostrarRol">
+            <div (click)="nuevoBombero.rol = 'bombero'; mostrarRol = false">Bombero</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-main" (click)="crearBombero()">
+          <ion-icon name="add-outline"></ion-icon>
+          <span>Registrar Bombero</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Lista de Bomberos -->
+    <div class="card">
+      <div class="card-label">Listado de Bomberos</div>
+      <div class="list">
+        <div class="list-item" *ngFor="let b of bomberos; let i = index">
+          <div class="list-info">
+            <strong>{{ b.nombre }} {{ b.apellidos }}</strong>  
+            <br />
+            <small>{{ b.correo }} • RUT: {{ b.rut }} • Tel: {{ b.telefono }}</small>
+            <br />
+            <small>Rol: {{ b.rol }} • Registrado</small>
+          </div>
+          <div class="list-actions">
+            <button class="btn-edit" (click)="editarBombero(i)">
+              <ion-icon name="create-outline"></ion-icon>
+            </button>
+            <button class="btn-danger" (click)="eliminarBombero(i)">
+              <ion-icon name="trash-outline"></ion-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

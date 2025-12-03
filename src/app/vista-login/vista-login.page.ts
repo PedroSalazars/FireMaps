@@ -9,6 +9,10 @@ import { Router } from '@angular/router';
 import { getApps, initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
+// Firestore
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase-config';
+
 // Environment
 import { environment } from '../../environments/environment';
 
@@ -65,83 +69,77 @@ export class VistaLoginPage {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(correo.trim());
   }
+// ================================
+//  INICIO DE SESIÓN
+// ================================
+async iniciarSesion() {
+  this.submitted = true;
 
-  // ================================
-  //  INICIO DE SESIÓN (SOLO AUTH + NAVEGACIÓN)
-  // ================================
-  async iniciarSesion() {
-    this.submitted = true;
+  const email = this.correo.trim().toLowerCase();
+  const password = this.clave;
 
-    const email = this.correo.trim().toLowerCase();
-    const password = this.clave;
+  console.log('DEBUG LOGIN: iniciarSesion() llamado con', email);
 
-    console.log('DEBUG LOGIN: iniciarSesion() llamado con', email);
+  // Validaciones básicas
+  if (!email || !password) {
+    return this.mostrarToast('Por favor completa todos los campos.', 'danger');
+  }
 
-    // Validaciones básicas
-    if (!email || !password) {
-      const toast = await this.toastController.create({
-        message: 'Por favor completa todos los campos.',
-        duration: 2500,
-        color: 'danger'
-      });
-      toast.present();
+  if (!this.esCorreoBasicoValido(email) && email !== 'admin') {
+    return this.mostrarToast('El correo no es válido.', 'danger');
+  }
+
+  this.cargando = true;
+
+  try {
+    // Caso especial: admin/admin
+    if (email === 'admin' && password === 'admin') {
+      this.router.navigate(['/vista-admin']);
       return;
     }
 
-    if (!this.esCorreoBasicoValido(email)) {
-      const toast = await this.toastController.create({
-        message: 'El correo no es válido.',
-        duration: 2500,
-        color: 'danger'
-      });
-      toast.present();
-      return;
-    }
+    const auth = getAuth();
+    let cred;
 
-    this.cargando = true;
+ // Intentar login normal con Firebase Auth
+cred = await signInWithEmailAndPassword(auth, email, password);
+const uid = cred.user.uid;
+console.log('DEBUG LOGIN: login OK, UID =', uid);
 
-    try {
-      const auth = getAuth();
-      console.log('DEBUG LOGIN: Llamando a Firebase Auth…');
+// Buscar en colección usuarios
+const refUsuario = doc(db, 'usuarios', uid);
+const snapUsuario = await getDoc(refUsuario);
 
-      const cred = await signInWithEmailAndPassword(auth, email, password);
+if (snapUsuario.exists()) {
+  console.log('DEBUG LOGIN: Usuario encontrado en colección usuarios → vista-home');
+  this.router.navigate(['/vista-home']);
+  return;
+}
 
-      const uid = cred.user.uid;
-      console.log('DEBUG LOGIN: login OK, UID =', uid);
+    // Si no está en ninguna colección
+    this.mostrarToast('No se encontró perfil asociado a este usuario.', 'danger');
 
-      // 🔥 REDIRECCIÓN DIRECTA AL MAPA
-      console.log('DEBUG LOGIN: Navegando a /vista-home');
-      this.router.navigate(['/vista-home']);
+  } catch (error: any) {
+    console.error('DEBUG LOGIN: Error completo =>', error);
 
-        case 'admin':
-          this.navCtrl.navigateRoot('/vista-bombero');
-          break;
+    let mensaje = 'No se pudo iniciar sesión.';
+    if (error.code === 'auth/user-not-found') mensaje = 'Correo no registrado.';
+    else if (error.code === 'auth/wrong-password') mensaje = 'Contraseña incorrecta.';
+    else if (error.code === 'auth/too-many-requests') mensaje = 'Demasiados intentos, intenta más tarde.';
+    else if (error.code === 'auth/invalid-email') mensaje = 'Correo inválido.';
 
-    } catch (error: any) {
-      console.error('DEBUG LOGIN: Error completo =>', error);
+    this.mostrarToast(mensaje, 'danger');
+  } finally {
+    this.cargando = false;
+  }
+}
 
-
-      let mensaje = 'No se pudo iniciar sesión.';
-
-      if (error.code === 'auth/user-not-found') {
-        mensaje = 'Correo no registrado.';
-      } else if (error.code === 'auth/wrong-password') {
-        mensaje = 'Contraseña incorrecta.';
-      } else if (error.code === 'auth/too-many-requests') {
-        mensaje = 'Demasiados intentos, intenta más tarde.';
-      } else if (error.code === 'auth/invalid-email') {
-        mensaje = 'Correo inválido.';
-      }
-
-      const toast = await this.toastController.create({
-        message: mensaje,
-        duration: 2500,
-        color: 'danger'
-      });
-      toast.present();
-
-    } finally {
-      this.cargando = false;
-    }
+  private async mostrarToast(message: string, color: string) {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2500,
+      color
+    });
+    toast.present();
   }
 }

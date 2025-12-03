@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'vista-inicio',
+    redirectTo: 'admin-inicio',
     pathMatch: 'full'
   },
   {
@@ -45,8 +45,15 @@ export const routes: Routes = [
         m => m.VistaNotificacionesPage
       )
   },
+    {
+    path: 'vista-admin',
+    loadComponent: () => 
+      import('./vista-admin/vista-admin.page').then( 
+        m => m.VistaAdminPage)
+  },
   {
     path: '**',
     redirectTo: 'vista-inicio'
-  }
+  },
+
 ];
