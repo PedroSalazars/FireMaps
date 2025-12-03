@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController } from '@ionic/angular';
-import { Router } from '@angular/router';   // 👈 NUEVO: usaremos Router
+import { Router } from '@angular/router';
 
 // Firebase core & auth
 import { initializeApp, getApps } from 'firebase/app';
@@ -40,7 +40,7 @@ export class RegistroUsuarioPage implements OnInit {
 
   constructor(
     private alertController: AlertController,
-    private router: Router        // 👈 inyectamos Router
+    private router: Router
   ) {
     this.initFirebase();
   }
@@ -179,6 +179,7 @@ export class RegistroUsuarioPage implements OnInit {
         rut: this.rut,
         telefono: this.telefono,
         correo: emailNormalizado,
+        rol: 'usuario',              // 👈 todos los nuevos quedan marcados como "usuario"
         creadoEn: serverTimestamp(),
       };
 
@@ -191,8 +192,6 @@ export class RegistroUsuarioPage implements OnInit {
 
       // ✅ Redirección directa a vista-home
       console.log('DEBUG NAVIGATE: Navegando inmediatamente a /vista-home');
-      // si quieres que sea con un pequeño delay:
-      // setTimeout(() => this.router.navigate(['/vista-home']), 1500);
       this.router.navigate(['/vista-home']);
 
       // Limpieza del formulario (opcional)
@@ -255,5 +254,12 @@ export class RegistroUsuarioPage implements OnInit {
         console.log('window.alert falló, pero al menos se mostró mensaje en consola.');
       }
     }
+  }
+
+  // ================================
+  //  BOTÓN VOLVER ESTILO IOS
+  // ================================
+  goBack() {
+    this.router.navigate(['/vista-inicio']);
   }
 }

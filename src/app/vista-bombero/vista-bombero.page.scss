@@ -1,74 +1,193 @@
-/* Estilo general del contenido */
-ion-content {
-  --background: #f5f2f0; /* fondo claro */
+/* ===== Fondo general ===== */
+.page-background {
+  --background: #f4f0ee;
   font-family: 'Segoe UI', Roboto, sans-serif;
-}
-ion-toolbar {
-  --background: #f5f2f0;
-  color: #444;
-  text-align: center;
-}
-/* Bloque de información del usuario */
-ion-item {
-  margin: 16px;
-  border-radius: 8px;
-  --background: #ccc;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  padding-bottom: 90px; /* espacio para el footer */
 }
 
-ion-item ion-label {
-  display: block;
+/* Toolbar */
+ion-toolbar {
+  --background: #f4f0ee;
+  color: #444;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* ===== HERO SUPERIOR ===== */
+.hero {
+  padding: 18px;
+  background: linear-gradient(135deg, #ff9b73, #ffb88c);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 0 0 22px 22px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+}
+
+.hero-icon ion-icon {
+  font-size: 42px;
+  color: #fff;
+}
+
+.hero-text {
+  color: #fff;
+}
+
+.hero-greeting {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.hero-name {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.hero-subtitle {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.hero-info {
+  margin-top: 4px;
+  display: flex;
+  gap: 5px;
+  font-size: 12px;
+}
+
+.dot {
+  font-size: 12px;
+}
+
+/* ===== CONTENIDO ===== */
+.page-inner {
+  padding: 14px;
+}
+
+/* ===== CARD EMERGENCIA ===== */
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 18px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.card-emergency {
+  border-left: 4px solid #e63946;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.badge-danger {
+  background: #ffe6e5;
+  color: #d32f2f;
+  padding: 3px 10px;
+  font-size: 11px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.card-title {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 6px;
   color: #333;
 }
 
-ion-item ion-text {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #f28972; /* rojo bombero */
-}
-
-ion-item p {
-  margin: 4px 0;
-  font-size: 0.95rem;
+.card-text {
+  font-size: 14px;
   color: #555;
+  margin-bottom: 6px;
 }
 
-/* Estado vacío */
+.priority span {
+  color: #d32f2f;
+  font-weight: 600;
+}
+
+/* Botón principal */
+.btn-main {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  background-color: #ff8c42;
+  color: white;
+  font-weight: 600;
+  padding: 12px;
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+}
+
+/* ===== CAJA INFORMATIVA ===== */
+.info-box {
+  background: #fff;
+  padding: 16px;
+  border-radius: 16px;
+  display: flex;
+  gap: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.info-box ion-icon {
+  font-size: 24px;
+  color: #ff8c42;
+}
+
+.info-box p {
+  color: #555;
+  font-size: 14px;
+}
+
+/* ===== SIN USUARIO ===== */
 .empty-state {
   text-align: center;
-  margin-top: 40px;
-  color: #777;
+  padding: 36px 16px;
 }
 
 .empty-state ion-icon {
-  font-size: 64px;
+  font-size: 60px;
   color: #ccc;
-  margin-bottom: 12px;
 }
 
-.empty-state p {
-  font-size: 1rem;
-  color: #999;
-}
-
-/* Footer con tabs */
+/* ===== FOOTER ===== */
 ion-footer {
-  border-top: 1px solid #f5f2f0;
+  border-top: 1px solid #e0dcd9;
 }
 
-ion-tab-bar {
-  --background: #e7e3e2;
+/* Toolbar del footer */
+.footer-toolbar {
+  --background: #f4f0ee;
+  padding: 6px 12px 12px;
 }
 
-ion-tab-button {
-  --color: #444;
-  --color-selected: #f28972; /* rojo bombero para el tab activo */
+/* Contenedor de botones */
+.footer-buttons {
+  display: flex;
+  gap: 8px;
 }
 
-ion-tab-button ion-icon {
-  font-size: 22px;
+/* Botones naranjos */
+.footer-btn {
+  flex: 1;
+  --background: #ff8c42;
+  --background-activated: #e6732a;
+  --background-hover: #ffa564;
+  --color: #fff;
+  --border-radius: 999px;
+  text-transform: none;
+  font-weight: 600;
+  font-size: 13px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
 }
 
-ion-tab-button ion-label {
-  font-size: 0.85rem;
+.footer-btn ion-icon {
+  font-size: 20px;
 }

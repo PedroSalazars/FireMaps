@@ -10,8 +10,13 @@ import { getApps, initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
 // Firestore
+
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase-config';
+
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../firebase-config'; // 👈 ajusta la ruta si tu archivo está en otro lado
+
 
 // Environment
 import { environment } from '../../environments/environment';
@@ -75,8 +80,32 @@ export class VistaLoginPage {
 async iniciarSesion() {
   this.submitted = true;
 
+
   const email = this.correo.trim().toLowerCase();
   const password = this.clave;
+
+  // ================================
+  //  INICIO DE SESIÓN (AUTH + PERFIL + NAVEGACIÓN POR ROL)
+  // ================================
+  async iniciarSesion() {
+    this.submitted = true;
+
+    const email = this.correo.trim().toLowerCase();
+    const password = this.clave;
+
+    console.log('DEBUG LOGIN: iniciarSesion() llamado con', email);
+
+    // Validaciones básicas
+    if (!email || !password) {
+      const toast = await this.toastController.create({
+        message: 'Por favor completa todos los campos.',
+        duration: 2500,
+        color: 'danger'
+      });
+      toast.present();
+      return;
+    }
+
 
   console.log('DEBUG LOGIN: iniciarSesion() llamado con', email);
 
@@ -89,7 +118,11 @@ async iniciarSesion() {
     return this.mostrarToast('El correo no es válido.', 'danger');
   }
 
+
   this.cargando = true;
+
+      // 1) LOGIN EN AUTH
+      const cred = await signInWithEmailAndPassword(auth, email, password);
 
   try {
     // Caso especial: admin/admin
@@ -97,6 +130,7 @@ async iniciarSesion() {
       this.router.navigate(['/vista-admin']);
       return;
     }
+
 
     const auth = getAuth();
     let cred;
@@ -106,9 +140,62 @@ cred = await signInWithEmailAndPassword(auth, email, password);
 const uid = cred.user.uid;
 console.log('DEBUG LOGIN: login OK, UID =', uid);
 
+      // ================================
+      //  2) OBTENER PERFIL DESDE FIRESTORE
+      // ================================
+      const usuarioRef = doc(db, 'usuarios', uid);
+      const snap = await getDoc(usuarioRef);
+
+      let perfil: any;
+
+      if (snap.exists()) {
+        perfil = snap.data();
+        console.log('DEBUG LOGIN: perfil Firestore =', perfil);
+      } else {
+        // Si NO hay perfil en Firestore, creamos uno básico
+        // (idealmente no debería pasar si tu registro ya lo crea siempre)
+        perfil = {
+          nombre: cred.user.displayName || email,
+          correo: email,
+          rol: 'usuario'  // 👈 por defecto "usuario" en minúscula
+        };
+        await setDoc(usuarioRef, perfil);
+        console.log('DEBUG LOGIN: perfil creado en Firestore =', perfil);
+      }
+
+      // Normalizamos el rol (acepta 'Bombero', 'bombero', 'BOMBERO', etc.)
+      const rolNormalizado = (perfil.rol || 'usuario').toString().toLowerCase();
+
+      // Construimos el objeto que usas en la app
+      const usuarioActivo = {
+        uid,
+        nombre: perfil.nombre || cred.user.displayName || email,
+        correo: perfil.correo || email,
+        rol: rolNormalizado    // 👈 guardamos el rol normalizado en localStorage
+      };
+
+      // Guardar en localStorage (lo que lees en vista-bombero)
+      localStorage.setItem('usuarioActivo', JSON.stringify(usuarioActivo));
+      console.log('DEBUG LOGIN: usuarioActivo guardado =>', usuarioActivo);
+
+      // ================================
+      //  3) NAVEGAR SEGÚN ROL
+      // ================================
+      if (rolNormalizado === 'bombero') {
+        console.log('DEBUG LOGIN: Rol bombero → navegando a /vista-bombero');
+        this.router.navigate(['/vista-bombero']);
+      } else if (rolNormalizado === 'admin') {
+        console.log('DEBUG LOGIN: Rol admin → navegando a /vista-admin');
+        this.router.navigate(['/vista-admin']);
+      } else {
+        console.log('DEBUG LOGIN: Rol', rolNormalizado, '→ navegando a /vista-home');
+        this.router.navigate(['/vista-home']);
+      }
+
 // Buscar en colección usuarios
 const refUsuario = doc(db, 'usuarios', uid);
 const snapUsuario = await getDoc(refUsuario);
+
 
 if (snapUsuario.exists()) {
   console.log('DEBUG LOGIN: Usuario encontrado en colección usuarios → vista-home');
@@ -118,6 +205,8 @@ if (snapUsuario.exists()) {
 
     // Si no está en ninguna colección
     this.mostrarToast('No se encontró perfil asociado a este usuario.', 'danger');
+
+      let mensaje = 'No se pudo iniciar sesión.';
 
   } catch (error: any) {
     console.error('DEBUG LOGIN: Error completo =>', error);
@@ -141,5 +230,13 @@ if (snapUsuario.exists()) {
       color
     });
     toast.present();
+  }
+
+  // ================================
+  //  BOTÓN VOLVER ESTILO IOS
+  // ================================
+  goBack() {
+    // Siempre volver a la vista de inicio
+    this.router.navigate(['/vista-inicio']);
   }
 }

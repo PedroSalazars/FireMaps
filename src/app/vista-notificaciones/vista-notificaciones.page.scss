@@ -1,66 +1,164 @@
-ion-content {
-  height: 100%;
-  overflow-y: auto;
-}
-
-/* Fondo general */
-ion-content {
-  --background: #f5f2f0;
+/* Fondo general alineado con la vista Bombero */
+.page-background {
+  --background: #f4f0ee;
   font-family: 'Segoe UI', Roboto, sans-serif;
+  padding-bottom: 90px; /* espacio para el footer */
 }
 
 ion-toolbar {
-  --background: #f5f2f0;
+  --background: #f4f0ee;
   color: #444;
   text-align: center;
-}
-
-/* Lista de incidentes */
-.card-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px;
-}
-.incidente-card {
-  --background: #ccc;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
-.incidente-card ion-card-header {
-  background-color: grey;
-  color: #fff;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-}
-.incidente-card ion-card-title {
-  font-size: 1.2rem;
   font-weight: 600;
 }
-.incidente-card ion-card-content p {
-  margin: 4px 0;
-  font-size: 0.95rem;
+
+.page-inner {
+  padding: 14px;
+}
+
+/* Títulos sección */
+.section-title {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.section-subtitle {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 14px;
+}
+
+/* Contenedor de tarjetas */
+.cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Tarjeta de incidente */
+.incident-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 10px 14px 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* Cabecera de la tarjeta */
+.incident-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+/* Tipo de incidente */
+.incident-type {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #c7522a;
+  text-transform: capitalize;
+}
+
+.incident-type ion-icon {
+  font-size: 18px;
+}
+
+/* Colores según tipo (usa el [ngClass] del HTML) */
+.incident-type.incendio {
+  color: #e63946;
+}
+
+.incident-type.fugas {
+  color: #ff8c00;
+}
+
+.incident-type.rescate {
+  color: #0077b6;
+}
+
+.incident-type.choque {
+  color: #8e44ad;
+}
+
+/* Pill de prioridad */
+.incident-pill {
+  font-size: 11px;
+  text-transform: uppercase;
+  background-color: #ffe1d3;
+  color: #c0392b;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+/* Cuerpo de la tarjeta */
+.incident-body {
+  margin-top: 4px;
+}
+
+.incident-field {
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 13px;
+  margin: 1px 0;
+}
+
+.incident-field .label {
+  font-weight: 600;
+  color: #444;
+  margin-right: 4px;
+}
+
+.incident-field .value {
   color: #555;
 }
 
-/* Footer con tabs */
+/* Estado vacío */
+.empty-state {
+  margin-top: 40px;
+  text-align: center;
+  color: #777;
+}
+
+.empty-state ion-icon {
+  font-size: 52px;
+  color: #ccc;
+  margin-bottom: 8px;
+}
+
+/* ===== FOOTER (igual que en Bombero) ===== */
 ion-footer {
-  border-top: 1px solid #f5f2f0;
+  border-top: 1px solid #e0dcd9;
 }
 
-ion-tab-bar {
-  --background: #e7e3e2;
+.footer-toolbar {
+  --background: #f4f0ee;
+  padding: 6px 12px 12px;
 }
 
-ion-tab-button {
-  --color: #444;
-  --color-selected: #f28972; /* rojo bombero para el tab activo */
+.footer-buttons {
+  display: flex;
+  gap: 8px;
 }
 
-ion-tab-button ion-icon {
-  font-size: 22px;
+.footer-btn {
+  flex: 1;
+  --background: #ff8c42;
+  --background-activated: #e6732a;
+  --background-hover: #ffa564;
+  --color: #fff;
+  --border-radius: 999px;
+  text-transform: none;
+  font-weight: 600;
+  font-size: 13px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
 }
 
-ion-tab-button ion-label {
-  font-size: 0.85rem;
+.footer-btn ion-icon {
+  font-size: 20px;
 }
