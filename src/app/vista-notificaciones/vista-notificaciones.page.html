@@ -9,30 +9,56 @@
   <div class="page-inner">
 
     <h2 class="section-title">Incidentes reportados</h2>
+    <p class="section-subtitle">
+      Aquí verás los reportes de incidentes registrados en FireMaps Chiloé.
+    </p>
 
     <!-- Lista de incidentes -->
-    <div *ngIf="incidentes.length > 0; else emptyState">
-      <ion-card *ngFor="let incidente of incidentes" class="incidente-card">
-        <ion-card-header>
-          <ion-card-title>
-            <ion-icon name="alert-circle" style="margin-right: 8px;"></ion-icon>
-            {{ incidente.type || 'Incidente' }}
-          </ion-card-title>
-        </ion-card-header>
+    <div *ngIf="incidentes.length > 0; else emptyState" class="cards-list">
+      <div class="incident-card" *ngFor="let incidente of incidentes">
+        <!-- Cabecera de la tarjeta -->
+        <div class="incident-header">
+          <div
+            class="incident-type"
+            [ngClass]="(incidente.type || '').toLowerCase()"
+          >
+            <ion-icon name="alert-circle"></ion-icon>
+            <span>{{ incidente.type || 'Incidente' }}</span>
+          </div>
 
-        <ion-card-content>
-          <p><strong>Dirección:</strong> {{ incidente.address || 'Sin dirección' }}</p>
-          <p><strong>Estado:</strong> {{ incidente.status || 'Pendiente' }}</p>
-          <p><strong>Prioridad:</strong> {{ incidente.priority || 'Normal' }}</p>
-          <p><strong>Fecha:</strong> {{ incidente.createdAt?.seconds * 1000 | date:'short' }}</p>
-        </ion-card-content>
-      </ion-card>
+          <div class="incident-pill">
+            {{ incidente.priority || 'Normal' }}
+          </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="incident-body">
+          <div class="incident-field">
+            <span class="label">Dirección:</span>
+            <span class="value">
+              {{ incidente.address || 'Sin dirección' }}
+            </span>
+          </div>
+          <div class="incident-field">
+            <span class="label">Estado:</span>
+            <span class="value">
+              {{ incidente.status || 'Pendiente' }}
+            </span>
+          </div>
+          <div class="incident-field">
+            <span class="label">Fecha:</span>
+            <span class="value">
+              {{ incidente.createdAt?.seconds * 1000 | date:'short' }}
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Estado vacío -->
     <ng-template #emptyState>
       <div class="empty-state">
-        <ion-icon name="notifications-off" size="large"></ion-icon>
+        <ion-icon name="notifications-off"></ion-icon>
         <p>No hay notificaciones registradas</p>
       </div>
     </ng-template>
