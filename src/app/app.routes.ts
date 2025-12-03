@@ -39,12 +39,28 @@ export const routes: Routes = [
         .then(m => m.VistaHomePage)
   },
 
-  // 🚒 NUEVA VISTA DEL BOMBERO (según tu carpeta real)
+  // 🚒 Vista del bombero
   {
     path: 'vista-bombero',
     loadComponent: () =>
       import('./vista-bombero/vista-bombero.page')
         .then(m => m.VistaBomberoPage)
+  },
+
+  // 🔔 Vista notificaciones
+  {
+    path: 'vista-notificaciones',
+    loadComponent: () =>
+      import('./vista-notificaciones/vista-notificaciones.page')
+        .then(m => m.VistaNotificacionesPage)
+  },
+
+  // ⚙️ Vista ajustes
+  {
+    path: 'vista-ajustes',
+    loadComponent: () =>
+      import('./vista-ajustes/vista-ajustes.page')
+        .then(m => m.VistaAjustesPage)
   },
 
   // ⭐ Ruta comodín (por si alguien entra a una ruta no existente)

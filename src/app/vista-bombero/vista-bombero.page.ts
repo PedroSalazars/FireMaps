@@ -6,19 +6,19 @@ import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { chatboxEllipses, home, notifications, settings } from 'ionicons/icons';
 
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-vista-bombero',
   templateUrl: './vista-bombero.page.html',
   styleUrls: ['./vista-bombero.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, RouterLink],
+  imports: [CommonModule, FormsModule, IonicModule],
 })
 export class VistaBomberoPage implements OnInit {
   usuario: any = null;
 
-  // Emergencia activa de ejemplo (luego se puede conectar a Firestore)
+  // Emergencia activa de ejemplo
   emergenciaActiva = {
     titulo: 'Incendio estructural – Castro',
     descripcion: 'Foco activo en zona urbana, se requieren unidades de apoyo.',
@@ -63,5 +63,18 @@ export class VistaBomberoPage implements OnInit {
 
   irAlMapa() {
     this.router.navigate(['/vista-home']);
+  }
+
+  // ===== Navegación del footer =====
+  goToNotificaciones() {
+    this.router.navigate(['/vista-notificaciones']);
+  }
+
+  goToHome() {
+    this.router.navigate(['/vista-bombero']);
+  }
+
+  goToAjustes() {
+    this.router.navigate(['/vista-ajustes']);
   }
 }

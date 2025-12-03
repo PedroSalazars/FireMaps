@@ -1,10 +1,9 @@
-/* ===== Fondo general y fuente ===== */
 .page-background {
   --background: #f4f0ee;
   font-family: 'Segoe UI', Roboto, sans-serif;
+  padding-bottom: 90px; /* espacio para el footer */
 }
 
-/* Toolbar */
 ion-toolbar {
   --background: #f4f0ee;
   color: #444;
@@ -12,196 +11,72 @@ ion-toolbar {
   font-weight: 600;
 }
 
-/* ===== HERO SUPERIOR ===== */
-.hero {
-  padding: 18px 18px 16px;
-  background: linear-gradient(135deg, #ff9b73, #ffb88c);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-radius: 0 0 20px 20px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
-  margin-bottom: 0; /* para no dejar hueco extra */
-}
-
-.hero-icon ion-icon {
-  font-size: 40px;
-  color: #fff;
-}
-
-.hero-text {
-  color: #fff;
-  flex: 1;
-}
-
-.hero-greeting {
-  font-size: 12px;
-  opacity: 0.9;
-}
-
-.hero-name {
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.hero-subtitle {
-  font-size: 13px;
-  opacity: 0.9;
-  margin-top: 2px;
-}
-
-.hero-info {
-  margin-top: 4px;
-  font-size: 11px;
-  opacity: 0.9;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.hero-info .dot {
-  font-size: 10px;
-}
-
-/* Contenido debajo del hero */
 .page-inner {
-  padding: 12px 14px 16px;
+  padding: 14px;
 }
 
-/* ===== CARD BASE ===== */
-.card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 14px 14px 12px;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-/* ===== EMERGENCIA ACTIVA ===== */
-.card-emergency {
-  border-left: 4px solid #e63946;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.badge-danger {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background-color: #ffe5e3;
-  color: #c53030;
-}
-
-.card-header .time {
-  font-size: 11px;
-  color: #777;
-}
-
-.card-title {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: #333;
-}
-
-.card-text {
-  font-size: 13px;
-  color: #555;
-  margin-bottom: 6px;
-}
-
-.priority {
-  font-size: 13px;
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
   margin-bottom: 10px;
 }
 
-.priority span {
-  font-weight: 600;
-  color: #c53030;
+/* Cards de incidentes */
+.incidente-card {
+  --background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  margin-bottom: 12px;
 }
 
-/* Botón principal */
-.btn-main {
-  width: 100%;
-  border: none;
-  outline: none;
-  border-radius: 999px;
-  padding: 10px 14px;
-  background-color: #ff8c42;
+.incidente-card ion-card-header {
+  background-color: #444;
   color: #fff;
-  font-weight: 600;
-  font-size: 13px;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+}
+
+.incidente-card ion-card-title {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+  font-size: 15px;
 }
 
-.btn-main ion-icon {
-  font-size: 16px;
-}
-
-/* ===== CAJA INFORMATIVA ===== */
-.info-box {
-  margin-top: 12px;
-  margin-bottom: 20px;
-  padding: 12px 16px;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.08);
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  font-size: 13px;
-  color: #444;
-}
-
-.info-box ion-icon {
-  font-size: 20px;
-  color: #ff8c42;
-}
-
-/* ===== Estado vacío (sin usuario) ===== */
+/* Estado vacío */
 .empty-state {
   text-align: center;
-  margin: 32px 16px;
+  margin-top: 40px;
   color: #777;
 }
 
-.empty-state ion-icon {
-  font-size: 48px;
-  color: #ccc;
-  margin-bottom: 8px;
+/* FOOTER (igual al de Bombero) */
+ion-footer {
+  border-top: 1px solid #e0dcd9;
 }
 
-.empty-state p {
+.footer-toolbar {
+  --background: #f4f0ee;
+  padding: 6px 12px 12px;
+}
+
+.footer-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.footer-btn {
+  flex: 1;
+  --background: #ff8c42;
+  --background-activated: #e6732a;
+  --background-hover: #ffa564;
+  --color: #fff;
+  --border-radius: 999px;
+  text-transform: none;
+  font-weight: 600;
   font-size: 13px;
-  color: #999;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
 }
 
-/* ===== Tabs inferiores ===== */
-ion-tab-bar {
-  --background: #e7e3e2;
-  border-top: 1px solid #e0dddb;
-}
-
-ion-tab-button {
-  --color: #555;
-  --color-selected: #f28972;
-}
-
-ion-tab-button ion-icon {
+.footer-btn ion-icon {
   font-size: 20px;
-}
-
-ion-tab-button ion-label {
-  font-size: 0.8rem;
 }
