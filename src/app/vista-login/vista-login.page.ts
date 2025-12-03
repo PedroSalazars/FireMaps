@@ -10,8 +10,13 @@ import { getApps, initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
 // Firestore
+
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase-config';
+
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase-config'; // 👈 ajusta la ruta si tu archivo está en otro lado
+
 
 // Environment
 import { environment } from '../../environments/environment';
@@ -69,6 +74,15 @@ export class VistaLoginPage {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(correo.trim());
   }
+// ================================
+//  INICIO DE SESIÓN
+// ================================
+async iniciarSesion() {
+  this.submitted = true;
+
+
+  const email = this.correo.trim().toLowerCase();
+  const password = this.clave;
 
   // ================================
   //  INICIO DE SESIÓN (AUTH + PERFIL + NAVEGACIÓN POR ROL)
@@ -92,27 +106,39 @@ export class VistaLoginPage {
       return;
     }
 
-    if (!this.esCorreoBasicoValido(email)) {
-      const toast = await this.toastController.create({
-        message: 'El correo no es válido.',
-        duration: 2500,
-        color: 'danger'
-      });
-      toast.present();
-      return;
-    }
 
-    this.cargando = true;
+  console.log('DEBUG LOGIN: iniciarSesion() llamado con', email);
 
-    try {
-      const auth = getAuth();
-      console.log('DEBUG LOGIN: Llamando a Firebase Auth…');
+  // Validaciones básicas
+  if (!email || !password) {
+    return this.mostrarToast('Por favor completa todos los campos.', 'danger');
+  }
+
+  if (!this.esCorreoBasicoValido(email) && email !== 'admin') {
+    return this.mostrarToast('El correo no es válido.', 'danger');
+  }
+
+
+  this.cargando = true;
 
       // 1) LOGIN EN AUTH
       const cred = await signInWithEmailAndPassword(auth, email, password);
 
-      const uid = cred.user.uid;
-      console.log('DEBUG LOGIN: login OK, UID =', uid);
+  try {
+    // Caso especial: admin/admin
+    if (email === 'admin' && password === 'admin') {
+      this.router.navigate(['/vista-admin']);
+      return;
+    }
+
+
+    const auth = getAuth();
+    let cred;
+
+ // Intentar login normal con Firebase Auth
+cred = await signInWithEmailAndPassword(auth, email, password);
+const uid = cred.user.uid;
+console.log('DEBUG LOGIN: login OK, UID =', uid);
 
       // ================================
       //  2) OBTENER PERFIL DESDE FIRESTORE
@@ -166,31 +192,44 @@ export class VistaLoginPage {
         this.router.navigate(['/vista-home']);
       }
 
-    } catch (error: any) {
-      console.error('DEBUG LOGIN: Error completo =>', error);
+// Buscar en colección usuarios
+const refUsuario = doc(db, 'usuarios', uid);
+const snapUsuario = await getDoc(refUsuario);
+
+
+if (snapUsuario.exists()) {
+  console.log('DEBUG LOGIN: Usuario encontrado en colección usuarios → vista-home');
+  this.router.navigate(['/vista-home']);
+  return;
+}
+
+    // Si no está en ninguna colección
+    this.mostrarToast('No se encontró perfil asociado a este usuario.', 'danger');
 
       let mensaje = 'No se pudo iniciar sesión.';
 
-      if (error.code === 'auth/user-not-found') {
-        mensaje = 'Correo no registrado.';
-      } else if (error.code === 'auth/wrong-password') {
-        mensaje = 'Contraseña incorrecta.';
-      } else if (error.code === 'auth/too-many-requests') {
-        mensaje = 'Demasiados intentos, intenta más tarde.';
-      } else if (error.code === 'auth/invalid-email') {
-        mensaje = 'Correo inválido.';
-      }
+  } catch (error: any) {
+    console.error('DEBUG LOGIN: Error completo =>', error);
 
-      const toast = await this.toastController.create({
-        message: mensaje,
-        duration: 2500,
-        color: 'danger'
-      });
-      toast.present();
+    let mensaje = 'No se pudo iniciar sesión.';
+    if (error.code === 'auth/user-not-found') mensaje = 'Correo no registrado.';
+    else if (error.code === 'auth/wrong-password') mensaje = 'Contraseña incorrecta.';
+    else if (error.code === 'auth/too-many-requests') mensaje = 'Demasiados intentos, intenta más tarde.';
+    else if (error.code === 'auth/invalid-email') mensaje = 'Correo inválido.';
 
-    } finally {
-      this.cargando = false;
-    }
+    this.mostrarToast(mensaje, 'danger');
+  } finally {
+    this.cargando = false;
+  }
+}
+
+  private async mostrarToast(message: string, color: string) {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2500,
+      color
+    });
+    toast.present();
   }
 
   // ================================

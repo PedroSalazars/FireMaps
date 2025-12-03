@@ -1,4 +1,11 @@
 {
+  "SETTINGS_TITLE": "Settings",
+  "SETTINGS_MAP_TYPE": "Map type",
+  "SETTINGS_GEOLOCATION": "Geolocation",
+  "SETTINGS_THEME": "Theme",
+  "SETTINGS_LANGUAGE": "Language",
+  "SAVE_SETTINGS": "Save settings",
+
   "LANGUAGE": "Language",
   "MAP_TYPE": "Map type",
   "GEOLOCATION": "Geolocation",
@@ -31,8 +38,4 @@
 
   "LOGIN_TITLE": "Log in",
   "LOGIN_BUTTON": "Sign in"
-
 }
-
-
-

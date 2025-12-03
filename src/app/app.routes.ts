@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'vista-inicio',
+    redirectTo: 'admin-inicio',
     pathMatch: 'full'
   },
 
@@ -62,11 +62,15 @@ export const routes: Routes = [
       import('./vista-ajustes/vista-ajustes.page')
         .then(m => m.VistaAjustesPage)
   },
-
-  // ⭐ Ruta comodín (por si alguien entra a una ruta no existente)
+    {
+    path: 'vista-admin',
+    loadComponent: () => 
+      import('./vista-admin/vista-admin.page').then( 
+        m => m.VistaAdminPage)
+  },
   {
     path: '**',
-    redirectTo: 'vista-inicio',
-    pathMatch: 'full'
-  }
+    redirectTo: 'vista-inicio'
+  },
+
 ];

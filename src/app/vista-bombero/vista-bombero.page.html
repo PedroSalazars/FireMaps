@@ -4,6 +4,23 @@
   </ion-toolbar>
 </ion-header>
 
+<ion-content  >
+  <ion-item lines="none" *ngIf="usuario" >
+    <ion-label>
+      <ion-text>
+        Hola Bombero {{ usuario.nombre }}
+      </ion-text>
+      <p><strong>Correo:</strong> {{ usuario.caorreo }}</p>
+      <p><strong>Rol:</strong> {{ usuario.rol }}</p>
+      <p>Revisa tus notificaciones, pra accedera a la informacion de las emergencias</p>
+    </ion-label>
+  </ion-item>
+
+  <div *ngIf="!usuario" class="empty-state">
+    <ion-icon name="person-circle-outline" size="large"></ion-icon>
+    <p>No se encontró información del usuario</p>
+  </div>
+</ion-content>
 <ion-content class="page-background">
 
   <ng-container *ngIf="usuario; else noUsuario">
@@ -65,6 +82,18 @@
           <strong>Notificaciones</strong> de la barra inferior.
         </p>
       </div>
+
+    <!-- Boton Notificaciones-->
+    <ion-tab-button routerLink="/vista-notificaciones">
+      <ion-icon name="notifications"></ion-icon>
+      <ion-label >Notificaciones</ion-label>
+    </ion-tab-button>
+12
+    <!-- Boton home-->
+    <ion-tab-button routerLink="/vista-bombero" >
+      <ion-icon name="home" ></ion-icon >
+      <ion-label >Home</ion-label>
+    </ion-tab-button>
 
     </div>
   </ng-container>

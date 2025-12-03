@@ -1,4 +1,11 @@
 {
+  "SETTINGS_TITLE": "Ajustes",
+  "SETTINGS_MAP_TYPE": "Tipo de mapa",
+  "SETTINGS_GEOLOCATION": "Geolocalización",
+  "SETTINGS_THEME": "Tema",
+  "SETTINGS_LANGUAGE": "Idioma",
+  "SAVE_SETTINGS": "Guardar ajustes",
+
   "LANGUAGE": "Idioma",
   "MAP_TYPE": "Tipo de mapa",
   "GEOLOCATION": "Geolocalización",
@@ -9,13 +16,13 @@
   "LOGOUT": "Cerrar sesión",
   "VERSION": "Versión",
 
-  "REGISTER": "Registrarse",
+  "REGISTER": "Registrar",
   "LOGIN": "Iniciar sesión",
   "GUEST_ACCESS": "Continuar como invitado",
 
   "REGISTER_USER": "Registrar usuario",
   "NAME": "Nombre",
-  "LASTNAME": "Apellidos",
+  "LASTNAME": "Apellido",
   "RUT": "RUT",
   "PHONE": "Teléfono",
   "EMAIL": "Correo",
@@ -23,12 +30,12 @@
   "CONFIRM_PASSWORD": "Confirmar contraseña",
 
   "ERROR_NAME_REQUIRED": "El nombre es obligatorio.",
-  "ERROR_LASTNAME_REQUIRED": "Los apellidos son obligatorios.",
-  "ERROR_RUT_INVALID": "Formato de RUT inválido. Ej: 12.345.678-9",
+  "ERROR_LASTNAME_REQUIRED": "El apellido es obligatorio.",
+  "ERROR_RUT_INVALID": "Formato de RUT inválido. Ejemplo: 12.345.678-9",
   "ERROR_PHONE_INVALID": "El teléfono debe tener 9 dígitos y comenzar con 9.",
   "ERROR_EMAIL_INVALID": "Correo inválido. Debe contener '@' y un dominio.",
   "ERROR_PASSWORD_MISMATCH": "Las contraseñas no coinciden.",
 
   "LOGIN_TITLE": "Iniciar sesión",
-  "LOGIN_BUTTON": "Ingresar"
+  "LOGIN_BUTTON": "Entrar"
 }
