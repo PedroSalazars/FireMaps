@@ -5,18 +5,19 @@
   <!-- ======================= -->
   <div class="registro-topbar">
 
-    <!-- Botón Back igual que login -->
-    <a
+    <!-- Botón Back -->
+    <button
+      type="button"
       class="topbar-back"
-      href="javascript:history.back()"
+      (click)="goBack()"
     >
       <span class="back-arrow">←</span>
-      <span class="back-text">Volver</span>
-    </a>
+      <span class="back-text">{{ 'REGISTER.BACK' | translate }}</span>
+    </button>
 
     <!-- Título centrado -->
     <div class="topbar-title">
-      Registrar usuario
+      {{ 'REGISTER.TITLE' | translate }}
     </div>
 
     <!-- Espaciador derecho -->
@@ -30,120 +31,80 @@
     <div class="registro-inner">
 
       <h2 class="registro-title">
-        Crear cuenta
+        {{ 'REGISTER.CREATE_ACCOUNT' | translate }}
       </h2>
 
       <p class="registro-subtitle">
-        Completa tus datos para registrarte en FireMaps.
+        {{ 'REGISTER.SUBTITLE' | translate }}
       </p>
 
       <form novalidate class="registro-card">
 
         <!-- Nombres -->
         <div class="campo">
-          <label>Nombres</label>
-          <input
-            type="text"
-            [(ngModel)]="nombre"
-            name="nombre"
-            required
-          />
+          <label>{{ 'REGISTER.NAME' | translate }}</label>
+          <input type="text" [(ngModel)]="nombre" name="nombre" required />
         </div>
         <ion-text color="danger" *ngIf="submitted && !nombre">
-          <p class="error-text">El nombre es obligatorio.</p>
+          <p class="error-text">{{ 'REGISTER.ERROR_NAME_REQUIRED' | translate }}</p>
         </ion-text>
 
         <!-- Apellidos -->
         <div class="campo">
-          <label>Apellidos</label>
-          <input
-            type="text"
-            [(ngModel)]="apellidos"
-            name="apellidos"
-            required
-          />
+          <label>{{ 'REGISTER.LASTNAME' | translate }}</label>
+          <input type="text" [(ngModel)]="apellidos" name="apellidos" required />
         </div>
         <ion-text color="danger" *ngIf="submitted && !apellidos">
-          <p class="error-text">Los apellidos son obligatorios.</p>
+          <p class="error-text">{{ 'REGISTER.ERROR_LASTNAME_REQUIRED' | translate }}</p>
         </ion-text>
 
         <!-- RUT -->
         <div class="campo">
-          <label>RUT</label>
-          <input
-            type="text"
-            [(ngModel)]="rut"
-            name="rut"
-            required
-          />
+          <label>{{ 'REGISTER.RUT' | translate }}</label>
+          <input type="text" [(ngModel)]="rut" name="rut" required />
         </div>
         <ion-text color="danger" *ngIf="submitted && !esRutValido(rut)">
-          <p class="error-text">El RUT ingresado no es válido.</p>
+          <p class="error-text">{{ 'REGISTER.ERROR_RUT_INVALID' | translate }}</p>
         </ion-text>
 
         <!-- Teléfono -->
         <div class="campo">
-          <label>Teléfono</label>
-          <input
-            type="tel"
-            [(ngModel)]="telefono"
-            name="telefono"
-            required
-          />
+          <label>{{ 'REGISTER.PHONE' | translate }}</label>
+          <input type="tel" [(ngModel)]="telefono" name="telefono" required />
         </div>
         <ion-text color="danger" *ngIf="submitted && !esTelefonoValido(telefono)">
-          <p class="error-text">El teléfono ingresado no es válido.</p>
+          <p class="error-text">{{ 'REGISTER.ERROR_PHONE_INVALID' | translate }}</p>
         </ion-text>
 
         <!-- Correo -->
         <div class="campo">
-          <label>Correo</label>
-          <input
-            type="email"
-            [(ngModel)]="correo"
-            name="correo"
-            required
-          />
+          <label>{{ 'REGISTER.EMAIL' | translate }}</label>
+          <input type="email" [(ngModel)]="correo" name="correo" required />
         </div>
         <ion-text color="danger" *ngIf="submitted && !esCorreoBasicoValido(correo)">
-          <p class="error-text">El correo electrónico ingresado no es válido.</p>
+          <p class="error-text">{{ 'REGISTER.ERROR_EMAIL_INVALID' | translate }}</p>
         </ion-text>
 
         <!-- Contraseña -->
         <div class="campo">
-          <label>Contraseña</label>
-          <input
-            type="password"
-            [(ngModel)]="clave"
-            name="clave"
-            required
-          />
+          <label>{{ 'REGISTER.PASSWORD' | translate }}</label>
+          <input type="password" [(ngModel)]="clave" name="clave" required />
         </div>
 
         <!-- Confirmar contraseña -->
         <div class="campo">
-          <label>Confirmar contraseña</label>
-          <input
-            type="password"
-            [(ngModel)]="confirmarClave"
-            name="confirmarClave"
-            required
-          />
+          <label>{{ 'REGISTER.CONFIRM_PASSWORD' | translate }}</label>
+          <input type="password" [(ngModel)]="confirmarClave" name="confirmarClave" required />
         </div>
 
         <!-- Error si no coinciden -->
         <ion-text color="danger" *ngIf="submitted && clave !== confirmarClave">
-          <p class="error-text">Las contraseñas no coinciden.</p>
+          <p class="error-text">{{ 'REGISTER.ERROR_PASSWORD_MATCH' | translate }}</p>
         </ion-text>
 
         <!-- BOTÓN REGISTRARSE -->
-        <ion-button
-          expand="block"
-          type="button"
-          class="btn-registrar"
-          (click)="registrarUsuario()"
-        >
-          Registrarse
+        <ion-button expand="block" type="button" class="btn-registrar" (click)="registrarUsuario()">
+          {{ 'REGISTER.BUTTON' | translate }}
         </ion-button>
 
         <!-- ⚠️ MENSAJE GLOBAL DE REGISTRO (ÉXITO/ERROR) -->

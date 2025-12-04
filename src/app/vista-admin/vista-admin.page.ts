@@ -3,6 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController } from '@ionic/angular';
 
+// Iconos
+import { addIcons } from 'ionicons';
+import { personAddOutline, trashOutline, createOutline } from 'ionicons/icons';
+
 // Firebase core
 import { initializeApp, getApps } from 'firebase/app';
 import {
@@ -51,6 +55,12 @@ export class VistaAdminPage implements OnInit {
   tipoMensaje: 'ok' | 'error' | '' = '';
 
   constructor(private alertController: AlertController) {
+      addIcons({
+      personAddOutline,
+      trashOutline,
+      createOutline
+    });
+
     this.initFirebase();
   }
 

@@ -10,7 +10,6 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
 
-
 // ✅ Loader compatible con ngx-translate v6.0.0
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');

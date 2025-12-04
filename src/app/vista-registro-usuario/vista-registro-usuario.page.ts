@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
+import {TranslateModule} from '@ngx-translate/core';
 
 // Firebase core & auth
 import { initializeApp, getApps } from 'firebase/app';
@@ -20,7 +21,7 @@ import { environment } from '../../environments/environment';
   templateUrl: './registro-usuario.page.html',
   styleUrls: ['./registro-usuario.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, TranslateModule],
 })
 export class RegistroUsuarioPage implements OnInit {
 

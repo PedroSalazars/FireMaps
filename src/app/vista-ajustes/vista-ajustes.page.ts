@@ -65,29 +65,33 @@ export class VistaAjustesPage {
     localStorage.setItem('theme', this.theme);
   }
 
-  changeLanguage(lang: string) {
+    changeLanguage(lang: string) {
     this.language = lang;
     this.translate.use(lang);
     localStorage.setItem('lang', lang);
   }
 
-  guardarAjustes() {
-    // Guardar en localStorage
-    localStorage.setItem('mapType', this.mapType);
-    localStorage.setItem('geolocationEnabled', String(this.geolocationEnabled));
-    localStorage.setItem('theme', this.theme);
-    localStorage.setItem('lang', this.language);
+guardarAjustes() {
+  // Guardar en localStorage
+  localStorage.setItem('mapType', this.mapType);
+  localStorage.setItem('geolocationEnabled', String(this.geolocationEnabled));
+  localStorage.setItem('theme', this.theme);
+  localStorage.setItem('lang', this.language);
 
-    console.log('Ajustes guardados:', {
-      mapType: this.mapType,
-      geolocationEnabled: this.geolocationEnabled,
-      theme: this.theme,
-      language: this.language
-    });
+  // 👇 aplicar idioma inmediatamente
+  this.translate.use(this.language);
 
-    // 🔙 Volver a la vista anterior (Home o de donde vino)
-    this.navCtrl.back();
-  }
+  console.log('Ajustes guardados:', {
+    mapType: this.mapType,
+    geolocationEnabled: this.geolocationEnabled,
+    theme: this.theme,
+    language: this.language
+  });
+
+  // 🔙 Volver a la vista anterior (Home o de donde vino)
+  this.navCtrl.back();
+}
+
 
   async cerrarSesion() {
     // Aquí podrías limpiar cosas de auth si tuvieras
