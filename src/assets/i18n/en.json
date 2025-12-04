@@ -1,41 +1,81 @@
 {
-  "SETTINGS_TITLE": "Settings",
-  "SETTINGS_MAP_TYPE": "Map type",
-  "SETTINGS_GEOLOCATION": "Geolocation",
-  "SETTINGS_THEME": "Theme",
-  "SETTINGS_LANGUAGE": "Language",
-  "SAVE_SETTINGS": "Save settings",
+  "SETTINGS": {
+    "TITLE": "Settings",
+    "MAP_TYPE": "Map type",
+    "GOOGLE": "Google Maps",
+    "OSM": "OpenStreetMap",
+    "GEOLOCATION": "Geolocation",
+    "ENABLED": "Enabled",
+    "DISABLED": "Disabled",
+    "THEME": "Theme",
+    "LIGHT": "Light",
+    "DARK": "Dark",
+    "LANGUAGE": "Language",
+    "SPANISH": "Spanish",
+    "ENGLISH": "English",
+    "SAVE": "Save Settings",
+    "LOGOUT": "Log out"
+  },
+  "LOGIN": {  
+    "BACK": "Back",
+    "TITLE": "Login",
+    "WELCOME": "Welcome to",
+    "SUBTITLE": "Sign in with your credentials",
+    "EMAIL": "Email",
+    "EMAIL_PLACEHOLDER": "Enter your email",
+    "PASSWORD": "Password",
+    "PASSWORD_PLACEHOLDER": "Enter your password",
+    "BUTTON": "Sign in",
+    "LOADING": "Loading...",
+    "ERROR_FIELDS_REQUIRED": "Please fill in all fields.",
+    "ERROR_EMAIL_INVALID": "The email is not valid.",
+    "ERROR_NO_PROFILE": "No profile associated with this user was found.",
+    "ERROR_GENERIC": "Could not log in.",
+    "ERROR_USER_NOT_FOUND": "Email not registered.",
+    "ERROR_WRONG_PASSWORD": "Incorrect password.",
+    "ERROR_TOO_MANY_REQUESTS": "Too many attempts, try again later.",
+    "ERROR_INVALID_EMAIL": "Invalid email.",
+    "ERROR_BOMBERO_PASSWORD": "The firefighter password must be FireMaps2025."
 
-  "LANGUAGE": "Language",
-  "MAP_TYPE": "Map type",
-  "GEOLOCATION": "Geolocation",
-  "DISPLAY_PREFS": "Display preferences",
-  "LIGHT": "Light",
-  "DARK": "Dark",
-  "SETTINGS": "Settings",
-  "LOGOUT": "Log out",
-  "VERSION": "Version",
-
-  "REGISTER": "Register",
-  "LOGIN": "Log in",
-  "GUEST_ACCESS": "Continue as guest",
-
-  "REGISTER_USER": "Register user",
-  "NAME": "First name",
-  "LASTNAME": "Last name",
-  "RUT": "National ID",
-  "PHONE": "Phone",
-  "EMAIL": "Email",
-  "PASSWORD": "Password",
-  "CONFIRM_PASSWORD": "Confirm password",
-
-  "ERROR_NAME_REQUIRED": "Name is required.",
-  "ERROR_LASTNAME_REQUIRED": "Last name is required.",
-  "ERROR_RUT_INVALID": "Invalid ID format. Example: 12.345.678-9",
-  "ERROR_PHONE_INVALID": "Phone must have 9 digits and start with 9.",
-  "ERROR_EMAIL_INVALID": "Invalid email. Must contain '@' and a domain.",
-  "ERROR_PASSWORD_MISMATCH": "Passwords do not match.",
-
-  "LOGIN_TITLE": "Log in",
-  "LOGIN_BUTTON": "Sign in"
+  },
+  "REGISTER": {
+    "BACK": "Back",
+    "TITLE": "Register User",
+    "CREATE_ACCOUNT": "Create Account",
+    "SUBTITLE": "Fill in your details to register in FireMaps.",
+    "NAME": "First Name",
+    "LASTNAME": "Last Name",
+    "RUT": "National ID",
+    "PHONE": "Phone",
+    "EMAIL": "Email",
+    "PASSWORD": "Password",
+    "CONFIRM_PASSWORD": "Confirm Password",
+    "BUTTON": "Register",
+    "ERROR_NAME_REQUIRED": "First name is required.",
+    "ERROR_LASTNAME_REQUIRED": "Last name is required.",
+    "ERROR_RUT_INVALID": "The entered ID is not valid.",
+    "ERROR_PHONE_INVALID": "The entered phone number is not valid.",
+    "ERROR_EMAIL_INVALID": "The entered email is not valid.",
+    "ERROR_PASSWORD_MATCH": "Passwords do not match."
+  },
+  "HOME": {
+    "TITLE": "Home",
+    "WELCOME": "Welcome to FireMaps",
+    "SUBTITLE": "Chiloé · Firefighters & Emergencies",
+    "FOOTER": "Duoc UC · FireMaps Chiloé"
+  },
+  "ADMIN": {
+    "TITLE": "Firefighter Administration",
+    "BOMBERO_LIST": "Firefighter List",
+    "NEW_BOMBERO": "Add New Firefighter",
+    "ADD": "Add",
+    "DELETE": "Delete"
+  },
+  "ERROR": {
+    "EMAIL_INVALID": "Invalid email",
+    "PASSWORD_REQUIRED": "Password is required"
+  },
+  "APP": {
+    "NAME": "FireMaps"
+  }
 }

@@ -1,6 +1,6 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>Ajustes</ion-title>
+    <ion-title>{{ 'SETTINGS.TITLE' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -11,16 +11,16 @@
          TIPO DE MAPA
     ============================== -->
     <div class="card">
-      <div class="card-label">Tipo de mapa</div>
+      <div class="card-label">{{ 'SETTINGS.MAP_TYPE' | translate }}</div>
 
       <div class="dropdown" (click)="mostrarMapa = !mostrarMapa">
         <span>
-          {{ mapType === 'google' ? 'Google Maps' : 'OpenStreetMap' }}
+          {{ mapType === 'google' ? ('SETTINGS.GOOGLE' | translate) : ('SETTINGS.OSM' | translate) }}
         </span>
 
         <div class="dropdown-options" *ngIf="mostrarMapa">
-          <div (click)="mapType = 'google'; mostrarMapa = false">Google Maps</div>
-          <div (click)="mapType = 'osm'; mostrarMapa = false">OpenStreetMap</div>
+          <div (click)="mapType = 'google'; mostrarMapa = false">{{ 'SETTINGS.GOOGLE' | translate }}</div>
+          <div (click)="mapType = 'osm'; mostrarMapa = false">{{ 'SETTINGS.OSM' | translate }}</div>
         </div>
       </div>
     </div>
@@ -29,10 +29,10 @@
          GEOLOCALIZACIÓN
     ============================== -->
     <div class="card">
-      <div class="card-label">Geolocalización</div>
+      <div class="card-label">{{ 'SETTINGS.GEOLOCATION' | translate }}</div>
 
       <div class="toggle-box" (click)="geolocationEnabled = !geolocationEnabled">
-        <span>{{ geolocationEnabled ? 'Activada' : 'Desactivada' }}</span>
+        <span>{{ geolocationEnabled ? ('SETTINGS.ENABLED' | translate) : ('SETTINGS.DISABLED' | translate) }}</span>
       </div>
     </div>
 
@@ -40,16 +40,16 @@
          TEMA (CLARO / OSCURO)
     ============================== -->
     <div class="card">
-      <div class="card-label">Tema</div>
+      <div class="card-label">{{ 'SETTINGS.THEME' | translate }}</div>
 
       <div class="dropdown" (click)="mostrarTema = !mostrarTema">
         <span>
-          {{ theme === 'claro' ? 'Claro' : 'Oscuro' }}
+          {{ theme === 'claro' ? ('SETTINGS.LIGHT' | translate) : ('SETTINGS.DARK' | translate) }}
         </span>
 
         <div class="dropdown-options" *ngIf="mostrarTema">
-          <div (click)="theme = 'claro'; aplicarTema(); mostrarTema = false">Claro</div>
-          <div (click)="theme = 'oscuro'; aplicarTema(); mostrarTema = false">Oscuro</div>
+          <div (click)="theme = 'claro'; aplicarTema(); mostrarTema = false">{{ 'SETTINGS.LIGHT' | translate }}</div>
+          <div (click)="theme = 'oscuro'; aplicarTema(); mostrarTema = false">{{ 'SETTINGS.DARK' | translate }}</div>
         </div>
       </div>
     </div>
@@ -58,16 +58,16 @@
          IDIOMA
     ============================== -->
     <div class="card">
-      <div class="card-label">Idioma</div>
+      <div class="card-label">{{ 'SETTINGS.LANGUAGE' | translate }}</div>
 
       <div class="dropdown" (click)="mostrarIdioma = !mostrarIdioma">
         <span>
-          {{ language === 'es' ? 'Español' : 'English' }}
+          {{ language === 'es' ? ('SETTINGS.SPANISH' | translate) : ('SETTINGS.ENGLISH' | translate) }}
         </span>
 
         <div class="dropdown-options" *ngIf="mostrarIdioma">
-          <div (click)="changeLanguage('es'); mostrarIdioma = false">Español</div>
-          <div (click)="changeLanguage('en'); mostrarIdioma = false">English</div>
+          <div (click)="changeLanguage('es'); mostrarIdioma = false">{{ 'SETTINGS.SPANISH' | translate }}</div>
+          <div (click)="changeLanguage('en'); mostrarIdioma = false">{{ 'SETTINGS.ENGLISH' | translate }}</div>
         </div>
       </div>
     </div>
@@ -77,7 +77,7 @@
     ============================== -->
     <div class="info-box">
       <ion-icon name="information-circle-outline"></ion-icon>
-      <p>Versión 1.0</p>
+      <p>{{ 'SETTINGS.VERSION' | translate }} 1.0</p>
     </div>
 
     <!-- =============================
@@ -87,12 +87,12 @@
 
       <button class="btn-main" (click)="guardarAjustes()">
         <ion-icon name="save-outline"></ion-icon>
-        <span>Guardar Ajustes</span>
+        <span>{{ 'SETTINGS.SAVE' | translate }}</span>
       </button>
 
       <button class="btn-danger" (click)="cerrarSesion()">
         <ion-icon name="log-out-outline"></ion-icon>
-        <span>Cerrar Sesión</span>
+        <span>{{ 'SETTINGS.LOGOUT' | translate }}</span>
       </button>
 
     </div>

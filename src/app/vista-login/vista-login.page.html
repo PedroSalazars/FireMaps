@@ -5,18 +5,19 @@
   <!-- ======================= -->
   <div class="login-topbar">
 
-    <!-- Botón Back con history.back() -->
-    <a
+    <!-- Botón Back -->
+    <button
+      type="button"
       class="topbar-back"
-      href="javascript:history.back()"
+      (click)="goBack()"
     >
       <span class="back-arrow">←</span>
-      <span class="back-text">{{ 'LOGIN_BACK' | translate }}</span>
-    </a>
+      <span class="back-text">{{ 'LOGIN.BACK' | translate }}</span>
+    </button>
 
     <!-- Título centrado -->
     <div class="topbar-title">
-      {{ 'LOGIN_TITLE' | translate }}
+      {{ 'LOGIN.TITLE' | translate }}
     </div>
 
     <!-- Espaciador derecho -->
@@ -31,12 +32,12 @@
 
       <!-- Títulos de bienvenida -->
       <h2 class="login-welcome">
-        {{ 'LOGIN_WELCOME' | translate }}
-        <span>{{ 'LOGIN_APP_NAME' | translate }}</span>
+        {{ 'LOGIN.WELCOME' | translate }}
+        <span>{{ 'APP.NAME' | translate }}</span>
       </h2>
 
       <p class="login-subtitle">
-        {{ 'LOGIN_SUBTITLE' | translate }}
+        {{ 'LOGIN.SUBTITLE' | translate }}
       </p>
 
       <!-- ======================= -->
@@ -46,39 +47,39 @@
 
         <!-- Email -->
         <div class="campo">
-          <label>{{ 'EMAIL' | translate }}</label>
+          <label>{{ 'LOGIN.EMAIL' | translate }}</label>
           <input
             type="email"
             [(ngModel)]="correo"
             name="correo"
             required
             autocomplete="off"
-            [placeholder]="'LOGIN_EMAIL_PLACEHOLDER' | translate"
+            [placeholder]="'LOGIN.EMAIL_PLACEHOLDER' | translate"
           />
         </div>
 
         <ion-text color="danger" *ngIf="submitted && !esCorreoBasicoValido(correo)">
           <p class="error-text">
-            {{ 'ERROR_EMAIL_INVALID' | translate }}
+            {{ 'ERROR.EMAIL_INVALID' | translate }}
           </p>
         </ion-text>
 
         <!-- Contraseña -->
         <div class="campo">
-          <label>{{ 'PASSWORD' | translate }}</label>
+          <label>{{ 'LOGIN.PASSWORD' | translate }}</label>
           <input
             type="password"
             [(ngModel)]="clave"
             name="clave"
             required
             autocomplete="off"
-            [placeholder]="'LOGIN_PASSWORD_PLACEHOLDER' | translate"
+            [placeholder]="'LOGIN.PASSWORD_PLACEHOLDER' | translate"
           />
         </div>
 
         <ion-text color="danger" *ngIf="submitted && !clave">
           <p class="error-text">
-            {{ 'LOGIN_ERROR_PASSWORD_REQUIRED' | translate }}
+            {{ 'ERROR.PASSWORD_REQUIRED' | translate }}
           </p>
         </ion-text>
 
@@ -90,7 +91,7 @@
           (click)="iniciarSesion()"
           [disabled]="cargando"
         >
-          {{ cargando ? ('LOGIN_LOADING' | translate) : ('LOGIN_BUTTON' | translate) }}
+          {{ cargando ? ('LOGIN.LOADING' | translate) : ('LOGIN.BUTTON' | translate) }}
         </ion-button>
 
       </form>
