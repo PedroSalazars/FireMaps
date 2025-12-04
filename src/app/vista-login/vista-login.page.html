@@ -1,72 +1,101 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <!-- Flecha estilo iPhone SIEMPRE visible -->
-      <ion-button
-        fill="clear"
-        mode="ios"
-        class="back-btn-ios"
-        (click)="goBack()">
-        <ion-icon slot="start" name="chevron-back-outline"></ion-icon>
-        <span>Volver</span>
-      </ion-button>
-    </ion-buttons>
+<ion-content>
 
-    <ion-title>{{ 'LOGIN_TITLE' | translate }}</ion-title>
-  </ion-toolbar>
-</ion-header>
+  <!-- ======================= -->
+  <!-- HEADER CUSTOM SUPERIOR  -->
+  <!-- ======================= -->
+  <div class="login-topbar">
 
+    <!-- Botón Back con history.back() -->
+    <a
+      class="topbar-back"
+      href="javascript:history.back()"
+    >
+      <span class="back-arrow">←</span>
+      <span class="back-text">{{ 'LOGIN_BACK' | translate }}</span>
+    </a>
 
-<ion-content class="login-content">
-  <div class="login-inner">
+    <!-- Título centrado -->
+    <div class="topbar-title">
+      {{ 'LOGIN_TITLE' | translate }}
+    </div>
 
-    <form #loginForm="ngForm" novalidate>
-
-      <!-- Correo -->
-      <div class="campo">
-        <label>Correo</label>
-        <input
-          type="email"
-          [(ngModel)]="correo"
-          name="correo"
-          required
-          autocomplete="off"
-        />
-      </div>
-
-      <!-- Error de correo -->
-      <ion-text color="danger" *ngIf="submitted && !esCorreoBasicoValido(correo)">
-        <p>Correo no válido</p>
-      </ion-text>
-
-      <!-- Contraseña -->
-      <div class="campo">
-        <label>Contraseña</label>
-        <input
-          type="password"
-          [(ngModel)]="clave"
-          name="clave"
-          required
-          autocomplete="off"
-        />
-      </div>
-
-      <!-- Error de contraseña vacía -->
-      <ion-text color="danger" *ngIf="submitted && !clave">
-        <p>La contraseña es obligatoria</p>
-      </ion-text>
-
-      <!-- BOTÓN INGRESAR -->
-      <ion-button
-        expand="block"
-        class="btn-login"
-        type="button"
-        (click)="iniciarSesion()"
-        [disabled]="cargando"
-      >
-        {{ cargando ? ('LOGIN_LOADING' | translate) : ('LOGIN' | translate) }}
-      </ion-button>
-    </form>
-
+    <!-- Espaciador derecho -->
+    <div class="topbar-spacer"></div>
   </div>
+
+  <!-- ======================= -->
+  <!-- CONTENIDO CENTRADO      -->
+  <!-- ======================= -->
+  <div class="login-wrapper">
+    <div class="login-inner">
+
+      <!-- Títulos de bienvenida -->
+      <h2 class="login-welcome">
+        {{ 'LOGIN_WELCOME' | translate }}
+        <span>{{ 'LOGIN_APP_NAME' | translate }}</span>
+      </h2>
+
+      <p class="login-subtitle">
+        {{ 'LOGIN_SUBTITLE' | translate }}
+      </p>
+
+      <!-- ======================= -->
+      <!-- FORMULARIO LOGIN        -->
+      <!-- ======================= -->
+      <form #loginForm="ngForm" novalidate class="login-card">
+
+        <!-- Email -->
+        <div class="campo">
+          <label>{{ 'EMAIL' | translate }}</label>
+          <input
+            type="email"
+            [(ngModel)]="correo"
+            name="correo"
+            required
+            autocomplete="off"
+            [placeholder]="'LOGIN_EMAIL_PLACEHOLDER' | translate"
+          />
+        </div>
+
+        <ion-text color="danger" *ngIf="submitted && !esCorreoBasicoValido(correo)">
+          <p class="error-text">
+            {{ 'ERROR_EMAIL_INVALID' | translate }}
+          </p>
+        </ion-text>
+
+        <!-- Contraseña -->
+        <div class="campo">
+          <label>{{ 'PASSWORD' | translate }}</label>
+          <input
+            type="password"
+            [(ngModel)]="clave"
+            name="clave"
+            required
+            autocomplete="off"
+            [placeholder]="'LOGIN_PASSWORD_PLACEHOLDER' | translate"
+          />
+        </div>
+
+        <ion-text color="danger" *ngIf="submitted && !clave">
+          <p class="error-text">
+            {{ 'LOGIN_ERROR_PASSWORD_REQUIRED' | translate }}
+          </p>
+        </ion-text>
+
+        <!-- Botón LOGIN -->
+        <ion-button
+          expand="block"
+          class="btn-login"
+          type="button"
+          (click)="iniciarSesion()"
+          [disabled]="cargando"
+        >
+          {{ cargando ? ('LOGIN_LOADING' | translate) : ('LOGIN_BUTTON' | translate) }}
+        </ion-button>
+
+      </form>
+
+    </div>
+  </div>
+
 </ion-content>

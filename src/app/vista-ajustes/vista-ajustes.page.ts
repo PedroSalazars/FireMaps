@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, NavController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { App } from '@capacitor/app';
 
 @Component({
   selector: 'app-vista-ajustes',
@@ -21,30 +22,47 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 export class VistaAjustesPage {
   mapType = 'google';
   geolocationEnabled = true;
-  theme = 'claro';
+  theme: 'claro' | 'oscuro' = 'claro';
   language = 'es';
 
-  submitted = false;
-  cargando = false;
-
-  // 👇 variables auxiliares para los dropdowns personalizados
+  // dropdowns personalizados
   mostrarMapa = false;
   mostrarTema = false;
   mostrarIdioma = false;
 
-  constructor(private translate: TranslateService) {
+  constructor(
+    private translate: TranslateService,
+    private navCtrl: NavController,
+    private router: Router
+  ) {
+    // Idioma guardado
     const savedLang = localStorage.getItem('lang') || 'es';
     this.language = savedLang;
     this.translate.setDefaultLang('es');
     this.translate.use(savedLang);
+
+    // Tipo de mapa guardado (opcional)
+    const savedMapType = localStorage.getItem('mapType');
+    if (savedMapType === 'google' || savedMapType === 'osm') {
+      this.mapType = savedMapType;
+    }
+
+    // Geolocalización guardada (opcional)
+    const savedGeo = localStorage.getItem('geolocationEnabled');
+    if (savedGeo !== null) {
+      this.geolocationEnabled = savedGeo === 'true';
+    }
+
+    // Tema guardado
+    const savedTheme = (localStorage.getItem('theme') as 'claro' | 'oscuro') || 'claro';
+    this.theme = savedTheme;
+    this.aplicarTema();
   }
 
   aplicarTema() {
-    if (this.theme === 'oscuro') {
-      document.body.classList.add('dark');
-    } else {
-      document.body.classList.remove('dark');
-    }
+    const isDark = this.theme === 'oscuro';
+    document.body.classList.toggle('dark', isDark);
+    localStorage.setItem('theme', this.theme);
   }
 
   changeLanguage(lang: string) {
@@ -54,7 +72,7 @@ export class VistaAjustesPage {
   }
 
   guardarAjustes() {
-    this.submitted = true;
+    // Guardar en localStorage
     localStorage.setItem('mapType', this.mapType);
     localStorage.setItem('geolocationEnabled', String(this.geolocationEnabled));
     localStorage.setItem('theme', this.theme);
@@ -66,5 +84,22 @@ export class VistaAjustesPage {
       theme: this.theme,
       language: this.language
     });
+
+    // 🔙 Volver a la vista anterior (Home o de donde vino)
+    this.navCtrl.back();
+  }
+
+  async cerrarSesion() {
+    // Aquí podrías limpiar cosas de auth si tuvieras
+    // localStorage.removeItem('token'); etc.
+
+    try {
+      // 👇 En app nativa (Android/iOS) cierra la app
+      await App.exitApp();
+    } catch (error) {
+      console.warn('No se pudo cerrar la app (probablemente estás en navegador). Redirigiendo a inicio.', error);
+      // Fallback en navegador: ir a la vista de inicio
+      this.router.navigate(['/vista-inicio']);
+    }
   }
 }

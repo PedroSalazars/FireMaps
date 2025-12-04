@@ -1,90 +1,165 @@
-ion-toolbar {
-  --background: #e7e3e2;
-  --color: black;
+/* ===============================
+   FONDO GENERAL
+================================ */
+ion-content {
+  --background: linear-gradient(180deg, #10151f 0%, #1f2430 45%, #252a36 100%);
+  color: #fff;
 }
 
-.registro-content {
-  --background: #e7e3e2;
-}
-
-/* Contenedor general debajo del header */
-.registro-inner {
-  min-height: calc(100vh - 56px); /* alto de pantalla menos el header */
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  padding: 24px 16px;
-}
-
-/* Formulario */
-form {
+/* ===============================
+   TOPBAR SUPERIOR (Header custom)
+================================ */
+.registro-topbar {
   width: 100%;
-  max-width: 360px;
-  margin: 0 auto;
+  padding: 10px 14px;
+  background: #181d28;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.45);
+  position: relative;
+  z-index: 10;
 }
 
-/* Campo (label + input) */
+/* Botón Back como <a> */
+.topbar-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 6px 4px;
+}
+
+.topbar-back:hover {
+  opacity: 0.8;
+}
+
+.back-arrow {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.back-text {
+  opacity: 0.9;
+}
+
+/* Título centrado */
+.topbar-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: 600;
+  font-size: 1.05rem;
+  pointer-events: none;
+}
+
+/* Espaciador derecho */
+.topbar-spacer {
+  width: 40px;
+}
+
+/* ===============================
+   CONTENEDOR CENTRADO
+================================ */
+.registro-wrapper {
+  min-height: calc(100vh - 90px); /* Restamos la altura del header */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 16px 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.registro-inner {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Títulos */
+.registro-title {
+  font-size: 1.4rem;
+  margin: 0;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.registro-subtitle {
+  margin: 0 0 18px;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+/* Tarjeta del formulario */
+.registro-card {
+  background: rgba(15, 19, 30, 0.95);
+  border-radius: 16px;
+  padding: 20px 18px 26px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Campos */
 .campo {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-bottom: 4px;
+  margin-bottom: 12px;
 }
 
 .campo label {
-  font-size: 14px;
-  color: #555;
-  font-weight: 500;
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+  opacity: 0.9;
 }
 
-/* Input nativo */
 .campo input {
   padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid #444;
-  background-color: #f5f2f0;
-  font-size: 15px;
-  color: #000;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background-color: rgba(0, 0, 0, 0.28);
+  font-size: 0.95rem;
+  color: #fff;
   outline: none;
 }
 
-/* Focus bonito */
-.campo input:focus {
-  border-color: #f28972;
+.campo input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
 }
 
 /* Mensajes de error */
+.error-text,
 ion-text p {
   font-size: 13px;
   margin: 2px 0 4px;
-  color: #c62828;
+  color: #ff6b6b;
 }
 
 /* BOTÓN REGISTRAR */
 .btn-registrar {
   margin-top: 16px;
-  --background: #f28972;
-  --color: #ffffff;
-  --border-radius: 8px;
+  --background: #ffc078;
+  --color: #232323;
+  --border-radius: 12px;
   font-weight: bold;
   height: 48px;
   font-size: 16px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  transition: background-color 0.25s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  transition: background-color 0.25s ease, transform 0.1s ease;
 }
 
-.btn-registrar:hover {
-  --background: #d96d57;
+.btn-registrar:active {
+  transform: translateY(1px);
 }
-
 
 /* =============================
    ALERT PERSONALIZADO
    ============================= */
-
 ion-alert.custom-alert {
   --background: #ffffff;
   --border-radius: 16px;
@@ -135,10 +210,10 @@ ion-alert.custom-alert .alert-button-group {
 
 /* Verde para éxito */
 .mensaje-exito {
-  color: #0f9d58 !important; /* verde estilo Google */
+  color: #0f9d58 !important;
 }
 
 /* Rojo para error */
 .mensaje-error {
-  color: #d93025 !important; /* rojo estilo Google */
+  color: #d93025 !important;
 }
