@@ -1,27 +1,63 @@
-/* ===== Fondo general ===== */
-.page-background {
-  --background: #f4f0ee;
+/* ============================================================
+   🔆 TEMA CLARO – BASE
+============================================================ */
+
+ion-content {
+  --background: #e7e3e2;
+  color: #000;
   font-family: 'Segoe UI', Roboto, sans-serif;
-  padding-bottom: 90px; /* espacio para el footer */
 }
 
-/* Toolbar */
-ion-toolbar {
-  --background: #f4f0ee;
-  color: #444;
-  text-align: center;
-  font-weight: 600;
+/* ============================================================
+   🔝 TOPBAR
+============================================================ */
+
+.bombero-topbar {
+  width: 100%;
+  padding: 12px 14px;
+  background: #f0ebe9;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
-/* ===== HERO SUPERIOR ===== */
+.topbar-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+/* ============================================================
+   📄 CONTENIDO
+============================================================ */
+
+.bombero-wrapper {
+  min-height: calc(100vh - 120px);
+  padding-bottom: 100px; /* espacio para nav inferior */
+}
+
+.page-inner {
+  padding: 16px;
+}
+
+/* ============================================================
+   🟧 HERO SUPERIOR
+============================================================ */
+
 .hero {
-  padding: 18px;
+  padding: 18px 18px 20px;
   background: linear-gradient(135deg, #ff9b73, #ffb88c);
   display: flex;
   align-items: center;
   gap: 12px;
   border-radius: 0 0 22px 22px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
 }
 
 .hero-icon ion-icon {
@@ -59,18 +95,17 @@ ion-toolbar {
   font-size: 12px;
 }
 
-/* ===== CONTENIDO ===== */
-.page-inner {
-  padding: 14px;
-}
+/* ============================================================
+   🟥 CARD EMERGENCIA
+============================================================ */
 
-/* ===== CARD EMERGENCIA ===== */
 .card {
   background: #fff;
   border-radius: 16px;
   padding: 16px;
+  margin-top: 16px;
   margin-bottom: 18px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 .card-emergency {
@@ -82,6 +117,8 @@ ion-toolbar {
   display: flex;
   justify-content: space-between;
   margin-bottom: 8px;
+  font-size: 12px;
+  color: #555;
 }
 
 .badge-danger {
@@ -106,6 +143,11 @@ ion-toolbar {
   margin-bottom: 6px;
 }
 
+.priority {
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
 .priority span {
   color: #d32f2f;
   font-weight: 600;
@@ -123,18 +165,26 @@ ion-toolbar {
   font-size: 14px;
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 6px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
 }
 
-/* ===== CAJA INFORMATIVA ===== */
+.btn-main ion-icon {
+  font-size: 18px;
+}
+
+/* ============================================================
+   ℹ️ INFO BOX
+============================================================ */
+
 .info-box {
   background: #fff;
   padding: 16px;
   border-radius: 16px;
   display: flex;
   gap: 12px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 .info-box ion-icon {
@@ -147,10 +197,13 @@ ion-toolbar {
   font-size: 14px;
 }
 
-/* ===== SIN USUARIO ===== */
+/* ============================================================
+   👤 SIN USUARIO
+============================================================ */
+
 .empty-state {
   text-align: center;
-  padding: 36px 16px;
+  padding: 40px 16px 80px;
 }
 
 .empty-state ion-icon {
@@ -158,37 +211,114 @@ ion-toolbar {
   color: #ccc;
 }
 
-/* ===== FOOTER ===== */
-ion-footer {
-  border-top: 1px solid #e0dcd9;
-}
+/* ============================================================
+   🟠 NAV INFERIOR FLOTANTE (MISMO ESTILO QUE NOTIFICACIONES)
+============================================================ */
 
-/* Toolbar del footer */
-.footer-toolbar {
-  --background: #f4f0ee;
-  padding: 6px 12px 12px;
-}
-
-/* Contenedor de botones */
-.footer-buttons {
+.bottom-nav-shell {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  padding-bottom: env(safe-area-inset-bottom);
   display: flex;
-  gap: 8px;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 9999;
 }
 
-/* Botones naranjos */
-.footer-btn {
+.bottom-nav-mini {
+  pointer-events: auto;
+  width: 88%;
+  max-width: 430px;
+  padding: 10px 12px;
+
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 6px;
+
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 999px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+}
+
+.bottom-nav-mini-item {
   flex: 1;
-  --background: #ff8c42;
-  --background-activated: #e6732a;
-  --background-hover: #ffa564;
-  --color: #fff;
-  --border-radius: 999px;
-  text-transform: none;
-  font-weight: 600;
+  height: 36px;
+  background: transparent;
+  border-radius: 999px;
+  border: none;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   font-size: 13px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  font-weight: 600;
+  color: #444;
 }
 
-.footer-btn ion-icon {
-  font-size: 20px;
+.bottom-nav-mini-item--active {
+  background: rgba(255, 140, 66, 0.20);
+  color: #ff8c42;
+  margin: 0 4px;
+  box-shadow: 0 2px 6px rgba(255, 140, 66, 0.25);
+}
+
+.bottom-nav-mini-item:active {
+  transform: scale(0.96);
+}
+
+/* ============================================================
+   🌙 MODO OSCURO
+============================================================ */
+
+:host-context(.dark) ion-content {
+  --background: linear-gradient(180deg, #10151f 0%, #1f2430 45%, #252a36 100%);
+  color: #fff;
+}
+
+:host-context(.dark) .bombero-topbar {
+  background: #181d28;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.55);
+}
+
+:host-context(.dark) .topbar-title {
+  color: #fff;
+}
+
+:host-context(.dark) .hero {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.7);
+}
+
+:host-context(.dark) .card,
+:host-context(.dark) .info-box {
+  background: rgba(15, 19, 30, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.6);
+  color: #eee;
+}
+
+:host-context(.dark) .card-title {
+  color: #fff;
+}
+
+:host-context(.dark) .card-text,
+:host-context(.dark) .info-box p {
+  color: #ddd;
+}
+
+:host-context(.dark) .bottom-nav-mini {
+  background: rgba(24, 29, 40, 0.92);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.75);
+}
+
+:host-context(.dark) .bottom-nav-mini-item {
+  color: #e0e0e0;
+}
+
+:host-context(.dark) .bottom-nav-mini-item--active {
+  background: rgba(255, 192, 120, 0.25);
+  color: #ffc078;
 }

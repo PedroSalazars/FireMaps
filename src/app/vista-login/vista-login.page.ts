@@ -28,6 +28,7 @@ export class VistaLoginPage {
     private toastController: ToastController,
     private translate: TranslateService,
     private router: Router
+
   ) {
     // Idioma guardado
     const lang = localStorage.getItem('lang') || 'es';
@@ -78,10 +79,10 @@ export class VistaLoginPage {
     return emailRegex.test(correo.trim());
   }
 
-  async iniciarSesion() {
-    this.submitted = true;
-    const email = this.correo.trim().toLowerCase();
-    const password = this.clave;
+async iniciarSesion() {
+  this.submitted = true;
+  const email = this.correo.trim().toLowerCase();
+  const password = this.clave;
 
     if (!email || !password) {
       return this.mostrarToast(this.translate.instant('LOGIN.ERROR_FIELDS_REQUIRED'), 'danger');
@@ -91,7 +92,7 @@ export class VistaLoginPage {
       return this.mostrarToast(this.translate.instant('LOGIN.ERROR_EMAIL_INVALID'), 'danger');
     }
 
-    this.cargando = true;
+  this.cargando = true;
 
     try {
       if (email === 'admin' && password === 'admin') {
@@ -99,9 +100,9 @@ export class VistaLoginPage {
         return;
       }
 
-      const auth = getAuth();
-      const cred = await signInWithEmailAndPassword(auth, email, password);
-      const uid = cred.user.uid;
+    const auth = getAuth();
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const uid = cred.user.uid;
 
       // 🔹 Primero revisamos colección "usuarios"
       const refUsuario = doc(db, 'usuarios', uid);
@@ -138,7 +139,21 @@ export class VistaLoginPage {
     } finally {
       this.cargando = false;
     }
+
+    this.mostrarToast(this.translate.instant('LOGIN.ERROR_NO_PROFILE'), 'danger');
+
+  } catch (error: any) {
+    let mensaje = this.translate.instant('LOGIN.ERROR_GENERIC');
+    if (error.code === 'auth/user-not-found') mensaje = this.translate.instant('LOGIN.ERROR_USER_NOT_FOUND');
+    else if (error.code === 'auth/wrong-password') mensaje = this.translate.instant('LOGIN.ERROR_WRONG_PASSWORD');
+    else if (error.code === 'auth/too-many-requests') mensaje = this.translate.instant('LOGIN.ERROR_TOO_MANY_REQUESTS');
+    else if (error.code === 'auth/invalid-email') mensaje = this.translate.instant('LOGIN.ERROR_INVALID_EMAIL');
+    this.mostrarToast(mensaje, 'danger');
+  } finally {
+    this.cargando = false;
   }
+}
+
 
   private async mostrarToast(message: string, color: string) {
     const toast = await this.toastController.create({
@@ -149,7 +164,7 @@ export class VistaLoginPage {
     toast.present();
   }
 
-  goBack() {
+    goBack() {
     this.router.navigate(['/vista-inicio']);
-  }
+    }
 }

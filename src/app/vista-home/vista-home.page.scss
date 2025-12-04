@@ -1,8 +1,5 @@
 /* ===============================
    FONDO GENERAL
-================================ */
-ion-content {
-  --background: #E7E3E2;
   color: #000;
   position: relative;
   font-family: 'Segoe UI', Roboto, sans-serif;
@@ -10,30 +7,11 @@ ion-content {
 
 /* ===============================
    HEADER PRINCIPAL
-================================ */
-.header-toolbar {
-  --background: #E7E3E2;
-  --color: #000;
-  border-bottom: 2px solid #000;
-}
-
-.header-title {
-  color: #000;
-  font-weight: bold;
-  font-size: 22px;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-/* ===============================
-   MAPA
-================================ */
 .map-container {
   position: relative;
   width: 100%;
-  height: calc(100vh - 140px); /* Altura disponible menos header y footer */
-  padding: 8px;
+  height: calc(100vh - 160px); /* header + footer pill */
+  padding: 8px 8px 0;
 }
 
 #map {
@@ -41,50 +19,11 @@ ion-content {
   height: 100%;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
 }
 
 /* ===============================
    FAB DE REPORTE
-================================ */
-.report-fab {
-  bottom: 24px;
-  right: 24px;
-}
-
-.fab-circle-wrapper {
-  border-radius: 50%;
-  overflow: visible;
-}
-
-.report-fab ion-fab-button {
-  --background: #ffc078;
-  --color: #ffffff;
-
-  font-size: 24px;
-  width: 60px;
-  height: 60px;
-
-  border-radius: 50%;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.report-fab ion-icon {
-  color: #ffffff;
-  font-size: 26px;
-}
-
-/* ===============================
-   MODAL DE REPORTE
-================================ */
-ion-modal::part(content) {
-  background: #E7E3E2;
-  color: #000;
-  border-radius: 12px;
 }
 
 .modal-header {
@@ -187,31 +126,6 @@ ion-modal::part(content) {
 
 /* ===============================
    FOOTER
-================================ */
-ion-footer {
-  border-top: 1px solid #e0dcd9;
-}
-
-.footer-toolbar {
-  --background: #E7E3E2;
-  padding: 6px 12px 12px;
-}
-
-.footer-buttons {
-  display: flex;
-  gap: 8px;
-}
-
-.footer-btn {
-  flex: 1;
-  --border-radius: 999px;
-  font-weight: 600;
-  font-size: 13px;
-}
-
-/* ===============================
-   TOAST ESTÉTICO
-================================ */
 ion-toast.incident-toast {
   --background: transparent;
   --box-shadow: none;
@@ -222,19 +136,89 @@ ion-toast.incident-toast .toast-container {
   background: #ffffff;
   color: #000000;
   border-radius: 12px;
-
   padding: 12px 16px;
   margin: 0 16px 32px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-
   text-align: center;
   font-size: 14px;
   font-weight: 500;
-
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 ion-toast.incident-toast .toast-button {
   color: #f27b13;
   font-weight: 600;
+}
+
+/* ============================================================
+   🌙 TEMA OSCURO – body.dark (igual paleta Login/Registro)
+============================================================ */
+
+:host-context(.dark) ion-content {
+  --background: linear-gradient(180deg, #10151f 0%, #1f2430 45%, #252a36 100%);
+  color: #fff;
+}
+
+/* Header oscuro */
+:host-context(.dark) .header-toolbar {
+  --background: #181d28;
+  --color: #ffffff;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.45);
+}
+
+:host-context(.dark) .header-title {
+  color: #ffffff;
+}
+
+/* Modal oscuro mantiene layout pero con fondo más sobrio */
+:host-context(.dark) ion-modal::part(content) {
+  background: #181d28;
+  color: #ffffff;
+}
+
+/* Textos dentro de field en oscuro */
+:host-context(.dark) .field strong {
+  color: #ffffff;
+}
+
+:host-context(.dark) .field .hint {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+:host-context(.dark) .error {
+  color: #ff8080;
+}
+
+/* Textareas / inputs en oscuro */
+:host-context(.dark) ion-textarea.ubicacion-texto {
+  --background: rgba(0, 0, 0, 0.35);
+  --color: #ffffff;
+}
+
+/* Footer oscuro */
+:host-context(.dark) .footer-shell {
+  background: #181d28;
+}
+
+:host-context(.dark) .footer-pill {
+  background: #10151f;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.65);
+}
+
+/* Botones en oscuro */
+:host-context(.dark) .seg-btn {
+  color: #f1f1f1;
+}
+
+/* Activo en oscuro: naranja FireMaps */
+:host-context(.dark) .seg-btn.active {
+  background: rgba(255, 192, 120, 0.28);
+  color: #ffc078;
+}
+
+/* Toast en oscuro */
+:host-context(.dark) ion-toast.incident-toast .toast-container {
+  background: #1f2430;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.12);
 }

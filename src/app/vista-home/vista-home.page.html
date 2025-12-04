@@ -9,7 +9,7 @@
   <div class="map-container">
     <div id="map" class="map-box"></div>
 
-    <!-- FAB de reporte -->
+    <!-- FAB Reportar -->
     <ion-fab
       class="report-fab"
       slot="fixed"
@@ -26,6 +26,8 @@
   <!-- Modal Reportar incidente -->
   <ion-modal [isOpen]="reportOpen" (didDismiss)="closeReportModal()" class="report-modal">
     <ng-template>
+
+      <!-- Header modal -->
       <ion-header class="modal-header">
         <ion-toolbar class="modal-toolbar">
           <ion-title class="modal-title">Reportar problema</ion-title>
@@ -55,6 +57,7 @@
             <button class="type-btn" [class.sel]="reportType === 'rescate'" (click)="setReportType('rescate')">Rescate</button>
             <button class="type-btn" [class.sel]="reportType === 'choque'" (click)="setReportType('choque')">Choque</button>
           </div>
+
           <div class="hint">La prioridad se ajusta automáticamente según el tipo.</div>
           <div class="error" *ngIf="formErrors.type">{{ formErrors.type }}</div>
         </div>
@@ -77,11 +80,16 @@
         <ion-button expand="block" class="submit-btn" [disabled]="!canSubmitReport()" (click)="submitReport()">
           Enviar reporte
         </ion-button>
+
       </ion-content>
     </ng-template>
   </ion-modal>
+
 </ion-content>
 
+<!-- ============================
+     FOOTER NAV – ESTILO PASTILLA
+============================ -->
 <ion-footer>
   <ion-toolbar class="footer-toolbar">
     <div class="footer-buttons">
