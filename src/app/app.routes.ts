@@ -68,12 +68,14 @@ export const routes: Routes = [
       import('./vista-admin/vista-admin.page').then( 
         m => m.VistaAdminPage)
   },
+
+  {
+    path: 'vista-perfil',
+    loadComponent: () => import('./vista-perfil/vista-perfil.page').then( m => m.VistaPerfilPage)
+    },
   {
     path: '**',
     redirectTo: 'vista-inicio'
-  },  {
-    path: 'vista-perfil',
-    loadComponent: () => import('./vista-perfil/vista-perfil.page').then( m => m.VistaPerfilPage)
   },
 
 
