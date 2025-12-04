@@ -10,51 +10,40 @@
     <!-- Tipo de mapa -->
     <div class="card">
       <div class="card-label">Tipo de mapa</div>
-      <div class="dropdown" (click)="mostrarMapa = !mostrarMapa">
-        <span>{{ mapType === 'google' ? 'Google Maps' : 'OpenStreetMap' }}</span>
-        <div class="dropdown-options" *ngIf="mostrarMapa">
-          <div (click)="mapType = 'google'; mostrarMapa = false">Google Maps</div>
-          <div (click)="mapType = 'osm'; mostrarMapa = false">OpenStreetMap</div>
-        </div>
-      </div>
+      <ion-select [(ngModel)]="mapType" interface="popover">
+        <ion-select-option value="google">Google Maps</ion-select-option>
+        <ion-select-option value="osm">OpenStreetMap</ion-select-option>
+      </ion-select>
     </div>
 
     <!-- Geolocalización -->
     <div class="card">
       <div class="card-label">Geolocalización</div>
-      <div class="toggle-box" (click)="geolocationEnabled = !geolocationEnabled">
-        <span>{{ geolocationEnabled ? 'Activada' : 'Desactivada' }}</span>
-      </div>
+      <ion-toggle [(ngModel)]="geolocationEnabled"></ion-toggle>
     </div>
 
     <!-- Tema -->
     <div class="card">
       <div class="card-label">Tema</div>
-      <div class="dropdown" (click)="mostrarTema = !mostrarTema">
-        <span>{{ theme === 'claro' ? 'Claro' : 'Oscuro' }}</span>
-        <div class="dropdown-options" *ngIf="mostrarTema">
-          <div (click)="theme = 'claro'; aplicarTema(); mostrarTema = false">Claro</div>
-          <div (click)="theme = 'oscuro'; aplicarTema(); mostrarTema = false">Oscuro</div>
-        </div>
-      </div>
+      <ion-select [(ngModel)]="theme" interface="popover" (ionChange)="aplicarTema()">
+        <ion-select-option value="claro">Claro</ion-select-option>
+        <ion-select-option value="oscuro">Oscuro</ion-select-option>
+      </ion-select>
     </div>
 
     <!-- Idioma -->
     <div class="card">
       <div class="card-label">Idioma</div>
-      <div class="dropdown" (click)="mostrarIdioma = !mostrarIdioma">
-        <span>{{ language === 'es' ? 'Español' : 'English' }}</span>
-        <div class="dropdown-options" *ngIf="mostrarIdioma">
-          <div (click)="changeLanguage('es'); mostrarIdioma = false">Español</div>
-          <div (click)="changeLanguage('en'); mostrarIdioma = false">English</div>
-        </div>
-      </div>
+      <ion-select [(ngModel)]="language" interface="popover" (ionChange)="changeLanguage(language)">
+        <ion-select-option value="es">Español</ion-select-option>
+        <ion-select-option value="en">English</ion-select-option>
+      </ion-select>
     </div>
 
     <!-- Versión -->
     <div class="info-box">
       <ion-icon name="information-circle-outline"></ion-icon>
-      <span>Versión 1.0</span>
+      <p>Versión 1.0</p>
     </div>
 
     <!-- Botones -->

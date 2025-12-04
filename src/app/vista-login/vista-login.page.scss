@@ -1,78 +1,164 @@
-ion-toolbar {
-  --background: #e7e3e2;
-  --color: black;
+/* ===============================
+   FONDO GENERAL
+================================ */
+ion-content {
+  --background: linear-gradient(180deg, #10151f 0%, #1f2430 45%, #252a36 100%);
+  color: #fff;
 }
 
-.login-content {
-  --background: #e7e3e2;
-}
-
-/* Contenedor general debajo del header */
-.login-inner {
-  min-height: calc(100vh - 56px); /* alto de pantalla menos el header */
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  padding: 24px 16px;
-}
-
-/* Formulario */
-form {
+/* ===============================
+   TOPBAR SUPERIOR (Header custom)
+================================ */
+.login-topbar {
   width: 100%;
-  max-width: 360px;
-  margin: 0 auto;
+  padding: 10px 14px;
+  background: #181d28;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.45);
+  position: relative;      /* 👈 aseguramos contexto para el título */
+  z-index: 10;             /* 👈 siempre por encima del contenido */
 }
 
-/* Campo (label + input) */
+/* Botón Back como <a> */
+.topbar-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 6px 4px;
+}
+
+.topbar-back:hover {
+  opacity: 0.8;
+}
+
+.back-arrow {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+/* Título centrado */
+.topbar-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: 600;
+  font-size: 1.05rem;
+  pointer-events: none;
+}
+
+.topbar-spacer {
+  width: 40px; /* Para equilibrar visualmente el layout */
+}
+
+/* ===============================
+   CONTENEDOR CENTRADO
+================================ */
+.login-wrapper {
+  min-height: calc(100vh - 90px); /* restamos la altura del header */
+  display: flex;
+  justify-content: center;
+  align-items: center;            /* 👈 centrado vertical REAL, sin transform */
+  padding: 24px 16px 40px;
+  position: relative;
+  z-index: 1;                     /* debajo del header */
+}
+
+.login-inner {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* ===============================
+   TEXTOS DE BIENVENIDA
+================================ */
+.login-welcome {
+  text-align: center;
+  font-size: 1.4rem;
+  margin: 0;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.login-welcome span {
+  color: #ffc078;
+}
+
+.login-subtitle {
+  margin: 0 0 18px;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+/* ===============================
+   TARJETA DEL FORMULARIO
+================================ */
+.login-card {
+  background: rgba(15, 19, 30, 0.95);
+  border-radius: 16px;
+  padding: 20px 18px 26px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ===============================
+   CAMPOS DEL FORMULARIO
+================================ */
 .campo {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-bottom: 4px;
+  margin-bottom: 14px;
 }
 
 .campo label {
-  font-size: 14px;
-  color: #555;
-  font-weight: 500;
+  font-size: 0.87rem;
+  margin-bottom: 4px;
+  opacity: 0.9;
 }
 
-/* Input nativo */
 .campo input {
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.28);
   padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid #444;
-  background-color: #f5f2f0;
-  font-size: 15px;
-  color: #000;
+  color: #fff;
+  font-size: 0.9rem;
   outline: none;
 }
 
-/* Focus */
-.campo input:focus {
-  border-color: #f28972;
+.campo input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
 }
 
-/* Mensajes de error */
-ion-text p {
-  font-size: 13px;
-  margin: 2px 0 4px;
+/* ===============================
+   ERRORES
+================================ */
+.error-text {
+  font-size: 0.78rem;
+  margin: -6px 0 10px;
+  color: #ff6b6b;
 }
 
-/* Botón login */
+/* ===============================
+   BOTÓN LOGIN
+================================ */
 .btn-login {
-  margin-top: 16px;
-  --background: #f28972;
-  --color: #ffffff;
-  --border-radius: 8px;
-  font-weight: bold;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  transition: background-color 0.3s ease;
-}
-
-.btn-login:hover {
-  --background: #f28972;
+  margin-top: 10px;
+  --background: #ffc078;
+  --background-activated: #ffb35a;
+  --background-focused: #ffb35a;
+  --color: #232323;
+  font-weight: 600;
+  border-radius: 12px;
+  height: 44px;
+  font-size: 0.9rem;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
 }
