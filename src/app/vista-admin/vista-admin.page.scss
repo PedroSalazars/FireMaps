@@ -1,100 +1,236 @@
-*{
-    color: black;
-}
-.page-inner {
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+/* ===============================
+   FONDO GENERAL
+================================ */
+.page-background {
+  --background: linear-gradient(180deg, #10151f 0%, #1f2430 45%, #252a36 100%);
+  color: #fff;
 }
 
+/* ===============================
+   TOPBAR SUPERIOR (Header custom)
+================================ */
+.admin-topbar {
+  width: 100%;
+  padding: 10px 14px;
+  background: #181d28;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.45);
+  position: relative;      /* 👈 aseguramos contexto para el título */
+  z-index: 10;             /* 👈 siempre por encima del contenido */
+}
+
+/* Botón Back como <a> */
+.topbar-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 6px 4px;
+}
+
+.topbar-back:hover {
+  opacity: 0.8;
+}
+
+.back-arrow {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+/* Título centrado */
+.topbar-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: 600;
+  font-size: 1.05rem;
+  pointer-events: none;
+}
+
+.topbar-spacer {
+  width: 40px; /* Para equilibrar visualmente el layout */
+}
+
+/* ===============================
+   TARJETAS (Formulario + Listado)
+================================ */
 .card {
-  background: #fff;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  background: rgba(15, 19, 30, 0.95);
+  border-radius: 16px;
+  padding: 20px 18px 26px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 22px;
 }
 
 .card-label {
-  font-weight: bold;
-  margin-bottom: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 14px;
+  color: #ffc078;
 }
 
+/* ===============================
+   FORMULARIO
+================================ */
 .form-group {
-  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  font-size: 0.87rem;
+  margin-bottom: 4px;
+  opacity: 0.9;
 }
 
 .form-group input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.28);
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
 }
 
+.form-group input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* ===============================
+   DROPDOWN ROL
+================================ */
 .dropdown {
-  position: relative;
-  background: #f9f9f9;
-  padding: 0.5rem;
-  border-radius: 6px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.28);
+  padding: 10px 12px;
+  color: #fff;
   cursor: pointer;
+  position: relative;
+}
+
+.dropdown span {
+  font-size: 0.9rem;
 }
 
 .dropdown-options {
   position: absolute;
   top: 100%;
   left: 0;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  width: 100%;
+  background: #1f2430;
+  border-radius: 8px;
+  margin-top: 6px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
   z-index: 10;
 }
 
 .dropdown-options div {
-  padding: 0.5rem;
+  padding: 8px 12px;
   cursor: pointer;
+  font-size: 0.85rem;
 }
 
 .dropdown-options div:hover {
-  background: #eee;
+  background: #ffc078;
+  color: #232323;
 }
 
+/* ===============================
+   BOTONES
+================================ */
+.actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffc078;
+  color: #232323;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  border: none;
+}
+
+.btn-main:hover {
+  background: #ffb35a;
+}
+
+/* ===============================
+   LISTADO DE BOMBEROS
+================================ */
 .list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 12px;
 }
 
 .list-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  background: rgba(0, 0, 0, 0.28);
+  border-radius: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.list-info {
+  font-size: 0.85rem;
+  color: #fff;
+}
+
+.list-info strong {
+  font-size: 0.95rem;
+  color: #ffc078;
 }
 
 .list-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
-.btn-main, .btn-edit, .btn-danger {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  font-weight: bold;
-  color: #fff;
-}
-
-.btn-main {
-  background: var(--ion-color-primary);
+.btn-edit,
+.btn-danger {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 6px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
 }
 
 .btn-edit {
-  background: var(--ion-color-warning);
+  background: #a0b1419d;
+}
+
+.btn-edit:hover {
+  background: rgba(205, 207, 81, 0.15);
 }
 
 .btn-danger {
-  background: var(--ion-color-danger);
+  background: #ff6b6b96;
+}
+
+.btn-danger:hover {
+  background: rgba(255, 107, 107, 0.15);
 }
