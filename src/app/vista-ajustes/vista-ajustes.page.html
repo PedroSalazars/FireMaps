@@ -7,11 +7,17 @@
 <ion-content class="page-background">
   <div class="page-inner">
 
-    <!-- Tipo de mapa -->
+    <!-- =============================
+         TIPO DE MAPA
+    ============================== -->
     <div class="card">
       <div class="card-label">Tipo de mapa</div>
+
       <div class="dropdown" (click)="mostrarMapa = !mostrarMapa">
-        <span>{{ mapType === 'google' ? 'Google Maps' : 'OpenStreetMap' }}</span>
+        <span>
+          {{ mapType === 'google' ? 'Google Maps' : 'OpenStreetMap' }}
+        </span>
+
         <div class="dropdown-options" *ngIf="mostrarMapa">
           <div (click)="mapType = 'google'; mostrarMapa = false">Google Maps</div>
           <div (click)="mapType = 'osm'; mostrarMapa = false">OpenStreetMap</div>
@@ -19,19 +25,28 @@
       </div>
     </div>
 
-    <!-- Geolocalización -->
+    <!-- =============================
+         GEOLOCALIZACIÓN
+    ============================== -->
     <div class="card">
       <div class="card-label">Geolocalización</div>
+
       <div class="toggle-box" (click)="geolocationEnabled = !geolocationEnabled">
         <span>{{ geolocationEnabled ? 'Activada' : 'Desactivada' }}</span>
       </div>
     </div>
 
-    <!-- Tema -->
+    <!-- =============================
+         TEMA (CLARO / OSCURO)
+    ============================== -->
     <div class="card">
       <div class="card-label">Tema</div>
+
       <div class="dropdown" (click)="mostrarTema = !mostrarTema">
-        <span>{{ theme === 'claro' ? 'Claro' : 'Oscuro' }}</span>
+        <span>
+          {{ theme === 'claro' ? 'Claro' : 'Oscuro' }}
+        </span>
+
         <div class="dropdown-options" *ngIf="mostrarTema">
           <div (click)="theme = 'claro'; aplicarTema(); mostrarTema = false">Claro</div>
           <div (click)="theme = 'oscuro'; aplicarTema(); mostrarTema = false">Oscuro</div>
@@ -39,11 +54,17 @@
       </div>
     </div>
 
-    <!-- Idioma -->
+    <!-- =============================
+         IDIOMA
+    ============================== -->
     <div class="card">
       <div class="card-label">Idioma</div>
+
       <div class="dropdown" (click)="mostrarIdioma = !mostrarIdioma">
-        <span>{{ language === 'es' ? 'Español' : 'English' }}</span>
+        <span>
+          {{ language === 'es' ? 'Español' : 'English' }}
+        </span>
+
         <div class="dropdown-options" *ngIf="mostrarIdioma">
           <div (click)="changeLanguage('es'); mostrarIdioma = false">Español</div>
           <div (click)="changeLanguage('en'); mostrarIdioma = false">English</div>
@@ -51,23 +72,29 @@
       </div>
     </div>
 
-    <!-- Versión -->
+    <!-- =============================
+         VERSIÓN
+    ============================== -->
     <div class="info-box">
       <ion-icon name="information-circle-outline"></ion-icon>
       <span>Versión 1.0</span>
     </div>
 
-    <!-- Botones -->
+    <!-- =============================
+         BOTONES DE ACCIÓN
+    ============================== -->
     <div class="actions">
+
       <button class="btn-main" (click)="guardarAjustes()">
         <ion-icon name="save-outline"></ion-icon>
         <span>Guardar Ajustes</span>
       </button>
 
-      <button class="btn-danger" routerLink="/vista-inicio">
+      <button class="btn-danger" (click)="cerrarSesion()">
         <ion-icon name="log-out-outline"></ion-icon>
         <span>Cerrar Sesión</span>
       </button>
+
     </div>
 
   </div>
