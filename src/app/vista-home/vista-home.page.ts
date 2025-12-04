@@ -9,6 +9,7 @@ import { RouterLink } from '@angular/router';
 import { Loader } from '@googlemaps/js-api-loader';
 import { environment } from '../../environments/environment';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Firebase SDK Web
 import { initializeApp, getApps } from 'firebase/app';
@@ -71,7 +72,8 @@ type Truck = {
     IonModal, IonButtons, IonInput, IonTextarea,
     IonIcon,
     RouterLink,
-    FormsModule
+    FormsModule,
+    TranslateModule
   ],
   templateUrl: './vista-home.page.html',
   styleUrls: ['./vista-home.page.scss']

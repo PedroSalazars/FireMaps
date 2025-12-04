@@ -4,13 +4,10 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content fullscreen="true">
-
-  <!-- ============================
-       MAPA
-  ============================ -->
+<ion-content fullscreen="true" class="page-background">
+  <!-- Contenedor del mapa -->
   <div class="map-container">
-    <div id="map"></div>
+    <div id="map" class="map-box"></div>
 
     <!-- FAB Reportar -->
     <ion-fab
@@ -19,18 +16,15 @@
       vertical="bottom"
       horizontal="end">
       <div class="fab-circle-wrapper">
-        <ion-fab-button aria-label="Reportar" (click)="openReportModal()">
+        <ion-fab-button aria-label="Reportar" class="fab-btn" (click)="openReportModal()">
           <span class="fab-plus">+</span>
         </ion-fab-button>
       </div>
     </ion-fab>
-
   </div>
 
-  <!-- ============================
-       MODAL REPORTAR INCIDENTE
-  ============================ -->
-  <ion-modal [isOpen]="reportOpen" (didDismiss)="closeReportModal()">
+  <!-- Modal Reportar incidente -->
+  <ion-modal [isOpen]="reportOpen" (didDismiss)="closeReportModal()" class="report-modal">
     <ng-template>
 
       <!-- Header modal -->
@@ -45,12 +39,10 @@
         </ion-toolbar>
       </ion-header>
 
-      <!-- Contenido modal -->
-      <ion-content class="ion-padding">
-
+      <ion-content class="modal-content ion-padding">
         <!-- Ubicación -->
         <div class="field">
-          <strong>Ubicación</strong>
+          <div class="field-label"> <strong>Ubicación</strong> </div>
           <div class="hint">
             Ingresa la dirección del incidente. Las búsquedas están limitadas a Chiloé, Chile.
           </div>
@@ -58,32 +50,12 @@
 
         <!-- Tipo de incidente -->
         <div class="field">
-          <strong>Tipo</strong>
+          <div class="field-label"><strong>Tipo</strong></div>
           <div class="types">
-            <button
-              class="type-btn"
-              [class.sel]="reportType === 'Incendio'"
-              (click)="setReportType('Incendio')">
-              Incendio
-            </button>
-            <button
-              class="type-btn"
-              [class.sel]="reportType === 'FuGas'"
-              (click)="setReportType('FuGas')">
-              FuGas
-            </button>
-            <button
-              class="type-btn"
-              [class.sel]="reportType === 'rescate'"
-              (click)="setReportType('rescate')">
-              Rescate
-            </button>
-            <button
-              class="type-btn"
-              [class.sel]="reportType === 'choque'"
-              (click)="setReportType('choque')">
-              Choque
-            </button>
+            <button class="type-btn" [class.sel]="reportType === 'Incendio'" (click)="setReportType('Incendio')">Incendio</button>
+            <button class="type-btn" [class.sel]="reportType === 'FuGas'" (click)="setReportType('FuGas')">FuGas</button>
+            <button class="type-btn" [class.sel]="reportType === 'rescate'" (click)="setReportType('rescate')">Rescate</button>
+            <button class="type-btn" [class.sel]="reportType === 'choque'" (click)="setReportType('choque')">Choque</button>
           </div>
 
           <div class="hint">La prioridad se ajusta automáticamente según el tipo.</div>
@@ -92,49 +64,20 @@
 
         <!-- Dirección -->
         <div class="field">
-          <strong>Dirección</strong>
-          <input
-            id="report-address-input"
-            class="ubicacion-texto"
-            type="text"
-            placeholder="Ej: Avenida Galvarino Riveros, Castro"
-            [(ngModel)]="reportAddress" />
-          <div class="hint">Escribe y selecciona una opción del buscador de Google.</div>
+          <div class="field-label"><strong>Dirección</strong></div>
+          <input id="report-address-input" class="input-text" type="text" placeholder="Ej: Avenida Galvarino Riveros, Castro" [(ngModel)]="reportAddress" />
+          <div class="hint">Escribe y selecciona una opción de la lista (buscador de Google).</div>
           <div class="error" *ngIf="formErrors.address">{{ formErrors.address }}</div>
         </div>
 
         <!-- Descripción -->
         <div class="field">
-          <strong>Descripción breve (opcional, máx. 200 caracteres)</strong>
-          <ion-textarea
-            class="ubicacion-texto"
-            fill="outline"
-            [rows]="3"
-            maxlength="200"
-            placeholder="Ej: Humo denso saliendo de vivienda"
-            [(ngModel)]="reportNotes"></ion-textarea>
+          <div class="field-label"><strong>Descripción breve</strong> (opcional, máx. 200 caracteres)</div>
+          <ion-textarea class="input-textarea" fill="outline" [rows]="3" maxlength="200" placeholder="Ej: Humo denso saliendo de vivienda" [(ngModel)]="reportNotes"></ion-textarea>
           <div class="error" *ngIf="formErrors.notes">{{ formErrors.notes }}</div>
         </div>
 
-        <!-- Fotos -->
-        <div class="field">
-          <strong>Fotos (1 a 3)</strong>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            (change)="onFilesSelected($event)" />
-          <div class="hint" *ngIf="selectedFiles.length">
-            Seleccionadas: {{ selectedFiles.length }}
-          </div>
-          <div class="error" *ngIf="formErrors.photos">{{ formErrors.photos }}</div>
-        </div>
-
-        <!-- Botón Enviar -->
-        <ion-button
-          expand="block"
-          [disabled]="!canSubmitReport()"
-          (click)="submitReport()">
+        <ion-button expand="block" class="submit-btn" [disabled]="!canSubmitReport()" (click)="submitReport()">
           Enviar reporte
         </ion-button>
 
@@ -149,33 +92,10 @@
 ============================ -->
 <ion-footer>
   <ion-toolbar class="footer-toolbar">
-    <div class="footer-shell">
-
-      <div class="footer-pill">
-
-        <!-- Inicio (ACTIVO en esta vista) -->
-        <button
-          class="seg-btn active"
-          [routerLink]="['/vista-home']">
-          Inicio
-        </button>
-
-        <!-- Ajustes -->
-        <button
-          class="seg-btn"
-          [routerLink]="['/vista-ajustes']">
-          Ajustes
-        </button>
-
-        <!-- Salir -->
-        <button
-          class="seg-btn"
-          [routerLink]="['/vista-login']">
-          Salir
-        </button>
-
-      </div>
-
+    <div class="footer-buttons">
+      <ion-button fill="outline" class="footer-btn" [routerLink]="['/vista-inicio']">Inicio</ion-button>
+      <ion-button fill="outline" class="footer-btn" [routerLink]="['/vista-ajustes']">Ajustes</ion-button>
+      <ion-button fill="outline" class="footer-btn" [routerLink]="['/vista-login']">Salir</ion-button>
     </div>
   </ion-toolbar>
 </ion-footer>

@@ -53,6 +53,7 @@ ion-content {
   font-weight: 600;
   font-size: 1.05rem;
   pointer-events: none;
+  text-align: center;
 }
 
 .topbar-spacer {
@@ -85,16 +86,19 @@ ion-content {
   margin: 0;
   margin-bottom: 6px;
   font-weight: 600;
+  text-align: center;
 }
 
 .login-welcome span {
   color: #ffc078;
+  text-align: center;
 }
 
 .login-subtitle {
   margin: 0 0 18px;
   font-size: 0.9rem;
   opacity: 0.85;
+  text-align: center;
 }
 
 /* ===============================
@@ -161,3 +165,4 @@ ion-content {
   font-size: 0.9rem;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
 }
+

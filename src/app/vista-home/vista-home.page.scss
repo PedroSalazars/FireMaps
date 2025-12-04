@@ -1,35 +1,12 @@
-/* ============================================================
-   🔆 TEMA CLARO – BASE FIREMAPS
-============================================================ */
-
-/* Contenido general */
-ion-content {
-  --background: #e7e3e2;
+/* ===============================
+   FONDO GENERAL
   color: #000;
   position: relative;
   font-family: 'Segoe UI', Roboto, sans-serif;
 }
 
-/* HEADER */
-.header-toolbar {
-  --background: #e7e3e2;
-  --color: #000;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.header-title {
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  text-align: center;
-}
-
-/* ============================
-   MAPA
-============================ */
+/* ===============================
+   HEADER PRINCIPAL
 .map-container {
   position: relative;
   width: 100%;
@@ -45,17 +22,10 @@ ion-content {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
 }
 
-/* ============================
-   MODAL REPORTAR
-============================ */
-
-ion-modal::part(content) {
-  background: #e7e3e2;
-  color: #000;
-  border-radius: 18px;
+/* ===============================
+   FAB DE REPORTE
 }
 
-/* Header del modal */
 .modal-header {
   --background: #333;
   --color: #fff;
@@ -77,29 +47,32 @@ ion-modal::part(content) {
 /* Campos del formulario */
 .field {
   margin-bottom: 20px;
-
-  strong {
-    display: block;
-    margin-bottom: 6px;
-    color: #000;
-  }
-
-  .hint {
-    font-size: 13px;
-    color: #000;
-    margin-top: 4px;
-    opacity: 0.75;
-  }
 }
 
-/* Mensajes de error del formulario */
-.error {
-  color: #ff3b30;
-  font-size: 12px;
-  margin-top: 4px;
+.field-label {
+  font-size: 14px;
+  color: #000;
+  margin-bottom: 6px;
 }
 
-/* Selector de tipo de incidente */
+.input-text {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #f5f1f0;
+  font-size: 14px;
+  color: #000;
+}
+
+.input-textarea {
+  font-size: 14px;
+  border-radius: 8px;
+  background: #f5f1f0;
+  color: #000;
+}
+
+/* Botones de tipo de incidente */
 .types {
   display: flex;
   flex-wrap: wrap;
@@ -108,135 +81,51 @@ ion-modal::part(content) {
 }
 
 .type-btn {
-  padding: 8px 14px;
+  flex: 1;
+  padding: 10px 14px;
   border-radius: 999px;
-  background-color: #ff8c42;
-  color: #ffffff;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
+  border: 1px solid #ddd;
+  background-color: #fff;
   font-size: 13px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+  font-weight: 600;
+  color: #444;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .type-btn.sel {
-  background-color: #e6732a;
+  background-color: #ff8c42;
+  color: #fff;
+  border-color: #ff8c42;
 }
 
-/* Inputs / textarea */
-.ubicacion-texto {
-  color: #000;
-  width: 100%;
+/* Mensajes */
+.hint {
+  font-size: 12px;
+  color: #777;
+  margin-top: 4px;
 }
 
-ion-textarea.ubicacion-texto {
-  --background: #f5f1f0;
-  --color: #000;
-  --padding-start: 10px;
-  --padding-end: 10px;
+.error {
+  font-size: 12px;
+  color: #e63946;
+  margin-top: 4px;
 }
 
-/* Input nativo de archivos */
-input[type='file'] {
-  color: #000;
-  font-size: 14px;
-}
-
-/* ============================
-   FAB REPORTAR
-============================ */
-.report-fab {
-  bottom: 24px;
-  right: 24px;
-}
-
-.fab-circle-wrapper {
-  border-radius: 50%;
-  overflow: visible;
-}
-
-/* FAB naranjo pastel tipo Google Maps */
-.report-fab ion-fab-button {
-  --background: #ffc078;
-  --color: #ffffff;
-  font-size: 24px;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.fab-plus {
-  font-size: 32px;
-  line-height: 1;
-  font-weight: 400;
-}
-
-/* ============================
-   FOOTER – PASTILLA DE NAVEGACIÓN
-============================ */
-
-ion-footer {
-  border-top: none;
-}
-
-.footer-toolbar {
-  --background: transparent;
-  padding: 0 0 10px;
-}
-
-/* Contenedor que centra la pastilla */
-.footer-shell {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  padding: 8px 12px 4px;
-  background: #e7e3e2;
-}
-
-/* Pastilla blanca con 3 segmentos */
-.footer-pill {
-  width: 100%;
-  max-width: 420px;
-  background: #ffffff;
-  border-radius: 999px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.20);
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 4px;
-}
-
-/* Botones tipo segmented control */
-.seg-btn {
-  flex: 1;
-  border: none;
-  border-radius: 999px;
-  background: transparent;
-  font-size: 13px;
-  font-weight: 500;
-  color: #333;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-/* Estado activo: Inicio en esta vista */
-.seg-btn.active {
-  background: rgba(255, 192, 120, 0.25);
-  color: #ff8c42;
+/* Botón enviar */
+.submit-btn {
+  --background: #ff8c42;
+  --background-activated: #e6732a;
+  --background-hover: #ffa564;
+  --color: #fff;
+  --border-radius: 999px;
   font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
 }
 
-/* ============================
-   TOAST ESTÉTICO INCIDENTES
-============================ */
+/* ===============================
+   FOOTER
 ion-toast.incident-toast {
   --background: transparent;
   --box-shadow: none;
