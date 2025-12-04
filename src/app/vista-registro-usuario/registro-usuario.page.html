@@ -1,143 +1,163 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <!-- Flecha estilo iPhone SIEMPRE visible -->
-      <ion-button
-        fill="clear"
-        mode="ios"
-        class="back-btn-ios"
-        (click)="goBack()">
-        <ion-icon slot="start" name="chevron-back-outline"></ion-icon>
-        <span>Volver</span>
-      </ion-button>
-    </ion-buttons>
+<ion-content>
 
-    <ion-title>Registrar usuario</ion-title>
-  </ion-toolbar>
-</ion-header>
+  <!-- ======================= -->
+  <!-- HEADER CUSTOM SUPERIOR  -->
+  <!-- ======================= -->
+  <div class="registro-topbar">
 
-<ion-content class="registro-content">
-  <div class="registro-inner">
+    <!-- Botón Back igual que login -->
+    <a
+      class="topbar-back"
+      href="javascript:history.back()"
+    >
+      <span class="back-arrow">←</span>
+      <span class="back-text">Volver</span>
+    </a>
 
-    <form novalidate>
+    <!-- Título centrado -->
+    <div class="topbar-title">
+      Registrar usuario
+    </div>
 
-      <!-- Nombres -->
-      <div class="campo">
-        <label>Nombres</label>
-        <input
-          type="text"
-          [(ngModel)]="nombre"
-          name="nombre"
-          required
-        />
-      </div>
-      <ion-text color="danger" *ngIf="submitted && !nombre">
-        <p>El nombre es obligatorio.</p>
-      </ion-text>
-
-      <!-- Apellidos -->
-      <div class="campo">
-        <label>Apellidos</label>
-        <input
-          type="text"
-          [(ngModel)]="apellidos"
-          name="apellidos"
-          required
-        />
-      </div>
-      <ion-text color="danger" *ngIf="submitted && !apellidos">
-        <p>Los apellidos son obligatorios.</p>
-      </ion-text>
-
-      <!-- RUT -->
-      <div class="campo">
-        <label>RUT</label>
-        <input
-          type="text"
-          [(ngModel)]="rut"
-          name="rut"
-          required
-        />
-      </div>
-      <ion-text color="danger" *ngIf="submitted && !esRutValido(rut)">
-        <p>El RUT ingresado no es válido.</p>
-      </ion-text>
-
-      <!-- Teléfono -->
-      <div class="campo">
-        <label>Teléfono</label>
-        <input
-          type="tel"
-          [(ngModel)]="telefono"
-          name="telefono"
-          required
-        />
-      </div>
-      <ion-text color="danger" *ngIf="submitted && !esTelefonoValido(telefono)">
-        <p>El teléfono ingresado no es válido.</p>
-      </ion-text>
-
-      <!-- Correo -->
-      <div class="campo">
-        <label>Correo</label>
-        <input
-          type="email"
-          [(ngModel)]="correo"
-          name="correo"
-          required
-        />
-      </div>
-      <ion-text color="danger" *ngIf="submitted && !esCorreoBasicoValido(correo)">
-        <p>El correo electrónico ingresado no es válido.</p>
-      </ion-text>
-
-      <!-- Contraseña -->
-      <div class="campo">
-        <label>Contraseña</label>
-        <input
-          type="password"
-          [(ngModel)]="clave"
-          name="clave"
-          required
-        />
-      </div>
-
-      <!-- Confirmar contraseña -->
-      <div class="campo">
-        <label>Confirmar contraseña</label>
-        <input
-          type="password"
-          [(ngModel)]="confirmarClave"
-          name="confirmarClave"
-          required
-        />
-      </div>
-
-      <!-- Error si no coinciden -->
-      <ion-text color="danger" *ngIf="submitted && clave !== confirmarClave">
-        <p>Las contraseñas no coinciden.</p>
-      </ion-text>
-
-      <!-- BOTÓN REGISTRARSE -->
-      <ion-button
-        expand="block"
-        type="button"
-        class="btn-registrar"
-        (click)="registrarUsuario()"
-      >
-        Registrarse
-      </ion-button>
-
-      <!-- ⚠️ MENSAJE GLOBAL DE REGISTRO (ÉXITO/ERROR) -->
-      <ion-text *ngIf="mensajeRegistro">
-        <p
-          class="mensaje-global"
-          [ngClass]="tipoMensajeRegistro === 'ok' ? 'mensaje-exito' : 'mensaje-error'">
-          {{ mensajeRegistro }}
-        </p>
-      </ion-text>
-
-    </form>
-
+    <!-- Espaciador derecho -->
+    <div class="topbar-spacer"></div>
   </div>
+
+  <!-- ======================= -->
+  <!-- CONTENIDO CENTRADO      -->
+  <!-- ======================= -->
+  <div class="registro-wrapper">
+    <div class="registro-inner">
+
+      <h2 class="registro-title">
+        Crear cuenta
+      </h2>
+
+      <p class="registro-subtitle">
+        Completa tus datos para registrarte en FireMaps.
+      </p>
+
+      <form novalidate class="registro-card">
+
+        <!-- Nombres -->
+        <div class="campo">
+          <label>Nombres</label>
+          <input
+            type="text"
+            [(ngModel)]="nombre"
+            name="nombre"
+            required
+          />
+        </div>
+        <ion-text color="danger" *ngIf="submitted && !nombre">
+          <p class="error-text">El nombre es obligatorio.</p>
+        </ion-text>
+
+        <!-- Apellidos -->
+        <div class="campo">
+          <label>Apellidos</label>
+          <input
+            type="text"
+            [(ngModel)]="apellidos"
+            name="apellidos"
+            required
+          />
+        </div>
+        <ion-text color="danger" *ngIf="submitted && !apellidos">
+          <p class="error-text">Los apellidos son obligatorios.</p>
+        </ion-text>
+
+        <!-- RUT -->
+        <div class="campo">
+          <label>RUT</label>
+          <input
+            type="text"
+            [(ngModel)]="rut"
+            name="rut"
+            required
+          />
+        </div>
+        <ion-text color="danger" *ngIf="submitted && !esRutValido(rut)">
+          <p class="error-text">El RUT ingresado no es válido.</p>
+        </ion-text>
+
+        <!-- Teléfono -->
+        <div class="campo">
+          <label>Teléfono</label>
+          <input
+            type="tel"
+            [(ngModel)]="telefono"
+            name="telefono"
+            required
+          />
+        </div>
+        <ion-text color="danger" *ngIf="submitted && !esTelefonoValido(telefono)">
+          <p class="error-text">El teléfono ingresado no es válido.</p>
+        </ion-text>
+
+        <!-- Correo -->
+        <div class="campo">
+          <label>Correo</label>
+          <input
+            type="email"
+            [(ngModel)]="correo"
+            name="correo"
+            required
+          />
+        </div>
+        <ion-text color="danger" *ngIf="submitted && !esCorreoBasicoValido(correo)">
+          <p class="error-text">El correo electrónico ingresado no es válido.</p>
+        </ion-text>
+
+        <!-- Contraseña -->
+        <div class="campo">
+          <label>Contraseña</label>
+          <input
+            type="password"
+            [(ngModel)]="clave"
+            name="clave"
+            required
+          />
+        </div>
+
+        <!-- Confirmar contraseña -->
+        <div class="campo">
+          <label>Confirmar contraseña</label>
+          <input
+            type="password"
+            [(ngModel)]="confirmarClave"
+            name="confirmarClave"
+            required
+          />
+        </div>
+
+        <!-- Error si no coinciden -->
+        <ion-text color="danger" *ngIf="submitted && clave !== confirmarClave">
+          <p class="error-text">Las contraseñas no coinciden.</p>
+        </ion-text>
+
+        <!-- BOTÓN REGISTRARSE -->
+        <ion-button
+          expand="block"
+          type="button"
+          class="btn-registrar"
+          (click)="registrarUsuario()"
+        >
+          Registrarse
+        </ion-button>
+
+        <!-- ⚠️ MENSAJE GLOBAL DE REGISTRO (ÉXITO/ERROR) -->
+        <ion-text *ngIf="mensajeRegistro">
+          <p
+            class="mensaje-global"
+            [ngClass]="tipoMensajeRegistro === 'ok' ? 'mensaje-exito' : 'mensaje-error'">
+            {{ mensajeRegistro }}
+          </p>
+        </ion-text>
+
+      </form>
+
+    </div>
+  </div>
+
 </ion-content>
