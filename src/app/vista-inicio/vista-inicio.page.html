@@ -12,9 +12,9 @@
           alt="FireMaps logo"
         />
 
-        <h1 class="app-title">FireMaps</h1>
+        <h1 class="app-title">{{ 'APP.NAME' | translate }}</h1>
         <p class="app-subtitle">
-          Chiloé · Bomberos &amp; Emergencias
+          {{ 'HOME.SUBTITLE' | translate }}
         </p>
       </div>
 
@@ -25,7 +25,7 @@
           class="btn-primary"
           routerLink="/vista-registro-usuario"
         >
-          {{ 'REGISTER' | translate }}
+          {{ 'REGISTER.BUTTON' | translate }}
         </ion-button>
 
         <ion-button
@@ -35,13 +35,13 @@
           fill="outline"
           routerLink="/vista-login"
         >
-          {{ 'LOGIN' | translate }}
+          {{ 'LOGIN.BUTTON' | translate }}
         </ion-button>
       </div>
     </div>
 
     <div class="inicio-footer">
-      <p>Proyecto de Título · Duoc UC · FireMaps Chiloé</p>
+      <p>{{ 'HOME.FOOTER' | translate }}</p>
     </div>
 
   </div>

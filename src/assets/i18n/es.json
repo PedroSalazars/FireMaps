@@ -1,41 +1,81 @@
 {
-  "SETTINGS_TITLE": "Ajustes",
-  "SETTINGS_MAP_TYPE": "Tipo de mapa",
-  "SETTINGS_GEOLOCATION": "Geolocalización",
-  "SETTINGS_THEME": "Tema",
-  "SETTINGS_LANGUAGE": "Idioma",
-  "SAVE_SETTINGS": "Guardar ajustes",
-
-  "LANGUAGE": "Idioma",
-  "MAP_TYPE": "Tipo de mapa",
-  "GEOLOCATION": "Geolocalización",
-  "DISPLAY_PREFS": "Preferencias de visualización",
-  "LIGHT": "Claro",
-  "DARK": "Oscuro",
-  "SETTINGS": "Ajustes",
-  "LOGOUT": "Cerrar sesión",
-  "VERSION": "Versión",
-
-  "REGISTER": "Registrar",
-  "LOGIN": "Iniciar sesión",
-  "GUEST_ACCESS": "Continuar como invitado",
-
-  "REGISTER_USER": "Registrar usuario",
-  "NAME": "Nombre",
-  "LASTNAME": "Apellido",
-  "RUT": "RUT",
-  "PHONE": "Teléfono",
-  "EMAIL": "Correo",
-  "PASSWORD": "Contraseña",
-  "CONFIRM_PASSWORD": "Confirmar contraseña",
-
-  "ERROR_NAME_REQUIRED": "El nombre es obligatorio.",
-  "ERROR_LASTNAME_REQUIRED": "El apellido es obligatorio.",
-  "ERROR_RUT_INVALID": "Formato de RUT inválido. Ejemplo: 12.345.678-9",
-  "ERROR_PHONE_INVALID": "El teléfono debe tener 9 dígitos y comenzar con 9.",
-  "ERROR_EMAIL_INVALID": "Correo inválido. Debe contener '@' y un dominio.",
-  "ERROR_PASSWORD_MISMATCH": "Las contraseñas no coinciden.",
-
-  "LOGIN_TITLE": "Iniciar sesión",
-  "LOGIN_BUTTON": "Entrar"
+  "SETTINGS": {
+    "TITLE": "Ajustes",
+    "MAP_TYPE": "Tipo de mapa",
+    "GOOGLE": "Google Maps",
+    "OSM": "OpenStreetMap",
+    "GEOLOCATION": "Geolocalización",
+    "ENABLED": "Activada",
+    "DISABLED": "Desactivada",
+    "THEME": "Tema",
+    "LIGHT": "Claro",
+    "DARK": "Oscuro",
+    "LANGUAGE": "Idioma",
+    "SPANISH": "Español",
+    "ENGLISH": "Inglés",
+    "SAVE": "Guardar Ajustes",
+    "LOGOUT": "Cerrar Sesión"
+  },
+  "LOGIN": {
+    "BACK": "Volver",
+    "TITLE": "Iniciar Sesión",
+    "WELCOME": "Bienvenido a",
+    "SUBTITLE": "Accede con tus credenciales",
+    "EMAIL": "Correo electrónico",
+    "EMAIL_PLACEHOLDER": "Ingrese su correo",
+    "PASSWORD": "Contraseña",
+    "PASSWORD_PLACEHOLDER": "Ingrese su contraseña",
+    "BUTTON": "Entrar",
+    "LOADING": "Cargando...",
+    "ERROR_FIELDS_REQUIRED": "Por favor completa todos los campos.",
+    "ERROR_EMAIL_INVALID": "El correo no es válido.",
+    "ERROR_NO_PROFILE": "No se encontró perfil asociado a este usuario.",
+    "ERROR_GENERIC": "No se pudo iniciar sesión.",
+    "ERROR_USER_NOT_FOUND": "Correo no registrado.",
+    "ERROR_WRONG_PASSWORD": "Contraseña incorrecta.",
+    "ERROR_TOO_MANY_REQUESTS": "Demasiados intentos, intenta más tarde.",
+    "ERROR_INVALID_EMAIL": "Correo inválido.",
+    "ERROR_BOMBERO_PASSWORD": "La clave para bomberos debe ser FireMaps2025."
+  },
+  "REGISTER": {
+    "BACK": "Volver",
+    "TITLE": "Registrar usuario",
+    "CREATE_ACCOUNT": "Crear cuenta",
+    "SUBTITLE": "Completa tus datos para registrarte en FireMaps.",
+    "NAME": "Nombres",
+    "LASTNAME": "Apellidos",
+    "RUT": "RUT",
+    "PHONE": "Teléfono",
+    "EMAIL": "Correo",
+    "PASSWORD": "Contraseña",
+    "CONFIRM_PASSWORD": "Confirmar contraseña",
+    "BUTTON": "Registrarse",
+    "ERROR_NAME_REQUIRED": "El nombre es obligatorio.",
+    "ERROR_LASTNAME_REQUIRED": "Los apellidos son obligatorios.",
+    "ERROR_RUT_INVALID": "El RUT ingresado no es válido.",
+    "ERROR_PHONE_INVALID": "El teléfono ingresado no es válido.",
+    "ERROR_EMAIL_INVALID": "El correo electrónico ingresado no es válido.",
+    "ERROR_PASSWORD_MATCH": "Las contraseñas no coinciden."
+  },
+  "HOME": {
+    "TITLE": "Inicio",
+    "WELCOME": "Bienvenido a FireMaps",
+    "SUBTITLE": "Chiloé · Bomberos & Emergencias",
+    "FOOTER": "Duoc UC · FireMaps Chiloé"
+  },
+  "ADMIN": {
+    "TITLE": "Administración de Bomberos",
+    "BOMBERO_LIST": "Lista de Bomberos",
+    "NEW_BOMBERO": "Agregar Nuevo Bombero",
+    "ADD": "Agregar",
+    "DELETE": "Eliminar"
+  },
+  "ERROR": {
+    "EMAIL_INVALID": "Correo inválido",
+    "PASSWORD_REQUIRED": "La contraseña es obligatoria"
+  },
+  "APP": {
+    "NAME": "FireMaps"
+  }
+  
 }
