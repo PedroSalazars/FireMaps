@@ -1,32 +1,48 @@
-<ion-content class="ion-padding ion-text-center inicio-content">
+<ion-content class="inicio-content">
 
-  <div class="logo-container">
-    <h2 class="app-title">FireMaps</h2>
+  <div class="inicio-wrapper">
 
-    <!-- Logo de FireMaps -->
-    <img
-      class="logo"
-      src="assets/img/Logo_FireMaps.png"
-      alt="FireMaps logo"
-    />
+    <!-- Tarjeta principal -->
+    <div class="logo-card">
+
+      <div class="logo-container">
+        <img
+          class="logo"
+          src="assets/icons/Newlogo.png"
+          alt="FireMaps logo"
+        />
+
+        <h1 class="app-title">FireMaps</h1>
+        <p class="app-subtitle">
+          Chiloé · Bomberos &amp; Emergencias
+        </p>
+      </div>
+
+      <div class="botones">
+        <ion-button
+          expand="block"
+          size="large"
+          class="btn-primary"
+          routerLink="/vista-registro-usuario"
+        >
+          {{ 'REGISTER' | translate }}
+        </ion-button>
+
+        <ion-button
+          expand="block"
+          size="large"
+          class="btn-secondary"
+          fill="outline"
+          routerLink="/vista-login"
+        >
+          {{ 'LOGIN' | translate }}
+        </ion-button>
+      </div>
+    </div>
+
+    <div class="inicio-footer">
+      <p>Proyecto de Título · Duoc UC · FireMaps Chiloé</p>
+    </div>
+
   </div>
-
-
-  <div class="botones">
-    <ion-button
-      expand="block"
-      routerLink="/vista-registro-usuario"
-    >
-      {{ 'REGISTER' | translate }}
-    </ion-button>
-
-    <ion-button
-      expand="block"
-      routerLink="/vista-login"
-      color="warning"
-    >
-      {{ 'LOGIN' | translate }}
-    </ion-button>
-  </div>
-
 </ion-content>

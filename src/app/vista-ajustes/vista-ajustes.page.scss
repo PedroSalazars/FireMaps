@@ -1,122 +1,213 @@
+/* ============================================================
+   🔆 TEMA CLARO (BASE)
+============================================================ */
 ion-content {
   --background: #E7E3E2;
-  color: #000 ;
+  color: #000;
   padding: 16px;
 }
 
-/* Header personalizado */
+.page-inner {
+  padding: 1rem;
+  padding-top: 18px;
+}
+
+/* Tarjetas */
+.card {
+  background: #ffffff;
+  border-radius: 14px;
+  margin-bottom: 1rem;
+  padding: 14px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+.card-label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #333;
+  font-size: 14px;
+}
+
+/* Dropdowns y toggle */
+.dropdown,
+.toggle-box {
+  background: #f5f5f5;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  color: #000;
+}
+
+.dropdown:hover,
+.toggle-box:hover {
+  background: #eaeaea;
+}
+
+.dropdown-options {
+  margin-top: 6px;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.13);
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+}
+
+.dropdown-options div {
+  padding: 10px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.dropdown-options div:hover {
+  background: #f1f1f1;
+}
+
+/* Info box */
+.info-box {
+  display: flex;
+  align-items: center;
+  background: #efefef;
+  border-radius: 12px;
+  padding: 0.9rem;
+  margin: 1rem 0;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+.info-box ion-icon {
+  margin-right: 0.6rem;
+  font-size: 1.3rem;
+  color: #ff9800;
+}
+
+.info-box span {
+  color: #444;
+  font-size: 14px;
+}
+
+/* Botones */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 22px;
+}
+
+.btn-main {
+  background: #ff9800;
+  color: #ffffff;
+  border-radius: 12px;
+  font-weight: bold;
+  padding: 0.9rem;
+  box-shadow: 0 5px 12px rgba(0,0,0,0.25);
+  letter-spacing: 0.5px;
+}
+
+.btn-main:active {
+  transform: translateY(1px);
+}
+
+.btn-danger {
+  background: #d93025;
+  color: #fff;
+  border-radius: 12px;
+  font-weight: bold;
+  padding: 0.9rem;
+  box-shadow: 0 5px 12px rgba(0,0,0,0.25);
+  letter-spacing: 0.5px;
+}
+
+.btn-danger:active {
+  transform: translateY(1px);
+}
+
+/* Header */
 ion-header {
   ion-toolbar {
     --background: #E7E3E2;
     --color: #000;
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   }
 
   ion-title {
     color: #000;
     font-weight: bold;
-    font-size: 20px;
-  }
-
-  ion-back-button {
-    --color: #000;
   }
 }
 
-/* Estilo de los ítems */
-ion-item {
-  --background: transparent;
-  --color: #000;
-  border-radius: 8px;
-  border: 1px solid #444;
-  margin-bottom: 12px;
-  padding: 4px 8px;
-}
-
-ion-label {
-  color: #000;
-  font-weight: 500;
-}
-
-/* Select y toggle */
-ion-select,
-ion-toggle {
-  color: #000;
-}
-
-/* Botón de cerrar sesión */
-ion-button[color="danger"] {
-  margin-top: 20px;
-  --background: #f44336;
-  --color: #ffffff;
-  --border-radius: 8px;
-  font-weight: bold;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-}
-
-/* Versión */
-ion-item[lines="none"] ion-label {
-  color: #888;
-  font-size: 14px;
-  text-align: center;
-  width: 100%;
-}
-
-.page-inner {
-  padding: 1rem;
-}
-
-.card {
-  background: #fff;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-.card-header {
-  font-weight: bold;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid #ddd;
-}
-
-.card-body {
-  padding: 1rem;
-}
-
-.info-box {
-  display: flex;
-  align-items: center;
-  background: #f1f1f1;
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 1rem 0;
-}
-
-.info-box ion-icon {
-  margin-right: 0.5rem;
-}
-
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.btn-main, .btn-danger {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  border-radius: 6px;
-  font-weight: bold;
-}
-
-.btn-main {
-  background: var(--ion-color-primary);
+/* ============================================================
+   🌙 TEMA OSCURO (cuando <body> tiene .dark)
+   Usamos :host-context(.dark) para que Angular no rompa estilos
+============================================================ */
+:host-context(.dark) ion-content {
+  --background: linear-gradient(180deg, #10151f 0%, #1f2430 45%, #252a36 100%);
   color: #fff;
 }
 
-.btn-danger {
-  background: var(--ion-color-danger);
+:host-context(.dark) ion-header ion-toolbar {
+  --background: #181d28;
+  --color: #fff;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.45);
+}
+
+:host-context(.dark) ion-header ion-title {
   color: #fff;
+}
+
+/* Tarjetas en oscuro */
+:host-context(.dark) .card {
+  background: rgba(15, 19, 30, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.45);
+}
+
+:host-context(.dark) .card-label {
+  color: #ffc078;
+}
+
+/* Dropdowns en oscuro */
+:host-context(.dark) .dropdown,
+:host-context(.dark) .toggle-box {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+:host-context(.dark) .dropdown:hover,
+:host-context(.dark) .toggle-box:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+:host-context(.dark) .dropdown-options {
+  background: rgba(15, 19, 30, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+}
+
+:host-context(.dark) .dropdown-options div:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Info box oscuro */
+:host-context(.dark) .info-box {
+  background: rgba(15, 19, 30, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.35);
+}
+
+:host-context(.dark) .info-box ion-icon {
+  color: #ffc078;
+}
+
+:host-context(.dark) .info-box span {
+  color: #ddd;
+}
+
+/* Botón principal en oscuro */
+:host-context(.dark) .btn-main {
+  background: #ffc078;
+  color: #232323;
 }
