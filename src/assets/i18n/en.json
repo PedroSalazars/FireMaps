@@ -58,6 +58,25 @@
     "ERROR_EMAIL_INVALID": "The entered email is not valid.",
     "ERROR_PASSWORD_MATCH": "Passwords do not match."
   },
+  "BOMBERO": {
+    "TITLE": "Firefighter",
+    "GREETING": "Hello Firefighter",
+    "EMAIL": "Email",
+    "ROLE": "Role",
+    "NOTICE": "Check your notifications to access emergency information",
+    "NO_USER": "No user information found",
+    "HERO_GREETING": "Hello, firefighter",
+    "HERO_COMPANY": "Assigned Fire Company",
+    "ACTIVE_EMERGENCY": "Active emergency",
+    "JUST_NOW": "A few minutes ago",
+    "DEFAULT_TITLE": "Structural fire – Castro",
+    "DEFAULT_DESC": "Active focus in urban area.",
+    "PRIORITY": "Priority",
+    "DEFAULT_PRIORITY": "High",
+    "GO_TO_MAP": "Go to emergency map",
+    "NOTIFICATIONS_INFO": "Your recent notifications are in the Notifications tab of the bottom bar."
+  },
+  
   "HOME": {
     "TITLE": "Home",
     "WELCOME": "Welcome to FireMaps",
@@ -77,5 +96,10 @@
   },
   "APP": {
     "NAME": "FireMaps"
+  },  
+  "FOOTER": {
+    "NOTIFICATIONS": "Notifications",
+    "HOME": "Home",
+    "SETTINGS": "Settings"
   }
 }

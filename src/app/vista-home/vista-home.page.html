@@ -4,10 +4,10 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content fullscreen="true">
+<ion-content fullscreen="true" class="page-background">
   <!-- Contenedor del mapa -->
   <div class="map-container">
-    <div id="map"></div>
+    <div id="map" class="map-box"></div>
 
     <!-- FAB de reporte -->
     <ion-fab
@@ -16,17 +16,15 @@
       vertical="bottom"
       horizontal="end">
       <div class="fab-circle-wrapper">
-        <ion-fab-button aria-label="Reportar" (click)="openReportModal()">
-          <!-- Símbolo + explícito dentro del FAB -->
+        <ion-fab-button aria-label="Reportar" class="fab-btn" (click)="openReportModal()">
           <span class="fab-plus">+</span>
         </ion-fab-button>
       </div>
     </ion-fab>
-
   </div>
 
   <!-- Modal Reportar incidente -->
-  <ion-modal [isOpen]="reportOpen" (didDismiss)="closeReportModal()">
+  <ion-modal [isOpen]="reportOpen" (didDismiss)="closeReportModal()" class="report-modal">
     <ng-template>
       <ion-header class="modal-header">
         <ion-toolbar class="modal-toolbar">
@@ -39,110 +37,44 @@
         </ion-toolbar>
       </ion-header>
 
-      <ion-content class="ion-padding">
+      <ion-content class="modal-content ion-padding">
         <!-- Ubicación -->
         <div class="field">
-          <div class="ubicacion-texto">
-            <strong>Ubicación</strong>
-          </div>
+          <div class="field-label"> <strong>Ubicación</strong> </div>
           <div class="hint">
-            Ingresa la dirección del incidente. Las búsquedas están limitadas a
-            Chiloé, Chile.
+            Ingresa la dirección del incidente. Las búsquedas están limitadas a Chiloé, Chile.
           </div>
         </div>
 
         <!-- Tipo de incidente -->
         <div class="field">
-          <div><strong>Tipo</strong></div>
+          <div class="field-label"><strong>Tipo</strong></div>
           <div class="types">
-            <button
-              class="type-btn"
-              [class.sel]="reportType === 'Incendio'"
-              (click)="setReportType('Incendio')">
-              Incendio
-            </button>
-            <button
-              class="type-btn"
-              [class.sel]="reportType === 'FuGas'"
-              (click)="setReportType('FuGas')">
-              FuGas
-            </button>
-            <button
-              class="type-btn"
-              [class.sel]="reportType === 'rescate'"
-              (click)="setReportType('rescate')">
-              Rescate
-            </button>
-            <button
-              class="type-btn"
-              [class.sel]="reportType === 'choque'"
-              (click)="setReportType('choque')">
-              Choque
-            </button>
+            <button class="type-btn" [class.sel]="reportType === 'Incendio'" (click)="setReportType('Incendio')">Incendio</button>
+            <button class="type-btn" [class.sel]="reportType === 'FuGas'" (click)="setReportType('FuGas')">FuGas</button>
+            <button class="type-btn" [class.sel]="reportType === 'rescate'" (click)="setReportType('rescate')">Rescate</button>
+            <button class="type-btn" [class.sel]="reportType === 'choque'" (click)="setReportType('choque')">Choque</button>
           </div>
           <div class="hint">La prioridad se ajusta automáticamente según el tipo.</div>
-          <div class="error" *ngIf="formErrors.type">
-            {{ formErrors.type }}
-          </div>
+          <div class="error" *ngIf="formErrors.type">{{ formErrors.type }}</div>
         </div>
 
         <!-- Dirección -->
         <div class="field">
-          <div><strong>Dirección</strong></div>
-          <input
-            id="report-address-input"
-            class="ubicacion-texto"
-            type="text"
-            placeholder="Ej: Avenida Galvarino Riveros, Castro"
-            [(ngModel)]="reportAddress" />
-          <div class="hint">
-            Escribe y selecciona una opción de la lista (buscador de Google).
-          </div>
-          <div class="error" *ngIf="formErrors.address">
-            {{ formErrors.address }}
-          </div>
+          <div class="field-label"><strong>Dirección</strong></div>
+          <input id="report-address-input" class="input-text" type="text" placeholder="Ej: Avenida Galvarino Riveros, Castro" [(ngModel)]="reportAddress" />
+          <div class="hint">Escribe y selecciona una opción de la lista (buscador de Google).</div>
+          <div class="error" *ngIf="formErrors.address">{{ formErrors.address }}</div>
         </div>
 
         <!-- Descripción -->
         <div class="field">
-          <div class="ubicacion-texto">
-            <strong>Descripción breve</strong> (opcional, máx. 200 caracteres)
-          </div>
-          <ion-textarea
-            class="ubicacion-texto"
-            fill="outline"
-            [rows]="3"
-            maxlength="200"
-            placeholder="Ej: Humo denso saliendo de vivienda"
-            [(ngModel)]="reportNotes">
-          </ion-textarea>
-          <div class="error" *ngIf="formErrors.notes">
-            {{ formErrors.notes }}
-          </div>
+          <div class="field-label"><strong>Descripción breve</strong> (opcional, máx. 200 caracteres)</div>
+          <ion-textarea class="input-textarea" fill="outline" [rows]="3" maxlength="200" placeholder="Ej: Humo denso saliendo de vivienda" [(ngModel)]="reportNotes"></ion-textarea>
+          <div class="error" *ngIf="formErrors.notes">{{ formErrors.notes }}</div>
         </div>
 
-        <!-- Fotos -->
-        <div class="field">
-          <div class="ubicacion-texto">
-            <strong>Fotos</strong> (1 a 3)
-          </div>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            (change)="onFilesSelected($event)" />
-          <div class="hint" *ngIf="selectedFiles.length">
-            Seleccionadas: {{ selectedFiles.length }}
-          </div>
-          <div class="error" *ngIf="formErrors.photos">
-            {{ formErrors.photos }}
-          </div>
-        </div>
-
-        <ion-button
-          expand="block"
-          [disabled]="!canSubmitReport()"
-          (click)="submitReport()">
+        <ion-button expand="block" class="submit-btn" [disabled]="!canSubmitReport()" (click)="submitReport()">
           Enviar reporte
         </ion-button>
       </ion-content>
@@ -151,17 +83,11 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar>
+  <ion-toolbar class="footer-toolbar">
     <div class="footer-buttons">
-      <ion-button fill="outline" [routerLink]="['/vista-inicio']">
-        Inicio
-      </ion-button>
-      <ion-button fill="outline" [routerLink]="['/vista-ajustes']">
-        Ajustes
-      </ion-button>
-      <ion-button fill="outline" [routerLink]="['/vista-login']">
-        Salir
-      </ion-button>
+      <ion-button fill="outline" class="footer-btn" [routerLink]="['/vista-inicio']">Inicio</ion-button>
+      <ion-button fill="outline" class="footer-btn" [routerLink]="['/vista-ajustes']">Ajustes</ion-button>
+      <ion-button fill="outline" class="footer-btn" [routerLink]="['/vista-login']">Salir</ion-button>
     </div>
   </ion-toolbar>
 </ion-footer>

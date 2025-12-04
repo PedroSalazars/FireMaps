@@ -1,10 +1,34 @@
+/* ===============================
+   FONDO GENERAL
+================================ */
 ion-content {
   --background: #E7E3E2;
-  color: black;
+  color: #000;
   position: relative;
+  font-family: 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Mapa responsivo */
+/* ===============================
+   HEADER PRINCIPAL
+================================ */
+.header-toolbar {
+  --background: #E7E3E2;
+  --color: #000;
+  border-bottom: 2px solid #000;
+}
+
+.header-title {
+  color: #000;
+  font-weight: bold;
+  font-size: 22px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ===============================
+   MAPA
+================================ */
 .map-container {
   position: relative;
   width: 100%;
@@ -20,14 +44,49 @@ ion-content {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
-/* Modal */
+/* ===============================
+   FAB DE REPORTE
+================================ */
+.report-fab {
+  bottom: 24px;
+  right: 24px;
+}
+
+.fab-circle-wrapper {
+  border-radius: 50%;
+  overflow: visible;
+}
+
+.report-fab ion-fab-button {
+  --background: #ffc078;
+  --color: #ffffff;
+
+  font-size: 24px;
+  width: 60px;
+  height: 60px;
+
+  border-radius: 50%;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.report-fab ion-icon {
+  color: #ffffff;
+  font-size: 26px;
+}
+
+/* ===============================
+   MODAL DE REPORTE
+================================ */
 ion-modal::part(content) {
   background: #E7E3E2;
-  color: black;
+  color: #000;
   border-radius: 12px;
 }
 
-/* Header del modal */
 .modal-header {
   --background: #333;
   --color: #fff;
@@ -49,28 +108,32 @@ ion-modal::part(content) {
 /* Campos del formulario */
 .field {
   margin-bottom: 20px;
-
-  strong {
-    display: block;
-    margin-bottom: 6px;
-    color: #000;
-  }
-
-  .hint {
-    font-size: 13px;
-    color: #000;
-    margin-top: 4px;
-  }
 }
 
-/* Mensajes de error del formulario */
-.error {
-  color: #ff3b30;
-  font-size: 12px;
-  margin-top: 4px;
+.field-label {
+  font-size: 14px;
+  color: #000;
+  margin-bottom: 6px;
 }
 
-/* Botones del selector de tipo de incidente */
+.input-text {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #f5f1f0;
+  font-size: 14px;
+  color: #000;
+}
+
+.input-textarea {
+  font-size: 14px;
+  border-radius: 8px;
+  background: #f5f1f0;
+  color: #000;
+}
+
+/* Botones de tipo de incidente */
 .types {
   display: flex;
   flex-wrap: wrap;
@@ -79,125 +142,89 @@ ion-modal::part(content) {
 }
 
 .type-btn {
+  flex: 1;
   padding: 10px 14px;
-  border-radius: 6px;
-  background-color: #ff9800;
-  color: #ffffff;
-  font-weight: bold;
+  border-radius: 999px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
   cursor: pointer;
-  border: none;
+  transition: all 0.2s ease;
 }
 
 .type-btn.sel {
-  background-color: #e67e00;
+  background-color: #ff8c42;
+  color: #fff;
+  border-color: #ff8c42;
 }
 
-/* Footer */
+/* Mensajes */
+.hint {
+  font-size: 12px;
+  color: #777;
+  margin-top: 4px;
+}
+
+.error {
+  font-size: 12px;
+  color: #e63946;
+  margin-top: 4px;
+}
+
+/* Botón enviar */
+.submit-btn {
+  --background: #ff8c42;
+  --background-activated: #e6732a;
+  --background-hover: #ffa564;
+  --color: #fff;
+  --border-radius: 999px;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+
+/* ===============================
+   FOOTER
+================================ */
+ion-footer {
+  border-top: 1px solid #e0dcd9;
+}
+
+.footer-toolbar {
+  --background: #E7E3E2;
+  padding: 6px 12px 12px;
+}
+
 .footer-buttons {
   display: flex;
-  justify-content: space-around;
-  width: 100%;
-  padding: 10px 0;
+  gap: 8px;
 }
 
-ion-footer ion-toolbar {
-  --background: #E7E3E2;
-  --color: black;
+.footer-btn {
+  flex: 1;
+  --border-radius: 999px;
+  font-weight: 600;
+  font-size: 13px;
 }
 
-/* Header principal */
-.header-toolbar {
-  --background: #E7E3E2;
-  --color: #000;
-  border-bottom: 2px solid #000;
-}
-
-.header-title {
-  color: #000;
-  font-weight: bold;
-  font-size: 22px;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-/* Inputs y texto del formulario */
-.ubicacion-texto {
-  color: #000;
-}
-
-ion-input.ubicacion-texto,
-ion-textarea.ubicacion-texto {
-  --background: #f5f1f0;
-  --color: #000;
-  --padding-start: 10px;
-  --padding-end: 10px;
-}
-
-/* Input nativo de archivos */
-input[type='file'] {
-  color: #000;
-  font-size: 14px;
-}
-
-/* Posición del botón FAB de reporte */
-.report-fab {
-  bottom: 24px;
-  right: 24px;
-}
-
-/* Contenedor del FAB */
-.fab-circle-wrapper {
-  border-radius: 50%;
-  overflow: visible;
-}
-
-/* Estilo específico del FAB de reporte
-   – Color naranjo pastel
-   – Icono blanco
-   – Tamaño fijo y forma circular
-   – Sombra suave tipo FAB */
-.report-fab ion-fab-button {
-  --background: #ffc078;
-  --color: #ffffff;
-
-  font-size: 24px;
-  width: 60px;
-  height: 60px;
-
-  border-radius: 50%;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Refuerzo del color del icono por si existe alguna regla global adicional */
-.report-fab ion-icon {
-  color: #ffffff;
-  font-size: 26px;
-}
-
-/* ---------------------------------------------------
-   TOAST ESTÉTICO PARA INCIDENTES (incident-toast)
-   --------------------------------------------------- */
-
-/* Quitamos el fondo por defecto del ion-toast */
+/* ===============================
+   TOAST ESTÉTICO
+================================ */
 ion-toast.incident-toast {
-  --background: transparent;      /* fondo transparente para que se vea solo la tarjeta */
+  --background: transparent;
   --box-shadow: none;
   --color: #000;
 }
 
-/* Contenedor interno del toast: tarjeta blanca redondeada */
 ion-toast.incident-toast .toast-container {
   background: #ffffff;
   color: #000000;
   border-radius: 12px;
 
   padding: 12px 16px;
-  margin: 0 16px 32px;            /* separarlo de los bordes y del bottom */
+  margin: 0 16px 32px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 
   text-align: center;
@@ -207,7 +234,6 @@ ion-toast.incident-toast .toast-container {
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-/* Por si Ionic usa botón dentro del toast */
 ion-toast.incident-toast .toast-button {
   color: #f27b13;
   font-weight: 600;

@@ -56,12 +56,30 @@
     "ERROR_PHONE_INVALID": "El teléfono ingresado no es válido.",
     "ERROR_EMAIL_INVALID": "El correo electrónico ingresado no es válido.",
     "ERROR_PASSWORD_MATCH": "Las contraseñas no coinciden."
+  },  
+  "BOMBERO": {
+    "TITLE": "Bombero",
+    "GREETING": "Hola Bombero",
+    "EMAIL": "Correo",
+    "ROLE": "Rol",
+    "NOTICE": "Revisa tus notificaciones para acceder a la información de las emergencias",
+    "NO_USER": "No se encontró información del usuario",
+    "HERO_GREETING": "Hola, bombero",
+    "HERO_COMPANY": "Compañía de Bomberos asignada",
+    "ACTIVE_EMERGENCY": "Emergencia activa",
+    "JUST_NOW": "Hace unos minutos",
+    "DEFAULT_TITLE": "Incendio estructural – Castro",
+    "DEFAULT_DESC": "Foco activo en zona urbana.",
+    "PRIORITY": "Prioridad",
+    "DEFAULT_PRIORITY": "Alta",
+    "GO_TO_MAP": "Ir al mapa de la emergencia",
+    "NOTIFICATIONS_INFO": "Tus notificaciones recientes se encuentran en la pestaña Notificaciones de la barra inferior."
   },
   "HOME": {
     "TITLE": "Inicio",
     "WELCOME": "Bienvenido a FireMaps",
     "SUBTITLE": "Chiloé · Bomberos & Emergencias",
-    "FOOTER": "Duoc UC · FireMaps Chiloé"
+    "FOOTER": "Proyecto de Título · Duoc UC · FireMaps Chiloé"
   },
   "ADMIN": {
     "TITLE": "Administración de Bomberos",
@@ -76,6 +94,11 @@
   },
   "APP": {
     "NAME": "FireMaps"
+  },
+  "FOOTER": {
+    "NOTIFICATIONS": "Notificaciones",
+    "HOME": "Inicio",
+    "SETTINGS": "Ajustes"
   }
   
 }
