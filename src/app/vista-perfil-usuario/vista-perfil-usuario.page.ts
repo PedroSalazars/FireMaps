@@ -9,13 +9,13 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase-config';
 
 @Component({
-  selector: 'app-vista-perfil',
+  selector: 'app-vista-perfil-usuario',
   standalone: true,
-  templateUrl: './vista-perfil.page.html',
-  styleUrls: ['./vista-perfil.page.scss'],
+  templateUrl: './vista-perfil-usuario.page.html',
+  styleUrls: ['./vista-perfil-usuario.page.scss'],
   imports: [CommonModule, IonicModule, TranslateModule]
 })
-export class VistaPerfilPage implements OnInit {
+export class VistaPerfilUsuarioPage implements OnInit {
 
   usuario: any = null;
   tipoPerfil: 'usuario' | 'bombero' | null = null;
@@ -67,19 +67,22 @@ export class VistaPerfilPage implements OnInit {
   }
 
   goToNotificaciones() {
-    this.router.navigate(['/vista-notificaciones']);
+    const auth = getAuth();
+    auth.signOut().then(() => {
+      this.router.navigate(['/vista-inicio']);
+    });
   }
 
   goToHome() {
-    this.router.navigate(['/vista-bombero']);
+    this.router.navigate(['/vista-home']);
   }
 
   goToAjustes() {
     this.router.navigate(['/vista-ajustes']);
   }
 
-  goToPerfil() {
-    this.router.navigate(['/vista-perfil']);
+    goToPerfil() {
+    this.router.navigate(['/vista-perfil-usuario']);
   }
 
   cerrarSesion() {
