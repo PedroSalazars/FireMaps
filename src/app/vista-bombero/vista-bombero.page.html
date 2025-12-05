@@ -1,89 +1,128 @@
+<ion-content>
 
+  <!-- TOPBAR -->
+  <div class="bombero-topbar">
+    <div class="topbar-title">
+      {{ 'BOMBERO.TITLE' | translate }}
+    </div>
+  </div>
 
-<ion-content class="page-background">
+  <!-- SI HAY USUARIO -->
   <ng-container *ngIf="usuario; else noUsuario">
-    <!-- HERO SUPERIOR -->
-    <div class="hero">
-      <div class="hero-icon">
-        <ion-icon name="flame-outline"></ion-icon>
-      </div>
-      <div class="hero-text">
-        <div class="hero-greeting">{{ 'BOMBERO.HERO_GREETING' | translate }}</div>
-        <div class="hero-name">{{ usuario.nombre }}</div>
-        <div class="hero-subtitle">
-          {{ usuario.compania || ( 'BOMBERO.HERO_COMPANY' | translate ) }}
-        </div>
-        <div class="hero-info">
-          <span>{{ usuario.correo }}</span>
-          <span class="dot">•</span>
-          <span>{{ 'BOMBERO.ROLE' | translate }}: {{ usuario.rol || 'bombero' }}</span>
-        </div>
-      </div>
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <div class="page-inner">
-      <!-- EMERGENCIA ACTIVA -->
-      <div class="card card-emergency" *ngIf="emergenciaActiva">
-        <div class="card-header">
-          <div class="badge-danger">{{ 'BOMBERO.ACTIVE_EMERGENCY' | translate }}</div>
-          <div class="time">
-            {{ emergenciaActiva.hace || ( 'BOMBERO.JUST_NOW' | translate ) }}
+    <div class="bombero-wrapper">
+
+      <!-- HERO -->
+      <div class="hero">
+        <div class="hero-icon">
+          <ion-icon name="flame-outline"></ion-icon>
+        </div>
+
+        <div class="hero-text">
+          <div class="hero-greeting">
+            {{ 'BOMBERO.HERO_GREETING' | translate }}
           </div>
 
-        <div class="card-title">
-          {{ emergenciaActiva.titulo || ( 'BOMBERO.DEFAULT_TITLE' | translate ) }}
-        </div>
+          <div class="hero-name">
+            {{ usuario.nombre }}
+          </div>
 
-        <div class="card-text">
-          {{ emergenciaActiva.descripcion || ( 'BOMBERO.DEFAULT_DESC' | translate ) }}
-        </div>
+          <div class="hero-subtitle">
+            {{ usuario.compania || ( 'BOMBERO.HERO_COMPANY' | translate ) }}
+          </div>
 
-        <div class="priority">
-          {{ 'BOMBERO.PRIORITY' | translate }}:
-          <span>{{ emergenciaActiva.prioridad || ( 'BOMBERO.DEFAULT_PRIORITY' | translate ) }}</span>
+          <div class="hero-info">
+            <span>{{ usuario.correo }}</span>
+            <span class="dot">•</span>
+            <span>
+              {{ 'BOMBERO.ROLE' | translate }}:
+              {{ usuario.rol || 'bombero' }}
+            </span>
+          </div>
         </div>
-
-        <button class="btn-main" (click)="irAlMapa()">
-          <ion-icon name="map-outline"></ion-icon>
-          <span>{{ 'BOMBERO.GO_TO_MAP' | translate }}</span>
-        </button>
       </div>
 
-      <!-- AVISO -->
-      <div class="info-box">
-        <ion-icon name="notifications-outline"></ion-icon>
-        <p>{{ 'BOMBERO.NOTIFICATIONS_INFO' | translate }}</p>
+      <!-- CONTENIDO PRINCIPAL -->
+      <div class="page-inner">
+
+        <!-- EMERGENCIA ACTIVA -->
+        <div class="card card-emergency" *ngIf="emergenciaActiva">
+          <div class="card-header">
+            <div class="badge-danger">
+              {{ 'BOMBERO.ACTIVE_EMERGENCY' | translate }}
+            </div>
+            <div class="time">
+              {{ emergenciaActiva.hace || ( 'BOMBERO.JUST_NOW' | translate ) }}
+            </div>
+          </div>
+
+          <div class="card-title">
+            {{ emergenciaActiva.titulo || ( 'BOMBERO.DEFAULT_TITLE' | translate ) }}
+          </div>
+
+          <div class="card-text">
+            {{ emergenciaActiva.descripcion || ( 'BOMBERO.DEFAULT_DESC' | translate ) }}
+          </div>
+
+          <div class="priority">
+            {{ 'BOMBERO.PRIORITY' | translate }}:
+            <span>
+              {{ emergenciaActiva.prioridad || ( 'BOMBERO.DEFAULT_PRIORITY' | translate ) }}
+            </span>
+          </div>
+
+          <button class="btn-main" (click)="irAlMapa()">
+            <ion-icon name="map-outline"></ion-icon>
+            <span>{{ 'BOMBERO.GO_TO_MAP' | translate }}</span>
+          </button>
+        </div>
+
+        <!-- INFO BOX -->
+        <div class="info-box">
+          <ion-icon name="notifications-outline"></ion-icon>
+          <p>{{ 'BOMBERO.NOTIFICATIONS_INFO' | translate }}</p>
+        </div>
+
       </div>
+
     </div>
+
   </ng-container>
 
-  <!-- SIN USUARIO -->
+  <!-- NO USUARIO -->
   <ng-template #noUsuario>
     <div class="empty-state">
       <ion-icon name="person-circle-outline"></ion-icon>
       <p>{{ 'BOMBERO.NO_USER' | translate }}</p>
     </div>
   </ng-template>
+
 </ion-content>
 
-<!-- FOOTER SIMPLE CON 3 BOTONES -->
-<ion-footer>
-  <ion-toolbar class="footer-toolbar">
-    <div class="footer-buttons">
-      <ion-button class="footer-btn" (click)="goToNotificaciones()">
-        <ion-icon name="notifications-outline" slot="start"></ion-icon>
-        <span>{{ 'FOOTER.NOTIFICATIONS' | translate }}</span>
-      </ion-button>
+<!-- FOOTER (MISMOS ESTILOS QUE NOTIFICACIONES) -->
+<div class="bottom-nav-shell">
+  <div class="bottom-nav-mini">
 
-      <ion-button class="footer-btn" (click)="goToHome()">
-        <ion-icon name="home-outline" slot="start"></ion-icon>
-        <span>{{ 'FOOTER.HOME' | translate }}</span>
-      </ion-button>
+    <button
+      class="bottom-nav-mini-item"
+      (click)="goToNotificaciones()">
+      <ion-icon name="notifications-outline"></ion-icon>
+      <span>{{ 'FOOTER.NOTIFICATIONS' | translate }}</span>
+    </button>
 
-      <ion-button class="footer-btn" (click)="goToAjustes()">
-        <ion-icon name="settings-outline" slot="start"></ion-icon>
-        <span>{{ 'FOOTER.SETTINGS' | translate }}</span>
-      </ion-button>
-    </div>
-  </ion-toolbar>
-</ion-footer>
+    <button
+      class="bottom-nav-mini-item bottom-nav-mini-item--active"
+      (click)="goToHome()">
+      <ion-icon name="home-outline"></ion-icon>
+      <span>{{ 'FOOTER.HOME' | translate }}</span>
+    </button>
+
+    <button
+      class="bottom-nav-mini-item"
+      (click)="goToAjustes()">
+      <ion-icon name="settings-outline"></ion-icon>
+      <span>{{ 'FOOTER.SETTINGS' | translate }}</span>
+    </button>
+
+  </div>
+</div>

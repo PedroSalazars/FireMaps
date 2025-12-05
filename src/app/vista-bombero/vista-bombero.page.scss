@@ -39,7 +39,7 @@ ion-content {
 
 .bombero-wrapper {
   min-height: calc(100vh - 120px);
-  padding-bottom: 100px; /* espacio para nav inferior */
+  padding-bottom: 120px; /* espacio para el footer flotante */
 }
 
 .page-inner {
@@ -212,7 +212,7 @@ ion-content {
 }
 
 /* ============================================================
-   🟠 NAV INFERIOR FLOTANTE (MISMO ESTILO QUE NOTIFICACIONES)
+   🟠 NAV INFERIOR FLOTANTE (IGUAL A NOTIFICACIONES)
 ============================================================ */
 
 .bottom-nav-shell {
@@ -243,12 +243,12 @@ ion-content {
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
 }
 
+/* Botón */
 .bottom-nav-mini-item {
   flex: 1;
   height: 36px;
   background: transparent;
   border-radius: 999px;
-  border: none;
 
   display: flex;
   justify-content: center;
@@ -257,8 +257,11 @@ ion-content {
   font-size: 13px;
   font-weight: 600;
   color: #444;
+  border: none;
+  white-space: nowrap;
 }
 
+/* Activo */
 .bottom-nav-mini-item--active {
   background: rgba(255, 140, 66, 0.20);
   color: #ff8c42;
