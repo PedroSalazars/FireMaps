@@ -82,6 +82,7 @@
     "WELCOME": "Welcome to FireMaps",
     "SUBTITLE": "Chiloé · Firefighters & Emergencies",
     "FOOTER": "Duoc UC · FireMaps Chiloé"
+    
   },
   "ADMIN": {
     "TITLE": "Firefighter Administration",
@@ -100,6 +101,42 @@
   "FOOTER": {
     "NOTIFICATIONS": "Notifications",
     "HOME": "Home",
-    "SETTINGS": "Settings"
+    "SETTINGS": "Profile",
+    "LOGOUT": "Log out"
+  },  
+  "PROFILE": {
+    "TITLE": "Profile",
+    "LOADING": "Loading your profile...",
+    "DEFAULT_ROLE": "User",
+    "PERSONAL_DATA": "Personal Data",
+    "NAME": "First Name",
+    "LASTNAME": "Last Name",
+    "RUT": "National ID",
+    "PHONE": "Phone",
+    "ACCOUNT": "Account",
+    "EMAIL": "Email",
+    "ROLE": "Role",
+    "COMPANY": "Company",
+    "MEMBER_SINCE": "Member since",
+    "ACCOUNT_SETTINGS": "Account Settings",
+    "LOGOUT": "Log out",
+    "NO_DATA": "No profile information found."
+  },
+  "NOTIFICATIONS": {
+    "TITLE": "Notifications",
+    "REPORTED_INCIDENTS": "Reported Incidents",
+    "SUBTITLE": "Here you will see the incident reports registered in FireMaps Chiloé.",
+    "DEFAULT_TYPE": "Incident",
+    "DEFAULT_PRIORITY": "Normal",
+    "ADDRESS": "Address",
+    "NO_ADDRESS": "No address",
+    "STATUS": "Status",
+    "PENDING": "Pending",
+    "DATE": "Date",
+    "EMPTY": "No notifications registered"
+  },
+  "FOOTEER": {
+    "NOTIFICATIONS": "log out"
+
   }
 }

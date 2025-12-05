@@ -98,7 +98,7 @@ export class VistaBomberoPage implements OnInit {
   }
 
   goToAjustes() {
-    this.router.navigate(['/vista-ajustes']);
+    this.router.navigate(['/vista-perfil']);
   }
 
   // ===== Cerrar sesión =====

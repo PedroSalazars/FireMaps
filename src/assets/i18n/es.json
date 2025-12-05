@@ -5,61 +5,58 @@
     "GOOGLE": "Google Maps",
     "OSM": "OpenStreetMap",
     "GEOLOCATION": "Geolocalización",
-    "ENABLED": "Activada",
-    "DISABLED": "Desactivada",
+    "ENABLED": "Habilitado",
+    "DISABLED": "Deshabilitado",
     "THEME": "Tema",
     "LIGHT": "Claro",
     "DARK": "Oscuro",
     "LANGUAGE": "Idioma",
     "SPANISH": "Español",
     "ENGLISH": "Inglés",
-    "SAVE": "Guardar Ajustes",
-    "LOGOUT": "Cerrar Sesión"
+    "SAVE": "Guardar ajustes",
+    "LOGOUT": "Cerrar sesión"
   },
-
-  "LOGIN": {
+  "LOGIN": {  
     "BACK": "Volver",
-    "TITLE": "Iniciar Sesión",
+    "TITLE": "Iniciar sesión",
     "WELCOME": "Bienvenido a",
-    "SUBTITLE": "Accede con tus credenciales",
+    "SUBTITLE": "Ingresa con tus credenciales",
     "EMAIL": "Correo electrónico",
-    "EMAIL_PLACEHOLDER": "Ingrese su correo",
+    "EMAIL_PLACEHOLDER": "Ingresa tu correo",
     "PASSWORD": "Contraseña",
-    "PASSWORD_PLACEHOLDER": "Ingrese su contraseña",
-    "BUTTON": "Entrar",
+    "PASSWORD_PLACEHOLDER": "Ingresa tu contraseña",
+    "BUTTON": "Ingresar",
     "LOADING": "Cargando...",
     "ERROR_FIELDS_REQUIRED": "Por favor completa todos los campos.",
     "ERROR_EMAIL_INVALID": "El correo no es válido.",
-    "ERROR_NO_PROFILE": "No se encontró perfil asociado a este usuario.",
+    "ERROR_NO_PROFILE": "No se encontró un perfil asociado a este usuario.",
     "ERROR_GENERIC": "No se pudo iniciar sesión.",
     "ERROR_USER_NOT_FOUND": "Correo no registrado.",
     "ERROR_WRONG_PASSWORD": "Contraseña incorrecta.",
-    "ERROR_TOO_MANY_REQUESTS": "Demasiados intentos, intenta más tarde.",
+    "ERROR_TOO_MANY_REQUESTS": "Demasiados intentos, inténtalo más tarde.",
     "ERROR_INVALID_EMAIL": "Correo inválido.",
-    "ERROR_BOMBERO_PASSWORD": "La clave para bomberos debe ser FireMaps2025."
+    "ERROR_BOMBERO_PASSWORD": "La contraseña de bombero debe ser FireMaps2025."
   },
-
   "REGISTER": {
     "BACK": "Volver",
     "TITLE": "Registrar usuario",
     "CREATE_ACCOUNT": "Crear cuenta",
     "SUBTITLE": "Completa tus datos para registrarte en FireMaps.",
-    "NAME": "Nombres",
+    "NAME": "Nombre",
     "LASTNAME": "Apellidos",
     "RUT": "RUT",
     "PHONE": "Teléfono",
-    "EMAIL": "Correo",
+    "EMAIL": "Correo electrónico",
     "PASSWORD": "Contraseña",
     "CONFIRM_PASSWORD": "Confirmar contraseña",
-    "BUTTON": "Registrarse",
+    "BUTTON": "Registrar",
     "ERROR_NAME_REQUIRED": "El nombre es obligatorio.",
     "ERROR_LASTNAME_REQUIRED": "Los apellidos son obligatorios.",
     "ERROR_RUT_INVALID": "El RUT ingresado no es válido.",
     "ERROR_PHONE_INVALID": "El teléfono ingresado no es válido.",
-    "ERROR_EMAIL_INVALID": "El correo electrónico ingresado no es válido.",
+    "ERROR_EMAIL_INVALID": "El correo ingresado no es válido.",
     "ERROR_PASSWORD_MATCH": "Las contraseñas no coinciden."
   },
-
   "BOMBERO": {
     "TITLE": "Bombero",
     "GREETING": "Hola Bombero",
@@ -67,50 +64,76 @@
     "ROLE": "Rol",
     "NOTICE": "Revisa tus notificaciones para acceder a la información de las emergencias",
     "NO_USER": "No se encontró información del usuario",
-
     "HERO_GREETING": "Hola, bombero",
     "HERO_COMPANY": "Compañía de Bomberos asignada",
-
     "ACTIVE_EMERGENCY": "Emergencia activa",
     "JUST_NOW": "Hace unos minutos",
-
     "DEFAULT_TITLE": "Incendio estructural – Castro",
     "DEFAULT_DESC": "Foco activo en zona urbana.",
     "PRIORITY": "Prioridad",
     "DEFAULT_PRIORITY": "Alta",
-
     "GO_TO_MAP": "Ir al mapa de la emergencia",
-
     "NOTIFICATIONS_INFO": "Tus notificaciones recientes se encuentran en la pestaña Notificaciones de la barra inferior."
   },
-
   "HOME": {
     "TITLE": "Inicio",
     "WELCOME": "Bienvenido a FireMaps",
-    "SUBTITLE": "Chiloé · Bomberos & Emergencias",
-    "FOOTER": "Proyecto de Título · Duoc UC · FireMaps Chiloé"
+    "SUBTITLE": "Chiloé · Bomberos y Emergencias",
+    "FOOTER": "Duoc UC · FireMaps Chiloé"
   },
-
   "ADMIN": {
     "TITLE": "Administración de Bomberos",
     "BOMBERO_LIST": "Lista de Bomberos",
-    "NEW_BOMBERO": "Agregar Nuevo Bombero",
+    "NEW_BOMBERO": "Agregar nuevo Bombero",
     "ADD": "Agregar",
     "DELETE": "Eliminar"
   },
-
   "ERROR": {
     "EMAIL_INVALID": "Correo inválido",
     "PASSWORD_REQUIRED": "La contraseña es obligatoria"
   },
-
   "APP": {
     "NAME": "FireMaps"
-  },
-
+  },  
   "FOOTER": {
     "NOTIFICATIONS": "Notificaciones",
     "HOME": "Inicio",
-    "SETTINGS": "Ajustes"
+    "SETTINGS": "Perfil",
+    "LOGOUT": "Cerrar sesión"
+  },
+    "FOOTEER": {
+    "NOTIFICATIONS": "Cerrar sesión"
+
+  },  
+  "PROFILE": {
+    "TITLE": "Perfil",
+    "LOADING": "Cargando tu perfil...",
+    "DEFAULT_ROLE": "Usuario",
+    "PERSONAL_DATA": "Datos personales",
+    "NAME": "Nombre",
+    "LASTNAME": "Apellidos",
+    "RUT": "RUT",
+    "PHONE": "Teléfono",
+    "ACCOUNT": "Cuenta",
+    "EMAIL": "Correo",
+    "ROLE": "Rol",
+    "COMPANY": "Compañía",
+    "MEMBER_SINCE": "Miembro desde",
+    "ACCOUNT_SETTINGS": "Ajustes de la cuenta",
+    "LOGOUT": "Cerrar sesión",
+    "NO_DATA": "No se encontró información de tu perfil."
+  },
+  "NOTIFICATIONS": {
+    "TITLE": "Notificaciones",
+    "REPORTED_INCIDENTS": "Incidentes reportados",
+    "SUBTITLE": "Aquí verás los reportes de incidentes registrados en FireMaps Chiloé.",
+    "DEFAULT_TYPE": "Incidente",
+    "DEFAULT_PRIORITY": "Normal",
+    "ADDRESS": "Dirección",
+    "NO_ADDRESS": "Sin dirección",
+    "STATUS": "Estado",
+    "PENDING": "Pendiente",
+    "DATE": "Fecha",
+    "EMPTY": "No hay notificaciones registradas"
   }
 }

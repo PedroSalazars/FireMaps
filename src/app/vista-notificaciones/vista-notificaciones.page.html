@@ -1,17 +1,17 @@
 <ion-content>
 
-  <!-- Topbar similar a las otras vistas -->
+  <!-- Topbar -->
   <div class="notif-topbar">
-    <div class="topbar-title">Notificaciones</div>
+    <div class="topbar-title">{{ 'NOTIFICATIONS.TITLE' | translate }}</div>
   </div>
 
   <!-- Contenido principal -->
   <div class="notif-wrapper">
     <div class="notif-inner">
 
-      <h2 class="section-title">Incidentes reportados</h2>
+      <h2 class="section-title">{{ 'NOTIFICATIONS.REPORTED_INCIDENTS' | translate }}</h2>
       <p class="section-subtitle">
-        Aquí verás los reportes de incidentes registrados en FireMaps Chiloé.
+        {{ 'NOTIFICATIONS.SUBTITLE' | translate }}
       </p>
 
       <!-- Lista de incidentes -->
@@ -24,30 +24,30 @@
               [ngClass]="(incidente.type || '').toLowerCase()"
             >
               <ion-icon name="alert-circle"></ion-icon>
-              <span>{{ incidente.type || 'Incidente' }}</span>
+              <span>{{ incidente.type || ( 'NOTIFICATIONS.DEFAULT_TYPE' | translate ) }}</span>
             </div>
 
             <div class="incident-pill">
-              {{ incidente.priority || 'Normal' }}
+              {{ incidente.priority || ( 'NOTIFICATIONS.DEFAULT_PRIORITY' | translate ) }}
             </div>
           </div>
 
           <!-- Contenido principal -->
           <div class="incident-body">
             <div class="incident-field">
-              <span class="label">Dirección:</span>
+              <span class="label">{{ 'NOTIFICATIONS.ADDRESS' | translate }}:</span>
               <span class="value">
-                {{ incidente.address || 'Sin dirección' }}
+                {{ incidente.address || ( 'NOTIFICATIONS.NO_ADDRESS' | translate ) }}
               </span>
             </div>
             <div class="incident-field">
-              <span class="label">Estado:</span>
+              <span class="label">{{ 'NOTIFICATIONS.STATUS' | translate }}:</span>
               <span class="value">
-                {{ incidente.status || 'Pendiente' }}
+                {{ incidente.status || ( 'NOTIFICATIONS.PENDING' | translate ) }}
               </span>
             </div>
             <div class="incident-field">
-              <span class="label">Fecha:</span>
+              <span class="label">{{ 'NOTIFICATIONS.DATE' | translate }}:</span>
               <span class="value">
                 {{ incidente.createdAt?.seconds * 1000 | date:'short' }}
               </span>
@@ -60,7 +60,7 @@
       <ng-template #emptyState>
         <div class="empty-state">
           <ion-icon name="notifications-off"></ion-icon>
-          <p>No hay notificaciones registradas</p>
+          <p>{{ 'NOTIFICATIONS.EMPTY' | translate }}</p>
         </div>
       </ng-template>
 
@@ -69,7 +69,7 @@
 
 </ion-content>
 
-<!-- NAV INFERIOR FLOTANTE -->
+<!-- NAV INFERIOR -->
 <div class="bottom-nav-shell">
   <div class="bottom-nav-mini">
     <button
@@ -77,7 +77,7 @@
       (click)="goToNotificaciones()"
     >
       <ion-icon name="notifications-outline"></ion-icon>
-      <span>Notificaciones</span>
+      <span>{{ 'FOOTER.NOTIFICATIONS' | translate }}</span>
     </button>
 
     <button
@@ -85,7 +85,7 @@
       (click)="goToHome()"
     >
       <ion-icon name="home-outline"></ion-icon>
-      <span>Home</span>
+      <span>{{ 'FOOTER.HOME' | translate }}</span>
     </button>
 
     <button
@@ -93,9 +93,7 @@
       (click)="goToAjustes()"
     >
       <ion-icon name="settings-outline"></ion-icon>
-      <span>Ajustes</span>
+      <span>{{ 'FOOTER.SETTINGS' | translate }}</span>
     </button>
   </div>
 </div>
-
-

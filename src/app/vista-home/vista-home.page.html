@@ -124,19 +124,19 @@
     <ion-button fill="clear"
                 class="bottom-nav-mini-item bottom-nav-mini-item--active"
                 [routerLink]="['/vista-home']">
-      Inicio
+      {{ 'FOOTER.HOME' | translate }}
     </ion-button>
 
     <ion-button fill="clear"
                 class="bottom-nav-mini-item"
-                [routerLink]="['/vista-ajustes']">
-      Ajustes
+                [routerLink]="['/vista-perfil-usuario']">
+      {{ 'FOOTER.SETTINGS' | translate }}
     </ion-button>
 
     <ion-button fill="clear"
                 class="bottom-nav-mini-item"
                 [routerLink]="['/vista-login']">
-      Salir
+      {{ 'FOOTER.LOGOUT' | translate }}
     </ion-button>
 
   </div>
