@@ -1,116 +1,101 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Notificaciones</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content>
 
-<ion-content class="page-background">
-
-  <div class="page-inner">
-
-    <h2 class="section-title">Incidentes reportados</h2>
-    <p class="section-subtitle">
-      Aquí verás los reportes de incidentes registrados en FireMaps Chiloé.
-    </p>
-
-    <!-- Lista de incidentes -->
-    <div *ngIf="incidentes.length > 0; else emptyState" class="cards-list">
-      <div class="incident-card" *ngFor="let incidente of incidentes">
-        <!-- Cabecera de la tarjeta -->
-        <div class="incident-header">
-          <div
-            class="incident-type"
-            [ngClass]="(incidente.type || '').toLowerCase()"
-          >
-            <ion-icon name="alert-circle"></ion-icon>
-            <span>{{ incidente.type || 'Incidente' }}</span>
-          </div>
-
-          <div class="incident-pill">
-            {{ incidente.priority || 'Normal' }}
-          </div>
-        </div>
-
-        <!-- Contenido principal -->
-        <div class="incident-body">
-          <div class="incident-field">
-            <span class="label">Dirección:</span>
-            <span class="value">
-              {{ incidente.address || 'Sin dirección' }}
-            </span>
-          </div>
-          <div class="incident-field">
-            <span class="label">Estado:</span>
-            <span class="value">
-              {{ incidente.status || 'Pendiente' }}
-            </span>
-          </div>
-          <div class="incident-field">
-            <span class="label">Fecha:</span>
-            <span class="value">
-              {{ incidente.createdAt?.seconds * 1000 | date:'short' }}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Estado vacío -->
-    <ng-template #emptyState>
-      <div class="empty-state">
-        <ion-icon name="notifications-off"></ion-icon>
-        <p>No hay notificaciones registradas</p>
-      </div>
-    </ng-template>
-
+  <!-- Topbar similar a las otras vistas -->
+  <div class="notif-topbar">
+    <div class="topbar-title">Notificaciones</div>
   </div>
+
+  <!-- Contenido principal -->
+  <div class="notif-wrapper">
+    <div class="notif-inner">
+
+      <h2 class="section-title">Incidentes reportados</h2>
+      <p class="section-subtitle">
+        Aquí verás los reportes de incidentes registrados en FireMaps Chiloé.
+      </p>
+
+      <!-- Lista de incidentes -->
+      <div *ngIf="incidentes.length > 0; else emptyState" class="cards-list">
+        <div class="incident-card" *ngFor="let incidente of incidentes">
+          <!-- Cabecera de la tarjeta -->
+          <div class="incident-header">
+            <div
+              class="incident-type"
+              [ngClass]="(incidente.type || '').toLowerCase()"
+            >
+              <ion-icon name="alert-circle"></ion-icon>
+              <span>{{ incidente.type || 'Incidente' }}</span>
+            </div>
+
+            <div class="incident-pill">
+              {{ incidente.priority || 'Normal' }}
+            </div>
+          </div>
+
+          <!-- Contenido principal -->
+          <div class="incident-body">
+            <div class="incident-field">
+              <span class="label">Dirección:</span>
+              <span class="value">
+                {{ incidente.address || 'Sin dirección' }}
+              </span>
+            </div>
+            <div class="incident-field">
+              <span class="label">Estado:</span>
+              <span class="value">
+                {{ incidente.status || 'Pendiente' }}
+              </span>
+            </div>
+            <div class="incident-field">
+              <span class="label">Fecha:</span>
+              <span class="value">
+                {{ incidente.createdAt?.seconds * 1000 | date:'short' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado vacío -->
+      <ng-template #emptyState>
+        <div class="empty-state">
+          <ion-icon name="notifications-off"></ion-icon>
+          <p>No hay notificaciones registradas</p>
+        </div>
+      </ng-template>
+
+    </div>
+  </div>
+
 </ion-content>
 
+<!-- NAV INFERIOR FLOTANTE -->
+<div class="bottom-nav-shell">
+  <div class="bottom-nav-mini">
+    <button
+      class="bottom-nav-mini-item bottom-nav-mini-item--active"
+      (click)="goToNotificaciones()"
+    >
+      <ion-icon name="notifications-outline"></ion-icon>
+      <span>Notificaciones</span>
+    </button>
 
-<!-- Footer -->
- <ion-footer>
-  <ion-toolbar>
-    <ion-tabs #tabs>
-      <ion-tab-bar slot="bottom">
-        <ion-tab-button routerLink="/vista-notificaciones">
-          <ion-icon name="notifications"></ion-icon>
-          <ion-label>Notificaciones</ion-label>
-        </ion-tab-button>
+    <button
+      class="bottom-nav-mini-item"
+      (click)="goToHome()"
+    >
+      <ion-icon name="home-outline"></ion-icon>
+      <span>Home</span>
+    </button>
 
-        <ion-tab-button routerLink="/vista-bombero">
-          <ion-icon name="home"></ion-icon>
-          <ion-label>Home</ion-label>
-        </ion-tab-button>
+    <button
+      class="bottom-nav-mini-item"
+      (click)="goToAjustes()"
+    >
+      <ion-icon name="settings-outline"></ion-icon>
+      <span>Ajustes</span>
+    </button>
+  </div>
+</div>
 
-        <ion-tab-button routerLink="/vista-ajustes">
-          <ion-icon name="settings"></ion-icon>
-          <ion-label>Ajustes</ion-label>
-        </ion-tab-button>
-      </ion-tab-bar>
-    </ion-tabs>
-  </ion-toolbar>
-</ion-footer>
 
-<!-- FOOTER SIMPLE CON 3 BOTONES (igual que en Bombero) -->
-<ion-footer>
-  <ion-toolbar class="footer-toolbar">
-    <div class="footer-buttons">
-
-      <ion-button class="footer-btn" (click)="goToNotificaciones()">
-        <ion-icon name="notifications-outline" slot="start"></ion-icon>
-        <span>Notificaciones</span>
-      </ion-button>
-
-      <ion-button class="footer-btn" (click)="goToHome()">
-        <ion-icon name="home-outline" slot="start"></ion-icon>
-        <span>Home</span>
-      </ion-button>
-
-      <ion-button class="footer-btn" (click)="goToAjustes()">
-        <ion-icon name="settings-outline" slot="start"></ion-icon>
-        <span>Ajustes</span>
-      </ion-button>
-
-    </div>
-  </ion-toolbar>
-</ion-footer>

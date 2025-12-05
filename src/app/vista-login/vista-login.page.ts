@@ -37,7 +37,7 @@ export class VistaLoginPage {
     // Inicializar Firebase
     this.initFirebase();
 
-    // 👇 Aplicar tema guardado al entrar
+    // Aplicar tema guardado al entrar
     const savedTheme = localStorage.getItem('theme') || 'claro';
     document.body.classList.toggle('dark', savedTheme === 'oscuro');
   }
@@ -45,7 +45,7 @@ export class VistaLoginPage {
   ionViewWillEnter() {
     this.resetForm();
 
-    // 👇 Reaplicar tema cada vez que entres a Login
+    // Reaplicar tema cada vez que entres a Login
     const savedTheme = localStorage.getItem('theme') || 'claro';
     document.body.classList.toggle('dark', savedTheme === 'oscuro');
   }
@@ -80,20 +80,29 @@ export class VistaLoginPage {
 
   async iniciarSesion() {
     this.submitted = true;
+
     const email = this.correo.trim().toLowerCase();
     const password = this.clave;
 
+    // Validación básica
     if (!email || !password) {
-      return this.mostrarToast(this.translate.instant('LOGIN.ERROR_FIELDS_REQUIRED'), 'danger');
+      return this.mostrarToast(
+        this.translate.instant('LOGIN.ERROR_FIELDS_REQUIRED'),
+        'danger'
+      );
     }
 
     if (!this.esCorreoBasicoValido(email) && email !== 'admin') {
-      return this.mostrarToast(this.translate.instant('LOGIN.ERROR_EMAIL_INVALID'), 'danger');
+      return this.mostrarToast(
+        this.translate.instant('LOGIN.ERROR_EMAIL_INVALID'),
+        'danger'
+      );
     }
 
     this.cargando = true;
 
     try {
+      // Admin directo
       if (email === 'admin' && password === 'admin') {
         this.router.navigate(['/vista-admin']);
         return;
@@ -106,8 +115,9 @@ export class VistaLoginPage {
       // 🔹 Primero revisamos colección "usuarios"
       const refUsuario = doc(db, 'usuarios', uid);
       const snapUsuario = await getDoc(refUsuario);
+
       if (snapUsuario.exists()) {
-        localStorage.setItem('usuarioUid', uid); // 👈 guardamos UID de usuario
+        localStorage.setItem('usuarioUid', uid); // guardamos UID de usuario
         this.router.navigate(['/vista-home']);
         return;
       }
@@ -115,38 +125,55 @@ export class VistaLoginPage {
       // 🔹 Luego revisamos colección "bomberos"
       const refBombero = doc(db, 'bomberos', uid);
       const snapBombero = await getDoc(refBombero);
+
       if (snapBombero.exists()) {
         const dataBombero: any = snapBombero.data();
         if (dataBombero.correo === email && password === 'FireMaps2025.') {
-          localStorage.setItem('bomberoUid', uid); // 👈 guardamos UID de bombero
+          localStorage.setItem('bomberoUid', uid); // guardamos UID de bombero
           this.router.navigate(['/vista-bombero']);
           return;
         } else {
-          return this.mostrarToast(this.translate.instant('LOGIN.ERROR_BOMBERO_PASSWORD'), 'danger');
+          return this.mostrarToast(
+            this.translate.instant('LOGIN.ERROR_BOMBERO_PASSWORD'),
+            'danger'
+          );
         }
       }
 
-      this.mostrarToast(this.translate.instant('LOGIN.ERROR_NO_PROFILE'), 'danger');
+      // Si pasó por todo y no encontró perfil
+      await this.mostrarToast(
+        this.translate.instant('LOGIN.ERROR_NO_PROFILE'),
+        'danger'
+      );
 
     } catch (error: any) {
+      console.error('Error en iniciarSesion:', error);
       let mensaje = this.translate.instant('LOGIN.ERROR_GENERIC');
-      if (error.code === 'auth/user-not-found') mensaje = this.translate.instant('LOGIN.ERROR_USER_NOT_FOUND');
-      else if (error.code === 'auth/wrong-password') mensaje = this.translate.instant('LOGIN.ERROR_WRONG_PASSWORD');
-      else if (error.code === 'auth/too-many-requests') mensaje = this.translate.instant('LOGIN.ERROR_TOO_MANY_REQUESTS');
-      else if (error.code === 'auth/invalid-email') mensaje = this.translate.instant('LOGIN.ERROR_INVALID_EMAIL');
-      this.mostrarToast(mensaje, 'danger');
+
+      if (error.code === 'auth/user-not-found') {
+        mensaje = this.translate.instant('LOGIN.ERROR_USER_NOT_FOUND');
+      } else if (error.code === 'auth/wrong-password') {
+        mensaje = this.translate.instant('LOGIN.ERROR_WRONG_PASSWORD');
+      } else if (error.code === 'auth/too-many-requests') {
+        mensaje = this.translate.instant('LOGIN.ERROR_TOO_MANY_REQUESTS');
+      } else if (error.code === 'auth/invalid-email') {
+        mensaje = this.translate.instant('LOGIN.ERROR_INVALID_EMAIL');
+      }
+
+      await this.mostrarToast(mensaje, 'danger');
     } finally {
       this.cargando = false;
     }
   }
 
-  private async mostrarToast(message: string, color: string) {
+  private async mostrarToast(message: string, color: string = 'primary') {
     const toast = await this.toastController.create({
       message,
       duration: 2500,
-      color
+      color,
+      position: 'bottom'
     });
-    toast.present();
+    await toast.present();
   }
 
   goBack() {

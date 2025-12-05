@@ -1,164 +1,268 @@
-/* Fondo general alineado con la vista Bombero */
-.page-background {
-  --background: #f4f0ee;
+/* ============================================================
+   🔆 TEMA CLARO – BASE FIREMAPS
+============================================================ */
+
+ion-content {
+  --background: #e7e3e2;
+  color: #000;
   font-family: 'Segoe UI', Roboto, sans-serif;
-  padding-bottom: 90px; /* espacio para el footer */
 }
 
-ion-toolbar {
-  --background: #f4f0ee;
-  color: #444;
-  text-align: center;
-  font-weight: 600;
+/* ============================================================
+   🔝 TOPBAR – mismo estilo que Login/Registro
+============================================================ */
+
+.notif-topbar {
+  width: 100%;
+  padding: 12px 14px;
+  background: #f0ebe9;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
-.page-inner {
-  padding: 14px;
-}
-
-/* Títulos sección */
-.section-title {
-  font-size: 17px;
+.topbar-title {
   font-weight: 700;
-  margin-bottom: 4px;
+  font-size: 1.1rem;
   color: #333;
 }
 
-.section-subtitle {
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 14px;
+/* ============================================================
+   📄 CONTENIDO INTERNO
+============================================================ */
+
+.notif-wrapper {
+  min-height: calc(100vh - 120px);
+  padding: 18px 16px 100px;
 }
 
-/* Contenedor de tarjetas */
+.notif-inner {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #222;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 18px;
+}
+
+/* ============================================================
+   🟦 TARJETAS DE INCIDENTES – versión premium
+============================================================ */
+
 .cards-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 }
 
-/* Tarjeta de incidente */
 .incident-card {
   background: #ffffff;
   border-radius: 16px;
-  padding: 10px 14px 12px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  padding: 15px 18px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-/* Cabecera de la tarjeta */
+/* Cabecera */
 .incident-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
 }
 
-/* Tipo de incidente */
+/* Tipo */
 .incident-type {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #c7522a;
+  font-size: 14px;
+  font-weight: 700;
   text-transform: capitalize;
 }
 
-.incident-type ion-icon {
-  font-size: 18px;
-}
+.incendio { color: #e63946; }
+.fugas    { color: #ff8c00; }
+.rescate  { color: #0077b6; }
+.choque   { color: #8e44ad; }
 
-/* Colores según tipo (usa el [ngClass] del HTML) */
-.incident-type.incendio {
-  color: #e63946;
-}
-
-.incident-type.fugas {
-  color: #ff8c00;
-}
-
-.incident-type.rescate {
-  color: #0077b6;
-}
-
-.incident-type.choque {
-  color: #8e44ad;
-}
-
-/* Pill de prioridad */
+/* Pill */
 .incident-pill {
   font-size: 11px;
-  text-transform: uppercase;
-  background-color: #ffe1d3;
-  color: #c0392b;
-  padding: 3px 10px;
+  font-weight: 700;
+  padding: 4px 12px;
   border-radius: 999px;
-  font-weight: 600;
+  color: #c0392b;
+  background: #ffe1d3;
+  text-transform: uppercase;
 }
 
-/* Cuerpo de la tarjeta */
-.incident-body {
-  margin-top: 4px;
-}
-
+/* Cuerpo */
 .incident-field {
   display: flex;
-  flex-wrap: wrap;
   font-size: 13px;
-  margin: 1px 0;
+  margin: 3px 0;
 }
 
 .incident-field .label {
-  font-weight: 600;
-  color: #444;
+  font-weight: 700;
   margin-right: 4px;
+  color: #333;
 }
 
 .incident-field .value {
-  color: #555;
+  color: #444;
 }
 
 /* Estado vacío */
 .empty-state {
-  margin-top: 40px;
   text-align: center;
+  margin-top: 40px;
   color: #777;
 }
 
 .empty-state ion-icon {
-  font-size: 52px;
-  color: #ccc;
-  margin-bottom: 8px;
+  font-size: 54px;
+  color: #aaa;
+  margin-bottom: 10px;
 }
 
-/* ===== FOOTER (igual que en Bombero) ===== */
-ion-footer {
-  border-top: 1px solid #e0dcd9;
-}
+/* ============================================================
+   🟠 FOOTER FLOTANTE ESTILO IOS – PREMIUM
+============================================================ */
 
-.footer-toolbar {
-  --background: #f4f0ee;
-  padding: 6px 12px 12px;
-}
-
-.footer-buttons {
+.bottom-nav-shell {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  padding-bottom: env(safe-area-inset-bottom);
   display: flex;
-  gap: 8px;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 9999;
 }
 
-.footer-btn {
+.bottom-nav-mini {
+  pointer-events: auto;
+  width: 88%;
+  max-width: 430px;
+  padding: 10px 12px;
+
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 6px;
+
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 999px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+}
+
+/* Botón */
+.bottom-nav-mini-item {
   flex: 1;
-  --background: #ff8c42;
-  --background-activated: #e6732a;
-  --background-hover: #ffa564;
-  --color: #fff;
-  --border-radius: 999px;
-  text-transform: none;
-  font-weight: 600;
+  height: 36px;
+  background: transparent;
+  border-radius: 999px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   font-size: 13px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  font-weight: 600;
+  color: #444;
+  border: none;
 }
 
-.footer-btn ion-icon {
-  font-size: 20px;
+/* Activo */
+.bottom-nav-mini-item--active {
+  background: rgba(255, 140, 66, 0.20);
+  color: #ff8c42;
+  margin: 0 4px;
+  box-shadow: 0 2px 6px rgba(255, 140, 66, 0.25);
+}
+
+.bottom-nav-mini-item:active {
+  transform: scale(0.96);
+}
+
+/* ============================================================
+   🌙 MODO OSCURO – FIREMAPS PRO
+============================================================ */
+
+:host-context(.dark) ion-content {
+  --background: linear-gradient(180deg, #10151f 0%, #1f2430 45%, #252a36 100%);
+  color: #fff;
+}
+
+/* Topbar oscuro */
+:host-context(.dark) .notif-topbar {
+  background: #181d28;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.55);
+}
+
+:host-context(.dark) .topbar-title {
+  color: #ffffff;
+}
+
+/* Textos */
+:host-context(.dark) .section-title {
+  color: #fff;
+}
+
+:host-context(.dark) .section-subtitle {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Tarjetas */
+:host-context(.dark) .incident-card {
+  background: rgba(15, 19, 30, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.6);
+}
+
+:host-context(.dark) .incident-field .label {
+  color: #eee;
+}
+
+:host-context(.dark) .incident-field .value {
+  color: #ccc;
+}
+
+:host-context(.dark) .incident-pill {
+  background-color: rgba(255, 192, 120, 0.20);
+  color: #ffc078;
+}
+
+/* Footer oscuro */
+:host-context(.dark) .bottom-nav-mini {
+  background: rgba(24, 29, 40, 0.92);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.75);
+}
+
+:host-context(.dark) .bottom-nav-mini-item {
+  color: #e0e0e0;
+}
+
+:host-context(.dark) .bottom-nav-mini-item--active {
+  background: rgba(255, 192, 120, 0.25);
+  color: #ffc078;
 }

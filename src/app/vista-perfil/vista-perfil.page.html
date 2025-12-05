@@ -1,13 +1,150 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>vista-perfil</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">vista-perfil</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <!-- TOPBAR -->
+  <div class="profile-topbar">
+    <div class="topbar-title">
+      Perfil
+    </div>
+  </div>
+
+  <!-- ESTADO CARGANDO -->
+  <div class="profile-wrapper" *ngIf="cargando">
+    <div class="profile-inner loading-state">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando tu perfil...</p>
+    </div>
+  </div>
+
+  <!-- PERFIL -->
+  <div class="profile-wrapper" *ngIf="!cargando && usuario; else noUsuario">
+    <div class="profile-inner">
+
+      <!-- HERO PERFIL -->
+      <div class="profile-hero">
+        <div class="avatar-circle">
+          <span>{{ (usuario.nombre || 'U') | slice:0:1 }}</span>
+        </div>
+
+        <div class="hero-text">
+          <div class="hero-name">
+            {{ usuario.nombre }} {{ usuario.apellidos }}
+          </div>
+          <div class="hero-role">
+            {{ usuario.rol || 'Usuario' }}
+          </div>
+          <div class="hero-company" *ngIf="usuario.compania">
+            {{ usuario.compania }}
+          </div>
+        </div>
+      </div>
+
+      <!-- DATOS PERSONALES -->
+      <div class="profile-card">
+        <div class="card-title">Datos personales</div>
+
+        <div class="info-row">
+          <span class="label">Nombre</span>
+          <span class="value">{{ usuario.nombre || '—' }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Apellidos</span>
+          <span class="value">{{ usuario.apellidos || '—' }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">RUT</span>
+          <span class="value">{{ usuario.rut || '—' }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Teléfono</span>
+          <span class="value">{{ usuario.telefono || usuario.telefonoMovil || '—' }}</span>
+        </div>
+      </div>
+
+      <!-- DATOS DE CUENTA -->
+      <div class="profile-card">
+        <div class="card-title">Cuenta</div>
+
+        <div class="info-row">
+          <span class="label">Correo</span>
+          <span class="value">{{ usuario.correo || usuario.email || '—' }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Rol</span>
+          <span class="value">{{ usuario.rol || '—' }}</span>
+        </div>
+
+        <div class="info-row" *ngIf="usuario.compania">
+          <span class="label">Compañía</span>
+          <span class="value">{{ usuario.compania }}</span>
+        </div>
+
+        <div class="info-row" *ngIf="usuario.createdAt?.seconds">
+          <span class="label">Miembro desde</span>
+          <span class="value">
+            {{ usuario.createdAt.seconds * 1000 | date:'dd/MM/yyyy' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- ACCIONES -->
+      <div class="profile-card profile-actions">
+        <button class="btn-secondary" (click)="goToAjustes()">
+          <ion-icon name="settings-outline"></ion-icon>
+          <span>Ajustes de la cuenta</span>
+        </button>
+
+        <button class="btn-danger" (click)="cerrarSesion()">
+          <ion-icon name="log-out-outline"></ion-icon>
+          <span>Cerrar sesión</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- NO USUARIO / ERROR -->
+  <ng-template #noUsuario>
+    <div class="empty-state" *ngIf="error; else noData">
+      <ion-icon name="warning-outline"></ion-icon>
+      <p>{{ error }}</p>
+    </div>
+
+    <ng-template #noData>
+      <div class="empty-state">
+        <ion-icon name="person-circle-outline"></ion-icon>
+        <p>No se encontró información de tu perfil.</p>
+      </div>
+    </ng-template>
+  </ng-template>
+
 </ion-content>
+
+<!-- FOOTER (MISMO ESTILO FIREMAPS, AJUSTES ACTIVO) -->
+<div class="bottom-nav-shell">
+  <div class="bottom-nav-mini">
+    <button
+      class="bottom-nav-mini-item"
+      (click)="goToNotificaciones()">
+      <ion-icon name="notifications-outline"></ion-icon>
+      <span>Notificaciones</span>
+    </button>
+
+    <button
+      class="bottom-nav-mini-item"
+      (click)="goToHome()">
+      <ion-icon name="home-outline"></ion-icon>
+      <span>Inicio</span>
+    </button>
+
+    <button
+      class="bottom-nav-mini-item bottom-nav-mini-item--active"
+      (click)="goToAjustes()">
+      <ion-icon name="settings-outline"></ion-icon>
+      <span>Ajustes</span>
+    </button>
+  </div>
+</div>

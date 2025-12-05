@@ -1,90 +1,103 @@
-/* ===============================
-   FONDO GENERAL
-================================ */
+/* ============================================================
+   🔆 TEMA CLARO – BASE FIREMAPS
+============================================================ */
+
 ion-content {
-  --background: #E7E3E2;
+  --background: #e7e3e2;
   color: #000;
-  position: relative;
   font-family: 'Segoe UI', Roboto, sans-serif;
 }
 
-/* ===============================
-   HEADER PRINCIPAL
-================================ */
+/* ============================================================
+   🔝 TOPBAR – igual que Notificaciones
+============================================================ */
+
 .header-toolbar {
-  --background: #E7E3E2;
-  --color: #000;
-  border-bottom: 2px solid #000;
+  --background: #f0ebe9;
+  --color: #333;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
 }
 
 .header-title {
-  color: #000;
-  font-weight: bold;
-  font-size: 22px;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #333;
 }
 
-/* ===============================
-   MAPA
-================================ */
+/* ============================================================
+   🗺️ CONTENIDO / MAPA
+   (manteniendo estructura simple para no romper nada)
+============================================================ */
+
+/* Wrapper solo para centrar y dar padding similar a Notificaciones */
+.notif-wrapper {
+  padding: 12px 12px 100px;  /* 100px = espacio para el bottom nav */
+}
+
+.notif-inner {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* Contenedor del mapa (simple, como al principio) */
 .map-container {
   position: relative;
   width: 100%;
-  height: calc(100vh - 140px); /* Altura disponible menos header y footer */
-  padding: 8px;
+  height: calc(100vh - 190px); /* 🔧 ajusta si quieres más/menos alto */
 }
 
+/* Mapa */
+.map-box,
 #map {
   width: 100%;
   height: 100%;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+  background: #c4d7e6; /* mientras carga */
 }
 
-/* ===============================
-   FAB DE REPORTE
-================================ */
+/* ============================================================
+   🟡 FAB REPORTAR – sobre el mapa
+============================================================ */
+
 .report-fab {
-  bottom: 24px;
-  right: 24px;
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
 }
 
 .fab-circle-wrapper {
   border-radius: 50%;
-  overflow: visible;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
 }
 
-.report-fab ion-fab-button {
-  --background: #ffc078;
-  --color: #ffffff;
-
-  font-size: 24px;
-  width: 60px;
-  height: 60px;
-
+.fab-btn {
+  --background: #ff8c42;
+  --background-activated: #ff9c5e;
+  --background-hover: #ff9c5e;
+  --color: #fff;
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
-.report-fab ion-icon {
-  color: #ffffff;
-  font-size: 26px;
+.fab-plus {
+  font-size: 30px;
+  font-weight: 700;
 }
 
-/* ===============================
-   MODAL DE REPORTE
-================================ */
-ion-modal::part(content) {
-  background: #E7E3E2;
+/* ============================================================
+   🧾 MODAL REPORTE
+============================================================ */
+
+ion-modal.report-modal::part(content) {
+  background: #f5f1f0;
   color: #000;
-  border-radius: 12px;
+  border-radius: 18px;
 }
 
 .modal-header {
@@ -105,15 +118,26 @@ ion-modal::part(content) {
   --color: #fff;
 }
 
-/* Campos del formulario */
 .field {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .field-label {
   font-size: 14px;
   color: #000;
   margin-bottom: 6px;
+}
+
+.hint {
+  font-size: 12px;
+  color: #777;
+  margin-top: 2px;
+}
+
+.error {
+  font-size: 12px;
+  color: #e63946;
+  margin-top: 4px;
 }
 
 .input-text {
@@ -133,12 +157,11 @@ ion-modal::part(content) {
   color: #000;
 }
 
-/* Botones de tipo de incidente */
 .types {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .type-btn {
@@ -160,20 +183,6 @@ ion-modal::part(content) {
   border-color: #ff8c42;
 }
 
-/* Mensajes */
-.hint {
-  font-size: 12px;
-  color: #777;
-  margin-top: 4px;
-}
-
-.error {
-  font-size: 12px;
-  color: #e63946;
-  margin-top: 4px;
-}
-
-/* Botón enviar */
 .submit-btn {
   --background: #ff8c42;
   --background-activated: #e6732a;
@@ -182,59 +191,133 @@ ion-modal::part(content) {
   --border-radius: 999px;
   font-weight: 600;
   font-size: 14px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  margin-top: 4px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* ===============================
-   FOOTER
-================================ */
-ion-footer {
-  border-top: 1px solid #e0dcd9;
-}
+/* ============================================================
+   🟠 FOOTER – BOTTOM NAV MINI (idéntico a Notificaciones)
+============================================================ */
 
-.footer-toolbar {
-  --background: #E7E3E2;
-  padding: 6px 12px 12px;
-}
-
-.footer-buttons {
+.bottom-nav-shell {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  padding-bottom: env(safe-area-inset-bottom);
   display: flex;
-  gap: 8px;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 9999;
 }
 
-.footer-btn {
+.bottom-nav-mini {
+  pointer-events: auto;
+  width: 88%;
+  max-width: 430px;
+  padding: 10px 12px;
+
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 6px;
+
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 999px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+}
+
+.bottom-nav-mini-item {
   flex: 1;
-  --border-radius: 999px;
-  font-weight: 600;
+  height: 36px;
+  background: transparent;
+  border-radius: 999px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   font-size: 13px;
-}
-
-/* ===============================
-   TOAST ESTÉTICO
-================================ */
-ion-toast.incident-toast {
-  --background: transparent;
-  --box-shadow: none;
-  --color: #000;
-}
-
-ion-toast.incident-toast .toast-container {
-  background: #ffffff;
-  color: #000000;
-  border-radius: 12px;
-
-  padding: 12px 16px;
-  margin: 0 16px 32px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-
-  text-align: center;
-  font-size: 14px;
-  font-weight: 500;
-
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-ion-toast.incident-toast .toast-button {
-  color: #f27b13;
   font-weight: 600;
+  color: #444;
+
+  --background: transparent;
+  --border-radius: 999px;
+}
+
+.bottom-nav-mini-item--active {
+  background: rgba(255, 140, 66, 0.20);
+  color: #ff8c42;
+  margin: 0 4px;
+  box-shadow: 0 2px 6px rgba(255, 140, 66, 0.25);
+}
+
+.bottom-nav-mini-item:active {
+  transform: scale(0.96);
+}
+
+/* ============================================================
+   🌙 MODO OSCURO
+============================================================ */
+
+:host-context(.dark) ion-content {
+  --background: linear-gradient(180deg, #10151f 0%, #1f2430 45%, #252a36 100%);
+  color: #fff;
+}
+
+/* Topbar oscuro */
+:host-context(.dark) .header-toolbar {
+  --background: #181d28;
+  --color: #ffffff;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.55);
+}
+
+:host-context(.dark) .header-title {
+  color: #ffffff;
+}
+
+/* Mapa oscuro */
+:host-context(.dark) .map-box,
+:host-context(.dark) #map {
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.6);
+}
+
+/* Modal oscuro */
+:host-context(.dark) ion-modal.report-modal::part(content) {
+  background: #181d28;
+  color: #ffffff;
+}
+
+:host-context(.dark) .field-label {
+  color: #ffffff;
+}
+
+:host-context(.dark) .hint {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+:host-context(.dark) .input-text,
+:host-context(.dark) .input-textarea {
+  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+:host-context(.dark) .error {
+  color: #ff8080;
+}
+
+/* Footer oscuro */
+:host-context(.dark) .bottom-nav-mini {
+  background: rgba(24, 29, 40, 0.92);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.75);
+}
+
+:host-context(.dark) .bottom-nav-mini-item {
+  color: #e0e0e0;
+}
+
+:host-context(.dark) .bottom-nav-mini-item--active {
+  background: rgba(255, 192, 120, 0.25);
+  color: #ffc078;
 }
